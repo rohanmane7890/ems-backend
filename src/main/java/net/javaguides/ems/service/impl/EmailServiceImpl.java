@@ -29,4 +29,20 @@ public class EmailServiceImpl implements EmailService {
             // We don't want to crash the login if email fails
         }
     }
+
+    @Override
+    public void sendOtp(String email, String otp) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("ems-system@gmail.com");
+            message.setTo(email);
+            message.setSubject("Your Login OTP");
+            message.setText("Hello,\n\nYour One-Time Password (OTP) for login is: " + otp + ".\n\nThis OTP is valid for 5 minutes. If you didn't request this, please ignore it.\n\nBest regards,\nEMS Team");
+
+            mailSender.send(message);
+            System.out.println("OTP email sent to: " + email);
+        } catch (Exception e) {
+            System.err.println("Failed to send OTP email: " + e.getMessage());
+        }
+    }
 }

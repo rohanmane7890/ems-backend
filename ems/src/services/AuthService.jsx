@@ -5,30 +5,19 @@ const BASE_URL = "/api/auth";
 class AuthService {
     // Updated login with proper headers for CORS
     login(email, password) {
-        return axios.post(
-            `${BASE_URL}/login`,
-            { email, password },
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                withCredentials: true // allow cookies if needed
-            }
-        );
+        return axios.post(`${BASE_URL}/login`, { email, password });
     }
 
-    // Register a new user
+    verifyOtp(email, otp) {
+        return axios.post(`${BASE_URL}/verify-otp`, { email, otp });
+    }
+
     register(userData) {
-        return axios.post(
-            `${BASE_URL}/register`,
-            userData,
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                withCredentials: true
-            }
-        );
+        return axios.post(`${BASE_URL}/register`, userData);
+    }
+
+    verifyRegistration(email, otp) {
+        return axios.post(`${BASE_URL}/verify-registration`, { email, otp });
     }
 
     saveUser(token, role) {

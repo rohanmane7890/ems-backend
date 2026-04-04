@@ -40,5 +40,7 @@ public class Employee {
 	private String designation;
 	private Double salary;
 	private String profilePhoto;
+	private String otp;
+	private java.time.LocalDateTime otpExpiry;
 
 }

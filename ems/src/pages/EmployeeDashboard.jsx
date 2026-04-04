@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEmployeeByEmail, checkIn, checkOut, getAttendanceHistory, getNotifications, markNotificationAsRead, getAllEmployees } from "../services/EmployeeService";
+import { getEmployeeByEmail, getAttendanceHistory, getNotifications, markNotificationAsRead, getAllEmployees } from "../services/EmployeeService";
 import { 
     FaUserCircle, FaClock, FaCalendarCheck, FaFileAlt, 
     FaBell, FaSignOutAlt, FaCheckCircle, FaTimesCircle, FaFileExcel
@@ -45,7 +45,7 @@ function EmployeeDashboard() {
     const handleToggleNotifications = async () => {
         setShowNotifications(prev => !prev);
         // Mark all unread as read
-        const unread = notifications.filter(n => !n.isRead);
+        const unread = Array.isArray(notifications) ? notifications.filter(n => !n.isRead) : [];
         if (unread.length > 0) {
             try {
                 await Promise.all(unread.map(n => markNotificationAsRead(n.id)));
@@ -69,7 +69,7 @@ function EmployeeDashboard() {
                 setAttendance(attRes.data);
                 setNotifications(noteRes.data);
                 const today = new Date().toLocaleDateString('en-CA');
-                const todayRecord = attRes.data.find(a => a.date === today);
+                const todayRecord = Array.isArray(attRes.data) ? attRes.data.find(a => a.date === today) : null;
                 setTodayAttendance(todayRecord);
             } catch (secErr) {
                 console.warn("Could not load attendance/notifications", secErr);
@@ -105,25 +105,6 @@ function EmployeeDashboard() {
         }
     };
 
-    const handleCheckIn = async () => {
-        try {
-            const res = await checkIn(employee.id);
-            setTodayAttendance(res.data);
-            toast.success("Checked in successfully! Have a great day.");
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Check-in failed");
-        }
-    };
-
-    const handleCheckOut = async () => {
-        try {
-            const res = await checkOut(employee.id);
-            setTodayAttendance(res.data);
-            toast.info("Checked out successfully! See you tomorrow.");
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Check-out failed");
-        }
-    };
 
     if (loading) return <div className="text-center mt-5"><div className="spinner-border text-primary"></div></div>;
     if (!employee) return (
@@ -156,72 +137,8 @@ function EmployeeDashboard() {
                         </div>
                     </div>
 
-                    {/* Left Column Actions */}
-                    <div className="col-lg-4">
-                        <div className="card border-0 shadow-2xl text-center p-4" style={{ 
-                            borderRadius: "20px",
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            color: "white"
-                        }}>
-                            <div className="mb-3">
-                                <FaClock size={50} className="text-warning" />
-                            </div>
-                            <h4 className="fw-bold">Daily Attendance</h4>
-                            <div className="mb-3">
-                                <span className={`badge rounded-pill fs-6 px-4 py-2 ${
-                                    todayAttendance?.status === 'PRESENT' ? 'bg-success' : 'bg-danger'
-                                }`}>
-                                    {todayAttendance ? todayAttendance.status : 'ABSENT'}
-                                </span>
-                            </div>
-                            
-                            <hr />
-                            
-                            <div className="d-grid gap-2">
-                                <button 
-                                    className="btn btn-success py-2 fw-bold" 
-                                    disabled={todayAttendance?.checkIn}
-                                    onClick={handleCheckIn}
-                                >
-                                    <FaCheckCircle className="me-2" /> Check-In
-                                </button>
-                                <button 
-                                    className="btn btn-danger py-2 fw-bold" 
-                                    disabled={!todayAttendance?.checkIn || todayAttendance?.checkOut}
-                                    onClick={handleCheckOut}
-                                >
-                                    <FaTimesCircle className="me-2" /> Check-Out
-                                </button>
-                            </div>
-                            
-                            {todayAttendance?.checkIn && (
-                                <div className="mt-3 small text-muted">
-                                    <p className="mb-0">Logged In: {todayAttendance.checkIn.split('.')[0]}</p>
-                                    {todayAttendance.checkOut && <p className="mb-0">Logged Out: {todayAttendance.checkOut.split('.')[0]}</p>}
-                                </div>
-                            )}
-                        </div>
-                        
-                        {/* Company Directory Card */}
-                        <div className="card border-0 shadow-2xl text-center p-4 mt-4" style={{ 
-                            borderRadius: "20px",
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            color: "white"
-                        }}>
-                            <h5 className="fw-bold mb-3 text-white">Company Directory</h5>
-                            <button onClick={exportToExcel} className="btn btn-outline-primary py-2 fw-bold w-100 d-flex align-items-center justify-content-center">
-                                <FaFileExcel className="me-2" /> Export to Excel
-                            </button>
-                            <p className="small text-muted mt-3 mb-0">Download a full list of employees.</p>
-                        </div>
-                    </div>
-
                     {/* Navigation Cards */}
-                    <div className="col-lg-8">
+                    <div className="col-lg-12">
                         <div className="row g-4">
                             {[
                                 { title: "My Profile", icon: <FaUserCircle />, link: "/employee-profile", desc: "View & edit your information", color: "indigo" },
@@ -271,18 +188,24 @@ function EmployeeDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {attendance.slice(-5).reverse().map((att, i) => (
-                                            <tr key={i}>
-                                                <td>{att.date}</td>
-                                                <td>{att.checkIn ? att.checkIn.split('.')[0] : '--:--'}</td>
-                                                <td>{att.checkOut ? att.checkOut.split('.')[0] : '--:--'}</td>
-                                                <td>
-                                                    <span className={`badge rounded-pill bg-${att.status === 'PRESENT' ? 'success' : 'danger'}`}>
-                                                        {att.status}
-                                                    </span>
-                                                </td>
+                                        {Array.isArray(attendance) && attendance.length > 0 ? (
+                                            attendance.slice(-5).reverse().map((att, i) => (
+                                                <tr key={i}>
+                                                    <td>{att.date}</td>
+                                                    <td>{att.checkIn ? att.checkIn.split('.')[0] : '--:--'}</td>
+                                                    <td>{att.checkOut ? att.checkOut.split('.')[0] : '--:--'}</td>
+                                                    <td>
+                                                        <span className={`badge rounded-pill bg-${att.status === 'PRESENT' ? 'success' : 'danger'}`}>
+                                                            {att.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="4" className="text-center text-muted py-3">No recent activity detected</td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
