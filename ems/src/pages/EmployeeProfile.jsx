@@ -1,0 +1,281 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+    getEmployeeByEmail, 
+    updateProfile, 
+    changePassword 
+} from "../services/EmployeeService";
+import { 
+    FaUserCircle, FaSave, FaTimes, 
+    FaKey, FaUserEdit, FaEnvelope, FaPhone, 
+    FaMapMarkerAlt, FaBriefcase 
+} from "react-icons/fa";
+import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+
+function EmployeeProfile() {
+    const navigate = useNavigate();
+    const [employee, setEmployee] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState({});
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwords, setPasswords] = useState({ newPass: "", confirmPass: "" });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const email = localStorage.getItem("loggedInEmail");
+        if (email) {
+            fetchEmployee(email);
+        } else {
+            navigate("/login");
+        }
+    }, [navigate]);
+
+    const fetchEmployee = async (email) => {
+        try {
+            const res = await getEmployeeByEmail(email);
+            setEmployee(res.data);
+            setEditData(res.data);
+            setLoading(false);
+        } catch (error) {
+            toast.error("Failed to load profile");
+            setLoading(false);
+        }
+    };
+
+
+
+    const handleUpdate = async () => {
+        try {
+            const res = await updateProfile(employee.id, editData);
+            setEmployee(res.data);
+            setIsEditing(false);
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            toast.error("Update failed");
+        }
+    };
+
+    const toggleStatus = async () => {
+        const newStatus = employee.status === "Active" ? "Inactive" : "Active";
+        try {
+            const res = await updateProfile(employee.id, { ...employee, status: newStatus });
+            setEmployee(res.data);
+            toast.success(`Account status changed to ${newStatus}`);
+        } catch (error) {
+            toast.error("Failed to update status");
+        }
+    };
+
+    const handleChangePass = async () => {
+        if (passwords.newPass !== passwords.confirmPass) {
+            toast.error("Passwords do not match");
+            return;
+        }
+        try {
+            await changePassword(employee.id, passwords.newPass);
+            toast.success("Password changed successfully!");
+            setShowPasswordModal(false);
+            setPasswords({ newPass: "", confirmPass: "" });
+        } catch (error) {
+            toast.error("Failed to change password");
+        }
+    };
+
+    if (loading) return <div className="text-center mt-5"><div className="spinner-border text-primary"></div></div>;
+    if (!employee) return null;
+
+    return (
+        <div style={{ backgroundColor: "#f0f2f5", minHeight: "100vh", padding: "40px 0" }}>
+            <div className="container">
+                <div className="row justify-content-center">
+                    <div className="col-lg-10">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="card border-0 shadow-lg overflow-hidden" 
+                            style={{ borderRadius: "20px" }}
+                        >
+                            <div className="row g-0">
+                                {/* Left Side: Photo & Status */}
+                                <div className="col-md-4 bg-primary text-white text-center p-5 d-flex flex-column align-items-center justify-content-center">
+                                    <div className="position-relative mb-4">
+                                        <img 
+                                            src={`https://ui-avatars.com/api/?name=${employee.firstName}+${employee.lastName}&background=fff&color=0d6efd&size=150`}
+                                            alt="Profile" 
+                                            className="rounded-circle shadow-lg border border-4 border-white"
+                                            style={{ width: "160px", height: "160px", objectFit: "cover" }}
+                                        />
+                                    </div>
+                                    <h3 className="fw-bold mb-1">{employee.firstName} {employee.lastName}</h3>
+                                    <button 
+                                        className={`btn badge ${employee.status === 'Active' ? 'bg-white text-primary' : 'bg-danger text-white'} rounded-pill px-3 py-2 mb-4 shadow-sm fw-bold border-0`}
+                                        onClick={toggleStatus}
+                                        title="Click to toggle account status"
+                                    >
+                                        {employee.status}
+                                    </button>
+                                    
+                                    <div className="d-grid gap-2 w-100">
+                                        {!isEditing ? (
+                                            <button className="btn btn-light fw-bold" onClick={() => setIsEditing(true)}>
+                                                <FaUserEdit className="me-2" /> Edit Profile
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button className="btn btn-success fw-bold" onClick={handleUpdate}>
+                                                    <FaSave className="me-2" /> Save Changes
+                                                </button>
+                                                <button className="btn btn-danger fw-bold" onClick={() => { setIsEditing(false); setEditData(employee); }}>
+                                                    <FaTimes className="me-2" /> Cancel
+                                                </button>
+                                            </>
+                                        )}
+                                        <button className="btn btn-outline-light mt-2" onClick={() => setShowPasswordModal(true)}>
+                                            <FaKey className="me-2" /> Change Password
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Right Side: Details Feed */}
+                                <div className="col-md-8 bg-white p-5">
+                                    <h4 className="fw-bold mb-4 text-dark border-bottom pb-2">Profile Information</h4>
+                                    
+                                    <div className="row g-4">
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">First Name</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaUserCircle className="text-primary me-2" />
+                                                {isEditing ? (
+                                                    <input type="text" className="form-control" value={editData.firstName} onChange={(e) => setEditData({...editData, firstName: e.target.value})} />
+                                                ) : <span className="fw-medium">{employee.firstName}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Last Name</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaUserCircle className="text-primary me-2" />
+                                                {isEditing ? (
+                                                    <input type="text" className="form-control" value={editData.lastName} onChange={(e) => setEditData({...editData, lastName: e.target.value})} />
+                                                ) : <span className="fw-medium">{employee.lastName}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Email Address</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaEnvelope className="text-primary me-2" />
+                                                {isEditing ? (
+                                                    <input type="email" className="form-control" value={editData.email} onChange={(e) => setEditData({...editData, email: e.target.value})} />
+                                                ) : <span className="fw-medium">{employee.email}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Phone Number</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaPhone className="text-primary me-2" />
+                                                {isEditing ? (
+                                                    <input type="text" className="form-control" value={editData.phoneNumber} onChange={(e) => setEditData({...editData, phoneNumber: e.target.value})} />
+                                                ) : <span className="fw-medium">{employee.phoneNumber || "Not provided"}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Department</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaBriefcase className="text-primary me-2" />
+                                                <span className="fw-medium">{employee.department}</span>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Designation</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaBriefcase className="text-primary me-2" />
+                                                {isEditing ? (
+                                                    <input type="text" className="form-control" value={editData.designation || ""} onChange={(e) => setEditData({...editData, designation: e.target.value})} />
+                                                ) : <span className="fw-medium">{employee.designation || "Not set"}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Monthly Salary</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <span className="text-primary me-2 fw-bold">$</span>
+                                                <span className="fw-medium">{employee.salary ? employee.salary.toLocaleString() : "Contact HR"}</span>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="text-muted small fw-bold text-uppercase">Joining Date</label>
+                                            <div className="d-flex align-items-center mt-1">
+                                                <FaBriefcase className="text-primary me-2" />
+                                                <span className="fw-medium">{employee.joiningDate}</span>
+                                            </div>
+                                        </div>
+                                        <div className="col-12">
+                                            <label className="text-muted small fw-bold text-uppercase">Office Address</label>
+                                            <div className="d-flex align-items-start mt-1">
+                                                <FaMapMarkerAlt className="text-primary me-2 mt-1" />
+                                                {isEditing ? (
+                                                    <textarea className="form-control" value={editData.address} onChange={(e) => setEditData({...editData, address: e.target.value})} rows="2" />
+                                                ) : <span className="fw-medium">{employee.address || "No address on record"}</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-5 pt-3 border-top">
+                                        <button className="btn btn-outline-secondary px-4 me-2" onClick={() => navigate("/employee-dashboard")}>
+                                            Back to Dashboard
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Password Modal */}
+            <AnimatePresence>
+                {showPasswordModal && (
+                    <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="modal-dialog modal-dialog-centered"
+                        >
+                            <div className="modal-content border-0 shadow" style={{ borderRadius: "15px" }}>
+                                <div className="modal-header bg-dark text-white border-0" style={{ borderTopLeftRadius: "15px", borderTopRightRadius: "15px" }}>
+                                    <h5 className="modal-title ">Change Password</h5>
+                                    <button type="button" className="btn-close btn-close-white" onClick={() => setShowPasswordModal(false)}></button>
+                                </div>
+                                <div className="modal-body p-4">
+                                    <div className="mb-3">
+                                        <label className="form-label text-muted small fw-bold">New Password</label>
+                                        <input 
+                                            type="password" 
+                                            className="form-control" 
+                                            value={passwords.newPass} 
+                                            onChange={(e) => setPasswords({...passwords, newPass: e.target.value})} 
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label text-muted small fw-bold">Confirm New Password</label>
+                                        <input 
+                                            type="password" 
+                                            className="form-control" 
+                                            value={passwords.confirmPass} 
+                                            onChange={(e) => setPasswords({...passwords, confirmPass: e.target.value})} 
+                                        />
+                                    </div>
+                                    <button className="btn btn-primary w-100 py-2 fw-bold" onClick={handleChangePass}>
+                                        Update Password
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+export default EmployeeProfile;
