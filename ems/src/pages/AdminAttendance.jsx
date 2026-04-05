@@ -206,10 +206,10 @@ function AdminAttendance() {
                                                 </div>
                                             </td>
                                             <td className="py-3 small fw-medium" style={{ color: "#6366f1" }}>{record.designation || "N/A"}</td>
-                                            <td className="py-3 text-center fw-bold" style={{ color: "#22d3ee" }}>
+                                            <td className="py-3 text-center fw-bold" style={{ color: "#0a0a0aff" }}>
                                                 {record.checkIn ? record.checkIn.split(".")[0] : "--:--"}
                                             </td>
-                                            <td className="py-3 text-center fw-bold" style={{ color: "#22d3ee" }}>
+                                            <td className="py-3 text-center fw-bold" style={{ color: "#0a0a0aff" }}>
                                                 {record.checkOut ? record.checkOut.split(".")[0] : "--:--"}
                                             </td>
                                             <td className="py-3 text-center">
