@@ -4,7 +4,7 @@ import { getDashboardAnalytics, getAllEmployees, getEmployee, checkIn, checkOut 
 import { 
     FaUsers, FaUserCheck, FaUserTimes, FaUserPlus, 
     FaChartBar, FaChartPie, FaHistory, FaSignOutAlt, 
-    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel 
+    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaMoneyBillWave 
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -170,6 +170,9 @@ function AdminDashboard() {
                             <div className="d-grid gap-3">
                                 <Link to="/employees" className="btn btn-outline-success py-2 d-flex align-items-center justify-content-center">
                                     <FaList className="me-2" /> Manage Employees
+                                </Link>
+                                <Link to="/admin/salaries" className="btn btn-outline-info py-2 d-flex align-items-center justify-content-center">
+                                    <FaMoneyBillWave className="me-2 text-warning" /> Manage Salaries
                                 </Link>
                                 <Link to="/admin/leaves" className="btn btn-outline-warning py-2 d-flex align-items-center justify-content-center">
                                     <FaCalendarAlt className="me-2" /> Manage Leave Requests

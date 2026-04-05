@@ -20,6 +20,7 @@ import SearchEmployeeComponent from './pages/SearchEmployee'
 import LeaveManagement from './pages/LeaveManagement'
 import AdminLeaveManagement from './pages/AdminLeaveManagement'
 import AdminAttendance from './pages/AdminAttendance'
+import AdminSalaryManagement from './pages/AdminSalaryManagement'
 
 function App() {
 
@@ -140,6 +141,15 @@ function App() {
             element={
               <ProtectedRoute role="EMPLOYEE">
                 <EmployeeSalary />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/salaries"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminSalaryManagement />
               </ProtectedRoute>
             }
           />

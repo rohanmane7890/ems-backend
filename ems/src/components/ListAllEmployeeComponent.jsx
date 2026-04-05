@@ -29,8 +29,15 @@ const ListEmployeeComponent = () => {
     }, []);
 
     const exportToExcel = () => {
-        const data = employees.map(({id, firstName, lastName, email, phoneNumber, department, joiningDate, status}) => ({
-            ID: id, Name: `${firstName} ${lastName}`, Email: email, Phone: phoneNumber, Dept: department, Date: joiningDate, Status: status
+        const data = employees.map(({id, firstName, lastName, email, phoneNumber, department, joiningDate, status, salary}) => ({
+            ID: id, 
+            Name: `${firstName} ${lastName}`, 
+            Email: email, 
+            Phone: phoneNumber, 
+            Dept: department, 
+            Date: joiningDate, 
+            Status: status,
+            Salary: salary ? `₹${Number(salary).toLocaleString()}` : "N/A"
         }));
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
@@ -42,8 +49,15 @@ const ListEmployeeComponent = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.text("Organization Employee List", 14, 15);
-        const columns = ["Name", "Email", "Department", "Joining", "Status"];
-        const rows = employees.map(e => [`${e.firstName} ${e.lastName}`, e.email, e.department, e.joiningDate, e.status]);
+        const columns = ["Name", "Email", "Department", "Joining", "Status", "Salary"];
+        const rows = employees.map(e => [
+            `${e.firstName} ${e.lastName}`, 
+            e.email, 
+            e.department, 
+            e.joiningDate, 
+            e.status, 
+            e.salary ? `₹${Number(e.salary).toLocaleString()}` : "N/A"
+        ]);
         doc.autoTable(columns, rows, { startY: 20 });
         doc.save("Employee_List.pdf");
         toast.success("PDF exported!");
@@ -55,15 +69,17 @@ const ListEmployeeComponent = () => {
     };
 
     const removeEmployee = (id) => {
-        deleteEmployee(id)
-            .then(() => {
-                getAllEmployees().then((response)=>{
-                    setEmployees(Array.isArray(response.data) ? response.data : []);
+        if (window.confirm("Are you sure you want to delete this employee?")) {
+            deleteEmployee(id)
+                .then(() => {
+                    fetchAll();
+                    toast.success("Employee deleted successfully");
+                })
+                .catch(error => {
+                    console.error(error);
+                    toast.error("Failed to delete employee");
                 });
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        }
     };
 
     const toggleStatus = (employee) => {
@@ -96,10 +112,10 @@ const ListEmployeeComponent = () => {
                     <FaArrowLeft className="me-2" /> Back to Dashboard
                 </button>
                 <div className="d-flex gap-2">
-                    <button className="btn btn-success d-flex align-items-center" onClick={exportToExcel}>
+                    <button className="btn btn-success d-flex align-items-center" onClick={exportToExcel} style={{ borderRadius: "10px" }}>
                         <FaFileExcel className="me-2" /> Export Excel
                     </button>
-                    <button className="btn btn-danger d-flex align-items-center" onClick={exportToPDF}>
+                    <button className="btn btn-danger d-flex align-items-center" onClick={exportToPDF} style={{ borderRadius: "10px" }}>
                         <FaFilePdf className="me-2" /> Export PDF
                     </button>
                 </div>
@@ -108,7 +124,7 @@ const ListEmployeeComponent = () => {
                 <h1 className="text-white fw-bold display-5 mb-2" style={{ letterSpacing: "-1px" }}>Employee Directory</h1>
                 <p className="text-info opacity-75">Secure management of your organization's talent pool</p>
             </div>
-                                                                                                            
+                                                                                                             
             <div className="card shadow-2xl border-0 overflow-hidden" 
                  style={{ 
                      background: "#ffffff", 
@@ -128,6 +144,7 @@ const ListEmployeeComponent = () => {
                                     <th className="py-4 border-0">Phone</th>
                                     <th className="py-4 border-0">Department</th>
                                     <th className="py-4 border-0">Joining</th>
+                                    <th className="py-4 border-0">Salary</th>
                                     <th className="py-4 border-0">Status</th>
                                     <th className="py-4 border-0 text-center">Actions</th>
                                 </tr>
@@ -149,6 +166,9 @@ const ListEmployeeComponent = () => {
                                                 </span>
                                             </td>
                                             <td className="py-4 fw-bold small" style={{ color: "#475569" }}>{employee.joiningDate}</td>
+                                            <td className="py-4 fw-bold text-success" style={{ fontSize: "1rem" }}>
+                                                {employee.salary ? `₹${Number(employee.salary).toLocaleString()}` : "₹0"}
+                                            </td>
                                             <td className="py-4">
                                                 <button 
                                                     className={`btn px-4 py-2 rounded-pill small fw-extrabold ${employee.status === "Active"
@@ -177,7 +197,7 @@ const ListEmployeeComponent = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="8" className="text-center text-muted py-5 fw-bold">
+                                        <td colSpan="9" className="text-center text-muted py-5 fw-bold">
                                             No Employees Found in Directory
                                         </td>
                                     </tr>
@@ -193,8 +213,8 @@ const ListEmployeeComponent = () => {
                 </div>
 
             </div>
-            </div>
         </div>
+    </div>
     );
 };
 
