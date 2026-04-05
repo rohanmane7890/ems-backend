@@ -213,7 +213,7 @@ function AdminSalaryManagement() {
                         <div className="card shadow-lg border-0 p-4 rounded-4" style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.2)", backdropFilter: "blur(10px)" }}>
                             <h6 className="text-success fw-bold mb-1 opacity-75">Monthly Payroll</h6>
                             <h3 className="text-white fw-bold mb-0">
-                                ₹{filteredEmployees.reduce((sum, e) => sum + (e.salary || 0), 0).toLocaleString()}
+                                ₹{filteredEmployees.reduce((sum, e) => sum + Number(e.salary || 0), 0).toLocaleString()}
                             </h3>
                         </div>
                     </div>
@@ -227,7 +227,7 @@ function AdminSalaryManagement() {
                         <div className="card shadow-lg border-0 p-4 rounded-4" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.1)", backdropFilter: "blur(10px)" }}>
                             <h6 className="text-white fw-bold mb-1 opacity-50">Average Salary</h6>
                             <h3 className="text-white fw-bold mb-0">
-                                ₹{filteredEmployees.length > 0 ? Math.round(filteredEmployees.reduce((sum, e) => sum + (e.salary || 0), 0) / filteredEmployees.length).toLocaleString() : 0}
+                                ₹{filteredEmployees.length > 0 ? Math.round(filteredEmployees.reduce((sum, e) => sum + Number(e.salary || 0), 0) / filteredEmployees.length).toLocaleString() : 0}
                             </h3>
                         </div>
                     </div>
