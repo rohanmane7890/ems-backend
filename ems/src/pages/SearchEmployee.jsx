@@ -23,7 +23,7 @@ const SearchEmployeeComponent = () => {
         setLoading(true);
         try {
             const res = await getAllEmployees();
-            setEmployees(res.data);
+            setEmployees(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (error) {
             toast.error("Failed to load employees");
@@ -55,7 +55,7 @@ const SearchEmployeeComponent = () => {
             // Sorting
             filtered.sort((a, b) => (a[sortBy] > b[sortBy] ? 1 : -1));
 
-            setEmployees(filtered);
+            setEmployees(Array.isArray(filtered) ? filtered : []);
             setLoading(false);
         } catch (error) {
             toast.error("Search failed");
@@ -72,26 +72,6 @@ const SearchEmployeeComponent = () => {
                 handleSearch(); // Refresh list
             })
             .catch(() => toast.error("Failed to update status"));
-    };
-
-    const handleAdminCheckIn = async (employeeId) => {
-        try {
-            await checkIn(employeeId);
-            toast.success("Employee checked in successfully!");
-            fetchAll(); // Refresh list to show updated status if UI supports it
-        } catch (error) {
-            toast.error("Check-in failed. " + (error.response?.data?.message || ""));
-        }
-    };
-
-    const handleAdminCheckOut = async (employeeId) => {
-        try {
-            await checkOut(employeeId);
-            toast.info("Employee checked out successfully!");
-            fetchAll(); // Refresh list
-        } catch (error) {
-            toast.error("Check-out failed. " + (error.response?.data?.message || ""));
-        }
     };
 
     return (
@@ -166,7 +146,7 @@ const SearchEmployeeComponent = () => {
                 ) : (
                     <div className="row g-4">
                         <AnimatePresence>
-                            {employees.length > 0 ? (
+                            {Array.isArray(employees) && employees.length > 0 ? (
                                 employees.map((emp, index) => (
                                     <motion.div 
                                         key={emp.id || index}
@@ -206,36 +186,11 @@ const SearchEmployeeComponent = () => {
                                                     <FaBuilding className="me-2 text-primary" /> {emp.department || 'No Dept'}
                                                 </div>
 
-                                                <div className="d-flex justify-content-between align-items-center pt-2 border-top">
-                                                    <div className="d-flex gap-2">
-                                                        <button 
-                                                            className="btn btn-sm btn-success rounded-circle p-2" 
-                                                            onClick={() => handleAdminCheckIn(emp.id)}
-                                                            title="Check-In"
-                                                        >
-                                                            <FaCheck size={12} />
-                                                        </button>
-                                                        <button 
-                                                            className="btn btn-sm btn-danger rounded-circle p-2" 
-                                                            onClick={() => handleAdminCheckOut(emp.id)}
-                                                            title="Check-Out"
-                                                        >
-                                                            <FaSignOutAlt size={12} />
-                                                        </button>
-                                                    </div>
-                                                    <div className="d-flex gap-2">
-                                                        <button 
-                                                            className={`btn p-0 badge ${emp.status === 'Active' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} px-3`}
-                                                            onClick={() => handleToggleStatus(emp)}
-                                                            title="Click to toggle status"
-                                                            style={{ border: "none" }}
-                                                        >
-                                                            {emp.status}
-                                                        </button>
-                                                        <button className="btn btn-sm btn-outline-primary rounded-pill px-3" onClick={() => navigate(`/edit-employee/${emp.id}`)}>
-                                                            View
-                                                        </button>
-                                                    </div>
+                                                <div className="d-flex align-items-center">
+                                                    <span className="text-muted small me-2 font-italic text-uppercase" style={{ letterSpacing: "1px", fontSize: "0.6rem" }}>Account Status:</span>
+                                                    <span className={`badge ${emp.status === 'Active' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} px-3 rounded-pill`}>
+                                                        {emp.status}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

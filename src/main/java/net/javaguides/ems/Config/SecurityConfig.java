@@ -2,7 +2,6 @@ package net.javaguides.ems.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,9 +29,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/login/**", "/oauth2/**").permitAll()
                 .requestMatchers("/api/employees/register", "/api/employees/login", "/api/employees/upload-photo").permitAll()
-                // Restrict Attendance check-in/out to ADMIN only
-                .requestMatchers("/api/attendance/check-in/**").hasRole("ADMIN")
-                .requestMatchers("/api/attendance/check-out/**").hasRole("ADMIN")
+                // Allow authenticated users (Employees and Admins) to check-in/out
+                .requestMatchers("/api/attendance/check-in/**", "/api/attendance/check-out/**").authenticated()
                 // Protect other endpoints
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
@@ -45,7 +43,7 @@ public class SecurityConfig {
                     .userService(customOAuth2UserService)
                 )
             )
-            .cors(Customizer.withDefaults())
+            .cors(org.springframework.security.config.Customizer.withDefaults())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

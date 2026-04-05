@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, NavLink } from 'react-router-dom'
+import { useNavigate, NavLink, useLocation } from 'react-router-dom'
 import { getEmployeeByEmail, getNotifications, markNotificationAsRead } from '../services/EmployeeService'
 
 const HeaderComponent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const role = localStorage.getItem("role");
   const email = localStorage.getItem("loggedInEmail");
   
@@ -43,7 +44,7 @@ const HeaderComponent = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const toggleNotif = () => setShowNotif(!showNotif);
@@ -67,6 +68,14 @@ const HeaderComponent = () => {
   }, []);
 
   const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0;
+
+  // 📝 List of pages where the Navbar should NOT be shown
+  const publicRoutes = ["/", "/login", "/employee-login", "/admin-login", "/register"];
+
+  // 🚫 Security Gate: Hide navbar on login pages or if not authenticated
+  if (publicRoutes.includes(location.pathname) || !role || !email) {
+      return null;
+  }
 
   return (
     <div>
@@ -106,6 +115,11 @@ const HeaderComponent = () => {
                   <li className="nav-item">
                     <NavLink to="/admin/leaves" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
                       Leave Mgmt
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink to="/admin/attendance" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
+                      Attendance
                     </NavLink>
                   </li>
                 </>

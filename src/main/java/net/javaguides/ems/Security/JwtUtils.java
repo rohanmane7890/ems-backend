@@ -1,7 +1,6 @@
 package net.javaguides.ems.Security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import net.javaguides.ems.entity.Employee;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +12,13 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-    // Secure key for HS256 (Should be at least 256 bits)
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @org.springframework.beans.factory.annotation.Value("${app.jwt.secret}")
+    private String jwtSecret;
     private final long expirationMs = 86400000; // 24 hours
+
+    private SecretKey getSigningKey() {
+        return io.jsonwebtoken.security.Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
 
     public String generateToken(Employee employee) {
         Map<String, Object> claims = new HashMap<>();
@@ -27,13 +30,13 @@ public class JwtUtils {
                 .setSubject(employee.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(key)
+                .signWith(getSigningKey())
                 .compact();
     }
 
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -42,7 +45,7 @@ public class JwtUtils {
 
     public String getRoleFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -51,7 +54,7 @@ public class JwtUtils {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;

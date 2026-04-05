@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
 import net.javaguides.ems.dto.EmployeeDTO;
 import net.javaguides.ems.entity.Employee;
 import net.javaguides.ems.entity.Role;
@@ -12,12 +11,22 @@ import net.javaguides.ems.exception.ResourceNotFoundException;
 import net.javaguides.ems.mapper.EmployeeMapper;
 import net.javaguides.ems.repository.EmployeeRepository;
 import net.javaguides.ems.service.EmployeeService;
+import net.javaguides.ems.service.NotificationService;
 
 @Service
-@AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
+    private final NotificationService notificationService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.admin.email}")
+    private String adminEmail;
+
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, 
+                               NotificationService notificationService) {
+        this.employeeRepository = employeeRepository;
+        this.notificationService = notificationService;
+    }
    
 
     
@@ -44,8 +53,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         return EmployeeMapper.mapToEmployeeDTO(savedEmployee);
     }
 
+
+
     @Override
     public EmployeeDTO getEmployeeById(Long employeeId) {
+        if (employeeId == -1) {
+            EmployeeDTO admin = new EmployeeDTO();
+            admin.setId(-1L);
+            admin.setFirstName("System");
+            admin.setLastName("Admin");
+            admin.setEmail(adminEmail);
+            admin.setRole(Role.ADMIN);
+            admin.setStatus("Active");
+            return admin;
+        }
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() ->
@@ -57,7 +78,6 @@ public class EmployeeServiceImpl implements EmployeeService {
   
     @Override
     public List<EmployeeDTO> getAllEmployees() {
-
         return employeeRepository.findAll()   
                 .stream()
                 .map(EmployeeMapper::mapToEmployeeDTO)
@@ -88,8 +108,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (dto.getDesignation() != null)
             employee.setDesignation(dto.getDesignation().trim());
 
-        if (dto.getSalary() != null) {
-            employee.setSalary(dto.getSalary());
+        if (dto.getSalary() != null && !dto.getSalary().isEmpty()) {
+            try {
+                employee.setSalary(Double.parseDouble(dto.getSalary()));
+            } catch (NumberFormatException e) {
+                // Keep existing salary or set to 0
+            }
         }
 
      
@@ -110,6 +134,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         Employee updatedEmployee = employeeRepository.save(employee);
+
+        // 🔔 Consolidated Notifications for Profile Updates
+        StringBuilder changes = new StringBuilder();
+        if (dto.getSalary() != null && !dto.getSalary().isEmpty()) changes.append("Salary, ");
+        if (dto.getDesignation() != null) changes.append("Designation, ");
+        if (dto.getRole() != null) changes.append("System Role, ");
+        if (dto.getStatus() != null) changes.append("Account Status, ");
+
+        if (changes.length() > 0) {
+            String fields = changes.substring(0, changes.length() - 2); // Remove last comma
+            notificationService.createNotification(employeeId, 
+                "Your profile details (" + fields + ") have been updated by the Admin.", "PROFILE_UPDATE");
+        }
 
         return EmployeeMapper.mapToEmployeeDTO(updatedEmployee);
     }
@@ -151,6 +188,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     
     @Override
     public EmployeeDTO getEmployeeByEmail(String email) {
+        if (email.equals(adminEmail)) {
+            EmployeeDTO admin = new EmployeeDTO();
+            admin.setId(-1L);
+            admin.setFirstName("System");
+            admin.setLastName("Admin");
+            admin.setEmail(adminEmail);
+            admin.setRole(Role.ADMIN);
+            admin.setStatus("Active");
+            return admin;
+        }
 
         Employee employee = employeeRepository.findByEmail(email)
                 .orElseThrow(() ->

@@ -29,5 +29,6 @@ public class LeaveRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private String reason;
-    private String status; // PENDING, APPROVED, REJECTED
+    private String status;
+    private String type;
 }

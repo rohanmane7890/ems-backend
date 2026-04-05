@@ -13,12 +13,12 @@ function Register() {
         designation: "",
         address: "",
         phoneNumber: "",
-        salary: "",
         profilePhoto: ""
     });
     const [message, setMessage] = useState({ text: "", type: "" });
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [otp, setOtp] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -29,11 +29,12 @@ function Register() {
       
     const handleRegister = (e) => {
         e.preventDefault();
+        setLoading(true);
         setMessage({ text: "", type: "" });
 
         AuthService.register(formData)
             .then((response) => {
-                setMessage({ text: response.data.message, type: "success" });
+                setMessage({ text: "Registration almost complete! 📧 Check your email for a verification code.", type: "success" });
                 setIsOtpSent(true);
             })
             .catch((error) => {
@@ -41,53 +42,73 @@ function Register() {
                     text: error.response?.data?.message || "Registration failed.", 
                     type: "danger" 
                 });
-            });
+            })
+            .finally(() => setLoading(false));
     };
 
     const handleVerifyOtp = (e) => {
         e.preventDefault();
+        setLoading(true);
         setMessage({ text: "", type: "" });
 
         AuthService.verifyRegistration(formData.email, otp)
             .then((response) => {
-                setMessage({ text: "Account activated! Redirecting to login...", type: "success" });
-                setTimeout(() => navigate("/login"), 2000);
+                const { token, role, id, message } = response.data;
+                
+                // ✅ Auto-Login: Save credentials
+                AuthService.saveUser(token, role);
+                localStorage.setItem("employeeId", id);
+                localStorage.setItem("loggedInEmail", formData.email);
+
+                setMessage({ text: "✅ " + message, type: "success" });
+                
+                // Redirect immediately based on role
+                setTimeout(() => {
+                    if (role === "ADMIN") navigate("/admin-dashboard");
+                    else navigate("/employee-dashboard");
+                }, 1500);
             })
             .catch((error) => {
                 setMessage({ 
-                    text: error.response?.data || "Verification failed.", 
+                    text: error.response?.data || "Verification failed. Check your code.", 
                     type: "danger" 
                 });
-            });
+            })
+            .finally(() => setLoading(false));
     };
 
     return (
         <div
-            className="d-flex align-items-center justify-content-center"
+            className="d-flex align-items-center justify-content-center overflow-hidden position-relative"
             style={{
                 minHeight: "100vh",
-                background: "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)",
+                background: "radial-gradient(circle at bottom left, #1e1b4b 0%, #0f172a 100%)",
                 padding: "2rem",
                 fontFamily: "'Poppins', sans-serif"
             }}
         >
+            {/* 🌀 Professional Mesh Accents */}
+            <div className="position-absolute" style={{ top: '5%', right: '5%', width: '400px', height: '400px', background: 'rgba(79, 70, 229, 0.15)', filter: 'blur(100px)', borderRadius: '50%', animation: 'float 20s infinite alternate' }}></div>
+            <div className="position-absolute" style={{ bottom: '10%', left: '10%', width: '500px', height: '500px', background: 'rgba(124, 58, 237, 0.12)', filter: 'blur(120px)', borderRadius: '50%', animation: 'float 25s infinite alternate-reverse' }}></div>
             <div
-                className="card shadow-2xl border-0 p-5"
+                className="card border-0 p-5 position-relative"
                 style={{
                     width: "600px",
-                    borderRadius: "24px",
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(20px)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    color: "#fff"
+                    borderRadius: "32px",
+                    background: "rgba(255, 255, 255, 0.03)",
+                    backdropFilter: "blur(25px)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    boxShadow: "0 50px 100px -20px rgba(0, 0, 0, 0.6)",
+                    color: "#fff",
+                    animation: "slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)"
                 }}
             >
                 <div className="text-center mb-5">
                     <div className="mb-3">
-                        <i className="ri-user-add-line" style={{ fontSize: "3rem", color: "#4facfe" }}></i>
+                        <i className="ri-user-add-line" style={{ fontSize: "3.5rem", background: "linear-gradient(135deg, #818cf8 0%, #c084fc 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
                     </div>
-                    <h2 className="fw-bold mb-2">Create Account</h2>
-                    <p style={{ color: "rgba(255, 255, 255, 0.6)" }}>Join the excellence at EMS</p>
+                    <h2 className="fw-bold mb-1" style={{ letterSpacing: "-0.5px" }}>Create Account</h2>
+                    <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.9rem" }}>Join the excellence at Pulse EMS</p>
                 </div>
 
                 {message.text && (
@@ -197,21 +218,6 @@ function Register() {
                             </div>
                         </div>
 
-                        <div className="row">
-                            <div className="col-md-12 mb-3">
-                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Salary</label>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent text-white"
-                                    style={{ borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.2)", padding: "12px" }}
-                                    name="salary"
-                                    placeholder="Enter salary"
-                                    value={formData.salary}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
 
                         <div className="mb-3">
                             <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Email Address</label>
@@ -223,6 +229,7 @@ function Register() {
                                 placeholder="john@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
+                                autoComplete="off"
                                 required
                             />
                         </div>
@@ -237,18 +244,14 @@ function Register() {
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={handleChange}
+                                autoComplete="new-password"
                                 required
                             />
                         </div>
 
                         <button 
                             type="submit" 
-                            className="btn w-100 py-3 rounded-3 text-white fw-bold mb-4"
-                            style={{ 
-                                background: "linear-gradient(45deg, #4facfe 0%, #00f2fe 100%)", 
-                                border: "none",
-                                boxShadow: "0 10px 20px -5px rgba(79, 172, 254, 0.4)"
-                            }}
+                            className="btn w-100 py-3 rounded-4 text-white fw-bold mb-4 btn-primary-gradient"
                         >
                             Register Member
                         </button>

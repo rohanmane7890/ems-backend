@@ -4,18 +4,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import lombok.AllArgsConstructor;
 import net.javaguides.ems.dto.LeaveRequestDTO;
 import net.javaguides.ems.entity.LeaveRequest;
 import net.javaguides.ems.mapper.LeaveRequestMapper;
 import net.javaguides.ems.repository.LeaveRequestRepository;
+import net.javaguides.ems.repository.EmployeeRepository;
+import net.javaguides.ems.service.EmailService;
 import net.javaguides.ems.service.LeaveRequestService;
+import net.javaguides.ems.service.NotificationService;
 
 @Service
-@AllArgsConstructor
 public class LeaveRequestServiceImpl implements LeaveRequestService {
 
-    private LeaveRequestRepository leaveRequestRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
+    private final EmployeeRepository employeeRepository;
+    private final EmailService emailService;
+    private final NotificationService notificationService;
+
+    public LeaveRequestServiceImpl(LeaveRequestRepository leaveRequestRepository, 
+                                   EmployeeRepository employeeRepository, 
+                                   EmailService emailService,
+                                   NotificationService notificationService) {
+        this.leaveRequestRepository = leaveRequestRepository;
+        this.employeeRepository = employeeRepository;
+        this.emailService = emailService;
+        this.notificationService = notificationService;
+    }
 
     @Override
     public LeaveRequestDTO applyLeave(LeaveRequestDTO leaveRequestDTO) {
@@ -29,8 +43,26 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public LeaveRequestDTO updateLeaveStatus(Long leaveId, String status) {
         LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
+        
         leaveRequest.setStatus(status);
         LeaveRequest updatedLeave = leaveRequestRepository.save(leaveRequest);
+
+        // Fetch employee to send email and dashboard notification
+        employeeRepository.findById(leaveRequest.getEmployeeId()).ifPresent(employee -> {
+            // 📧 Send Email
+            emailService.sendLeaveStatusNotification(
+                employee.getEmail(), 
+                status, 
+                leaveRequest.getStartDate().toString(), 
+                leaveRequest.getEndDate().toString()
+            );
+
+            // 🔔 Create Dashboard Notification
+            String message = String.format("Your leave request from %s to %s has been %s.", 
+                leaveRequest.getStartDate(), leaveRequest.getEndDate(), status);
+            notificationService.createNotification(employee.getId(), message, "LEAVE_STATUS");
+        });
+
         return LeaveRequestMapper.mapToLeaveRequestDTO(updatedLeave);
     }
 

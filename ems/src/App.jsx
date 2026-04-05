@@ -3,7 +3,8 @@ import EmployeeComponent from './components/EmployeeComponent'
 import FooterComponent from './components/FooterComponent'
 import HeaderComponent from './components/HeaderComponent'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Login from './pages/Login'
+import AdminLogin from './pages/AdminLogin'
+import EmployeeLogin from './pages/EmployeeLogin'
 import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import AddEmployee from './pages/AddEmployee'
@@ -18,6 +19,7 @@ import EmployeeSalary from './pages/EmployeeSalary'
 import SearchEmployeeComponent from './pages/SearchEmployee'
 import LeaveManagement from './pages/LeaveManagement'
 import AdminLeaveManagement from './pages/AdminLeaveManagement'
+import AdminAttendance from './pages/AdminAttendance'
 
 function App() {
 
@@ -31,8 +33,10 @@ function App() {
         <Route path='/employees' element={<ListEmployeeComponent/>}></Route>
         <Route path='/add-employee' element={<EmployeeComponent/>}></Route>
         <Route path='/edit-employee/:id'element={<EmployeeComponent/>}></Route> */}
-          <Route path='/' element={<Login />} />
-          <Route path="/login" element={<Login />} />
+          <Route path='/' element={<EmployeeLogin />} />
+          <Route path="/login" element={<EmployeeLogin />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/employee-login" element={<EmployeeLogin />} />
           <Route path="/register" element={<Register />} />
 
 
@@ -123,6 +127,15 @@ function App() {
           />
 
           <Route
+            path="/admin/attendance"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminAttendance />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/employee-salary"
             element={
               <ProtectedRoute role="EMPLOYEE">
@@ -133,7 +146,7 @@ function App() {
 
           <Route path="/logout" element={<Logout />} />
 
-          <Route path="*" element={<Login />} />
+          <Route path="*" element={<EmployeeLogin />} />
 
         </Routes>
         </div>

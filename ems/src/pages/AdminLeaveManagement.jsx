@@ -12,7 +12,7 @@ function AdminLeaveManagement() {
     const fetchPending = useCallback(async () => {
         try {
             const res = await getPendingLeaves();
-            setPendingLeaves(res.data);
+            setPendingLeaves(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (error) {
             console.error("Error fetching pending leaves", error);
@@ -55,7 +55,7 @@ function AdminLeaveManagement() {
                     </button>
                 </div>
 
-                {pendingLeaves.length > 0 ? (
+                {Array.isArray(pendingLeaves) && pendingLeaves.length > 0 ? (
                     <div className="row g-4">
                         {pendingLeaves.map((leave) => (
                             <div key={leave.id} className="col-md-6 col-lg-4">

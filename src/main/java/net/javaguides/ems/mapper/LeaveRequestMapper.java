@@ -12,7 +12,8 @@ public class LeaveRequestMapper {
             leaveRequest.getStartDate(),
             leaveRequest.getEndDate(),
             leaveRequest.getReason(),
-            leaveRequest.getStatus()
+            leaveRequest.getStatus(),
+            leaveRequest.getType()
         );
     }
 
@@ -23,7 +24,8 @@ public class LeaveRequestMapper {
             dto.getStartDate(),
             dto.getEndDate(),
             dto.getReason(),
-            dto.getStatus()
+            dto.getStatus(),
+            dto.getType()
         );
     }
 }

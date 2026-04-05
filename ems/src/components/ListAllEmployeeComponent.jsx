@@ -17,8 +17,11 @@ const ListEmployeeComponent = () => {
 
     const fetchAll = () => {
         getAllEmployees()
-            .then((response) => setEmployees(response.data))
-            .catch(error => console.log(error));
+            .then((response) => setEmployees(Array.isArray(response.data) ? response.data : []))
+            .catch(error => {
+                console.log(error);
+                setEmployees([]);
+            });
     };
 
     useEffect(() => {
@@ -47,7 +50,7 @@ const ListEmployeeComponent = () => {
     };
 
 
-    const updateEmployee = (id) => {
+    const handleEdit = (id) => {
         navigate(`/edit-employee/${id}`);
     };
 
@@ -55,7 +58,7 @@ const ListEmployeeComponent = () => {
         deleteEmployee(id)
             .then(() => {
                 getAllEmployees().then((response)=>{
-                    setEmployees(response.data);
+                    setEmployees(Array.isArray(response.data) ? response.data : []);
                 });
             })
             .catch(error => {
@@ -131,28 +134,28 @@ const ListEmployeeComponent = () => {
                             </thead>
 
                             <tbody style={{ background: "#ffffff" }}>
-                                {employees.length > 0 ? (
+                                {Array.isArray(employees) && employees.length > 0 ? (
                                     employees.map((employee, index) => (
                                         <tr key={employee.id??employee.email} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                            <td className="py-4 fw-bold text-muted">{index + 1}</td>
+                                            <td className="py-4 fw-bold" style={{ color: "#475569", fontSize: "0.9rem" }}>{index + 1}</td>
                                             <td className="py-4 fw-bold" style={{ color: "#1e293b", fontSize: "1.05rem" }}>
                                                 {employee.firstName} {employee.lastName}
                                             </td>
-                                            <td className="py-4 text-primary fw-medium" style={{ opacity: "0.9" }}>{employee.email}</td>
-                                            <td className="py-4 text-dark fw-medium" style={{ opacity: "0.8" }}>{employee.phoneNumber}</td>
+                                            <td className="py-4 text-primary fw-bold" style={{ fontSize: "0.95rem" }}>{employee.email}</td>
+                                            <td className="py-4 text-dark fw-bold">{employee.phoneNumber}</td>
                                             <td className="py-4 px-3">
-                                                <span className="px-4 py-2 rounded-pill fw-bold" style={{ background: "#f1f5f9", color: "#334155", fontSize: "0.75rem", letterSpacing: "0.5px" }}>
-                                                    {employee.department}
+                                                <span className="px-4 py-2 rounded-pill fw-bold" style={{ background: "#e2e8f0", color: "#1e293b", fontSize: "0.75rem", letterSpacing: "0.5px" }}>
+                                                    {employee.department || "N/A"}
                                                 </span>
                                             </td>
-                                            <td className="py-4 text-muted fw-bold small">{employee.joiningDate}</td>
+                                            <td className="py-4 fw-bold small" style={{ color: "#475569" }}>{employee.joiningDate}</td>
                                             <td className="py-4">
                                                 <button 
                                                     className={`btn px-4 py-2 rounded-pill small fw-extrabold ${employee.status === "Active"
-                                                            ? "bg-success-subtle text-success border border-success-subtle shadow-sm mb-0"
-                                                            : "bg-danger-subtle text-danger border border-danger-subtle shadow-sm mb-0"
+                                                            ? "bg-success text-white"
+                                                            : "bg-danger text-white"
                                                         }`} 
-                                                    style={{ fontSize: "0.7rem", textTransform: "uppercase", transition: "all 0.3s ease" }}
+                                                    style={{ fontSize: "0.7rem", textTransform: "uppercase", transition: "all 0.3s ease", minWidth: "100px" }}
                                                     onClick={() => toggleStatus(employee)}
                                                     title={`Click to set as ${employee.status === "Active" ? "Inactive" : "Active"}`}
                                                 >
@@ -186,7 +189,7 @@ const ListEmployeeComponent = () => {
                 </div>
 
                 <div className="card-footer py-4 text-center border-0 bg-light" style={{ color: "#64748b" }}>
-                    Total Organization Members: <span className="text-dark fw-bold">{employees.length}</span>
+                    Total Organization Members: <span className="text-dark fw-bold">{Array.isArray(employees) ? employees.length : 0}</span>
                 </div>
 
             </div>

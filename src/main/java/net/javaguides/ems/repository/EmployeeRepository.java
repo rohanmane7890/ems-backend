@@ -12,6 +12,10 @@ import net.javaguides.ems.entity.Role;
 public interface EmployeeRepository extends JpaRepository<Employee, Long>{
 	
 	Optional<Employee> findByEmail(String email);
+	
+	@org.springframework.data.jpa.repository.Modifying
+	@org.springframework.transaction.annotation.Transactional
+	void deleteByEmail(String email);
 
 	List<Employee> findByDepartmentIgnoreCase(String department);
 

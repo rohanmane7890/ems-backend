@@ -173,7 +173,7 @@ function LeaveManagement() {
                                                     Loading leave history...
                                                 </td>
                                             </tr>
-                                        ) : leaves.length > 0 ? (
+                                        ) : Array.isArray(leaves) && leaves.length > 0 ? (
                                             leaves.map((leave, i) => {
                                                 const style = getStatusStyle(leave.status);
                                                 return (

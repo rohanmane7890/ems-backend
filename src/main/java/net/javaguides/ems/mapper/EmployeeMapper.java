@@ -22,7 +22,7 @@ public class EmployeeMapper {
                 employee.getStatus(),
                 employee.getRole(),
                 employee.getDesignation(),
-                employee.getSalary(),
+                employee.getSalary() != null ? String.valueOf(employee.getSalary()) : null,
                 employee.getProfilePhoto()
         );
     }
@@ -44,7 +44,18 @@ public class EmployeeMapper {
         employee.setRole(dto.getRole());
 
         employee.setDesignation(dto.getDesignation());
-        employee.setSalary(dto.getSalary());
+        
+        // Safely parse salary string to double
+        if (dto.getSalary() != null && !dto.getSalary().isEmpty()) {
+            try {
+                employee.setSalary(Double.parseDouble(dto.getSalary()));
+            } catch (NumberFormatException e) {
+                employee.setSalary(0.0);
+            }
+        } else {
+            employee.setSalary(0.0);
+        }
+        
         employee.setProfilePhoto(dto.getProfilePhoto());
 
         return employee;

@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { 
     getEmployeeByEmail, 
     updateProfile, 
-    changePassword 
+    changePassword,
+    uploadEmployeePhoto 
 } from "../services/EmployeeService";
 import { 
     FaUserCircle, FaSave, FaTimes, 
     FaKey, FaUserEdit, FaEnvelope, FaPhone, 
-    FaMapMarkerAlt, FaBriefcase 
+    FaMapMarkerAlt, FaBriefcase, FaCamera 
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +22,7 @@ function EmployeeProfile() {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [passwords, setPasswords] = useState({ newPass: "", confirmPass: "" });
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const email = localStorage.getItem("loggedInEmail");
@@ -43,11 +45,42 @@ function EmployeeProfile() {
         }
     };
 
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setUploading(true);
+        try {
+            // 1. Upload photo to server
+            const res = await uploadEmployeePhoto(formData);
+            const fileName = res.data;
+
+            // 2. Update employee profile with new photo filename
+            const updatedEmployee = { ...employee, profilePhoto: fileName };
+            await updateProfile(employee.id, updatedEmployee);
+            
+            // 3. Refresh state
+            setEmployee(updatedEmployee);
+            toast.success("Profile photo updated!");
+        } catch (error) {
+            console.error("Upload failed", error);
+            toast.error("Failed to upload photo");
+        } finally {
+            setUploading(false);
+        }
+    };
+
 
 
     const handleUpdate = async () => {
         try {
-            const res = await updateProfile(employee.id, editData);
+            // 🛡️ Security: Prevent employees from updating sensitive fields
+            const { status, role, salary, joiningDate, ...safeData } = editData;
+            
+            const res = await updateProfile(employee.id, safeData);
             setEmployee(res.data);
             setIsEditing(false);
             toast.success("Profile updated successfully!");
@@ -56,16 +89,6 @@ function EmployeeProfile() {
         }
     };
 
-    const toggleStatus = async () => {
-        const newStatus = employee.status === "Active" ? "Inactive" : "Active";
-        try {
-            const res = await updateProfile(employee.id, { ...employee, status: newStatus });
-            setEmployee(res.data);
-            toast.success(`Account status changed to ${newStatus}`);
-        } catch (error) {
-            toast.error("Failed to update status");
-        }
-    };
 
     const handleChangePass = async () => {
         if (passwords.newPass !== passwords.confirmPass) {
@@ -99,22 +122,43 @@ function EmployeeProfile() {
                             <div className="row g-0">
                                 {/* Left Side: Photo & Status */}
                                 <div className="col-md-4 bg-primary text-white text-center p-5 d-flex flex-column align-items-center justify-content-center">
-                                    <div className="position-relative mb-4">
-                                        <img 
-                                            src={`https://ui-avatars.com/api/?name=${employee.firstName}+${employee.lastName}&background=fff&color=0d6efd&size=150`}
-                                            alt="Profile" 
-                                            className="rounded-circle shadow-lg border border-4 border-white"
-                                            style={{ width: "160px", height: "160px", objectFit: "cover" }}
-                                        />
+                                    <div className="position-relative mb-4 group" style={{ cursor: "pointer" }}>
+                                        <div className="position-relative">
+                                            <img 
+                                                src={employee.profilePhoto 
+                                                    ? `http://localhost:8082/uploads/${employee.profilePhoto}` 
+                                                    : `https://ui-avatars.com/api/?name=${employee.firstName}+${employee.lastName}&background=fff&color=0d6efd&size=150`
+                                                }
+                                                alt="Profile" 
+                                                className="rounded-circle shadow-lg border border-4 border-white"
+                                                style={{ width: "160px", height: "160px", objectFit: "cover", transition: "all 0.3s" }}
+                                            />
+                                            {/* Camera Overlay */}
+                                            <label 
+                                                htmlFor="photoUpload" 
+                                                className="position-absolute bottom-0 end-0 bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                                style={{ width: "40px", height: "40px", cursor: "pointer", border: "2px solid #0d6efd" }}
+                                            >
+                                                {uploading ? <span className="spinner-border spinner-border-sm"></span> : <FaCamera />}
+                                            </label>
+                                            <input 
+                                                type="file" 
+                                                id="photoUpload" 
+                                                className="d-none" 
+                                                accept="image/*" 
+                                                onChange={handlePhotoUpload}
+                                                disabled={uploading}
+                                            />
+                                        </div>
                                     </div>
                                     <h3 className="fw-bold mb-1">{employee.firstName} {employee.lastName}</h3>
-                                    <button 
-                                        className={`btn badge ${employee.status === 'Active' ? 'bg-white text-primary' : 'bg-danger text-white'} rounded-pill px-3 py-2 mb-4 shadow-sm fw-bold border-0`}
-                                        onClick={toggleStatus}
-                                        title="Click to toggle account status"
+                                    {/* 🛡️ Display-Only Status (Security Lock) */}
+                                    <div 
+                                        className={`badge ${employee.status === 'Active' ? 'bg-white text-primary' : 'bg-danger text-white'} rounded-pill px-3 py-2 mb-4 shadow-sm fw-bold`}
+                                        style={{ fontSize: "0.85rem", opacity: 0.9 }}
                                     >
-                                        {employee.status}
-                                    </button>
+                                        <i className={`ri-checkbox-circle-fill me-1`}></i> {employee.status}
+                                    </div>
                                     
                                     <div className="d-grid gap-2 w-100">
                                         {!isEditing ? (

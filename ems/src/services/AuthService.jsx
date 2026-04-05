@@ -20,6 +20,18 @@ class AuthService {
         return axios.post(`${BASE_URL}/verify-registration`, { email, otp });
     }
 
+    verifyMasterPin(pin) {
+        return axios.post(`${BASE_URL}/verify-master-pin`, { pin });
+    }
+
+    forgotPassword(email) {
+        return axios.post(`${BASE_URL}/forgot-password`, { email });
+    }
+
+    resetPassword(email, otp, newPassword) {
+        return axios.post(`${BASE_URL}/reset-password`, { email, otp, newPassword });
+    }
+
     saveUser(token, role) {
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);

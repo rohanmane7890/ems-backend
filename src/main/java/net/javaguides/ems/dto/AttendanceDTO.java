@@ -15,6 +15,9 @@ import lombok.Setter;
 public class AttendanceDTO {
     private Long id;
     private Long employeeId;
+    private String firstName;
+    private String lastName;
+    private String designation;
     private LocalDate date;
     private LocalTime checkIn;
     private LocalTime checkOut;

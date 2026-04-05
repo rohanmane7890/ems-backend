@@ -24,6 +24,15 @@ export const getAllEmployees = () =>
 export const getEmployee = (employeeId) =>
     axios.get(`${REST_API_BASE_URL}/${employeeId}`, authHeader());
 
+// 🔹 Upload Profile Photo
+export const uploadEmployeePhoto = (formData) =>
+    axios.post(`${REST_API_BASE_URL}/upload-photo`, formData, {
+        headers: {
+            ...authHeader().headers,
+            "Content-Type": "multipart/form-data"
+        }
+    });
+
 // 🔹 Update Employee
 export const updateEmployee = (employeeId, employee) =>
     axios.put(`${REST_API_BASE_URL}/${employeeId}`, employee, authHeader());

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getDashboardAnalytics, getAllEmployees } from "../services/EmployeeService";
+import { getDashboardAnalytics, getAllEmployees, getEmployee, checkIn, checkOut } from "../services/EmployeeService";
 import { 
     FaUsers, FaUserCheck, FaUserTimes, FaUserPlus, 
     FaChartBar, FaChartPie, FaHistory, FaSignOutAlt, 
@@ -8,27 +8,7 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
-import { Bar, Pie } from "react-chartjs-2";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement
-} from 'chart.js';
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement
-);
+import axios from "axios";
 
 function AdminDashboard() {
     const navigate = useNavigate();
@@ -40,6 +20,7 @@ function AdminDashboard() {
         employeesByDepartment: {}
     });
     const [recentEmployees, setRecentEmployees] = useState([]);
+    const [adminProfile, setAdminProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const handleLogout = () => {
@@ -59,16 +40,46 @@ function AdminDashboard() {
 
     const fetchData = async () => {
         try {
-            const [analyticsRes, employeesRes] = await Promise.all([
-                getDashboardAnalytics(),
-                getAllEmployees()
-            ]);
-            setAnalytics(analyticsRes.data);
-            setRecentEmployees(employeesRes.data.slice(-5).reverse());
+            const empId = localStorage.getItem("employeeId");
+            
+            // Build the list of promises to fetch
+            const promises = [
+                getDashboardAnalytics().catch(err => { console.error("Analytics failed", err); return { data: {} }; }),
+                getAllEmployees().catch(err => { console.error("Employee list failed", err); return { data: [] }; })
+            ];
+
+            // Only fetch from DB if it's not the hardcoded admin
+            if (empId !== "-1") {
+                promises.push(getEmployee(empId).catch(err => { console.error("Profile failed", err); return { data: null }; }));
+            }
+
+            const results = await Promise.all(promises);
+            
+            const analyticsData = results[0].data;
+            const employeesData = results[1].data;
+            let profileData = results[2]?.data || null;
+
+            // Handle hardcoded admin profile
+            if (empId === "-1") {
+                profileData = {
+                    firstName: "System",
+                    lastName: "Admin",
+                    email: "admin@gmail.com",
+                    designation: "Super User"
+                };
+            }
+
+            console.log("DEBUG: Analytics data fetched:", analyticsData);
+            console.log("DEBUG: Employees data fetched:", employeesData);
+
+            setAnalytics(analyticsData || { totalEmployees: 0, presentToday: 0, absentToday: 0, newJoinersThisMonth: 0 });
+            setRecentEmployees(Array.isArray(employeesData) ? employeesData.slice(-5).reverse() : []);
+            setAdminProfile(profileData);
             setLoading(false);
         } catch (error) {
-            console.error("Error fetching dashboard data", error);
+            console.error("Critical error fetching dashboard data", error);
             setLoading(false);
+            toast.error("Some data failed to load. Please refresh.");
         }
     };
 
@@ -90,25 +101,6 @@ function AdminDashboard() {
 
     if (role !== "ADMIN") return null;
 
-    const barData = {
-        labels: Object.keys(analytics.employeesByDepartment),
-        datasets: [{
-            label: 'Employees by Department',
-            data: Object.values(analytics.employeesByDepartment),
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1,
-        }]
-    };
-
-    const pieData = {
-        labels: ['Present', 'Absent'],
-        datasets: [{
-            data: [analytics.presentToday, analytics.absentToday],
-            backgroundColor: ['#28a745', '#dc3545'],
-            hoverBackgroundColor: ['#218838', '#c82333']
-        }]
-    };
 
     return (
         <div style={{ 
@@ -120,8 +112,10 @@ function AdminDashboard() {
             <div className="container py-5">
                 <div className="d-flex justify-content-between align-items-center mb-5">
                     <div>
-                        <h2 className="fw-bold text-white mb-1" style={{ letterSpacing: "-1px" }}>Dashboard Overview</h2>
-                        <p className="text-info opacity-75">Welcome back, Admin! Here's what's happening today.</p>
+                        <h2 className="fw-bold text-white mb-1" style={{ letterSpacing: "-1px" }}>
+                            Welcome back, {adminProfile ? `${adminProfile.firstName} ${adminProfile.lastName}` : 'Admin'}!
+                        </h2>
+                        <p className="text-info opacity-75">{adminProfile ? `${adminProfile.designation} | ${adminProfile.email}` : "Here's what's happening today."}</p>
                     </div>
                     <div className="text-end text-white-50 small">
                         Last Updated: {new Date().toLocaleDateString()}
@@ -162,39 +156,6 @@ function AdminDashboard() {
                     ))}
                 </div>
 
-                <div className="row g-4 mb-5">
-                    {/* Charts */}
-                    <div className="col-lg-8">
-                        <div className="card shadow-2xl border-0 p-4 h-100" style={{ 
-                            borderRadius: "20px", 
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)"
-                        }}>
-                            <h5 className="fw-bold mb-4 d-flex align-items-center text-white">
-                                <FaChartBar className="me-2 text-primary" /> Department Distribution
-                            </h5>
-                            <div style={{ height: "300px" }}>
-                                <Bar data={barData} options={{ maintainAspectRatio: false }} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-4">
-                        <div className="card shadow-2xl border-0 p-4 h-100" style={{ 
-                            borderRadius: "20px", 
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)"
-                        }}>
-                            <h5 className="fw-bold mb-4 d-flex align-items-center text-white">
-                                <FaChartPie className="me-2 text-success" /> Attendance Summary
-                            </h5>
-                            <div style={{ height: "300px" }}>
-                                <Pie data={pieData} options={{ maintainAspectRatio: false }} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div className="row g-4">
                     {/* Quick Actions */}
@@ -216,7 +177,10 @@ function AdminDashboard() {
                                 <Link to="/search" className="btn btn-outline-info py-2 d-flex align-items-center justify-content-center">
                                     <FaSearch className="me-2" /> Advanced Search
                                 </Link>
-                                <button onClick={exportToExcel} className="btn btn-outline-primary py-2 d-flex align-items-center justify-content-center">
+                                <Link to="/admin/attendance" className="btn btn-outline-primary py-2 d-flex align-items-center justify-content-center">
+                                    <FaCalendarAlt className="me-2" /> Track Attendance
+                                </Link>
+                                <button onClick={exportToExcel} className="btn btn-outline-secondary py-2 d-flex align-items-center justify-content-center">
                                     <FaFileExcel className="me-2" /> Export to Excel
                                 </button>
                             </div>
@@ -236,30 +200,52 @@ function AdminDashboard() {
                             </h5>
                             {recentEmployees.length > 0 ? (
                                 <div className="table-responsive">
-                                    <table className="table table-hover align-middle text-white">
-                                        <thead style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                            <tr className="text-white-50">
-                                                <th>Name</th>
-                                                <th>Department</th>
-                                                <th>Join Date</th>
-                                                <th>Status</th>
+                                    <table className="table align-middle mb-0 table-borderless text-white" style={{ background: "transparent !important", backgroundColor: "transparent" }}>
+                                        <thead>
+                                            <tr className="text-info border-bottom border-secondary border-opacity-25" style={{ fontSize: "0.8rem", letterSpacing: "1.5px" }}>
+                                                <th className="px-3 py-3 border-0 bg-transparent" style={{ width: "35%" }}>EMPLOYEE</th>
+                                                <th className="border-0 bg-transparent" style={{ width: "25%" }}>DEPARTMENT</th>
+                                                <th className="border-0 bg-transparent" style={{ width: "20%" }}>JOINING</th>
+                                                <th className="border-0 text-center bg-transparent" style={{ width: "20%" }}>STATUS</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {recentEmployees.map(emp => (
-                                                <tr key={emp.id}>
-                                                    <td>{emp.firstName} {emp.lastName}</td>
-                                                    <td>{emp.department}</td>
-                                                    <td>{emp.joiningDate}</td>
-                                                    <td>
-                                                        <span className={`badge bg-${emp.status === 'Active' ? 'success' : 'secondary'} rounded-pill`}>
-                                                            {emp.status}
+                                                <tr key={emp.id} className="admin-table-row border-bottom border-secondary border-opacity-10" style={{ transition: "all 0.3s ease", background: "transparent" }}>
+                                                    <td className="px-3 py-3 bg-transparent">
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="rounded-circle bg-primary bg-opacity-20 d-flex align-items-center justify-content-center me-3 text-info fw-bold shadow-sm" style={{ width: "42px", height: "42px", fontSize: "0.85rem", border: "1px solid rgba(0, 255, 255, 0.2)" }}>
+                                                                {emp.firstName?.charAt(0)}{emp.lastName?.charAt(0)}
+                                                            </div>
+                                                            <div>
+                                                                <div className="fw-bold text-white mb-0" style={{ fontSize: "0.95rem", lineHeight: "1.2" }}>{emp.firstName} {emp.lastName}</div>
+                                                                <div className="text-info opacity-75" style={{ fontSize: "0.75rem" }}>{emp.email}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 bg-transparent">
+                                                        <span className="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2" style={{ fontSize: "0.7rem", fontWeight: "600" }}>
+                                                            {emp.department || "N/A"}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-3 bg-transparent">
+                                                        <div className="text-white fw-bold small" style={{ fontSize: "0.8rem" }}>{emp.joiningDate || "N/A"}</div>
+                                                    </td>
+                                                    <td className="py-3 text-center bg-transparent">
+                                                        <span className={`badge rounded-pill px-3 py-2 ${emp.status === 'Active' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'}`} style={{ fontSize: "0.65rem", fontWeight: "700", border: "1px solid currentColor", minWidth: "80px" }}>
+                                                            {emp.status?.toUpperCase()}
                                                         </span>
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
+                                    <style>{`
+                                        .admin-table-row:hover {
+                                            background: rgba(255, 255, 255, 0.03) !important;
+                                            cursor: pointer;
+                                        }
+                                    `}</style>
                                 </div>
                             ) : (
                                 <p className="text-center text-muted py-4">No recent activity detected.</p>
