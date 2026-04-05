@@ -135,19 +135,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee updatedEmployee = employeeRepository.save(employee);
 
-        // 🔔 Consolidated Notifications for Profile Updates
-        StringBuilder changes = new StringBuilder();
-        if (dto.getSalary() != null && !dto.getSalary().isEmpty()) changes.append("Salary, ");
-        if (dto.getDesignation() != null) changes.append("Designation, ");
-        if (dto.getRole() != null) changes.append("System Role, ");
-        if (dto.getStatus() != null) changes.append("Account Status, ");
-
-        if (changes.length() > 0) {
-            String fields = changes.substring(0, changes.length() - 2); // Remove last comma
-            notificationService.createNotification(employeeId, 
-                "Your profile details (" + fields + ") have been updated by the Admin.", "PROFILE_UPDATE");
-        }
-
         return EmployeeMapper.mapToEmployeeDTO(updatedEmployee);
     }
     

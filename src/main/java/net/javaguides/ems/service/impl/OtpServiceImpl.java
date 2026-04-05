@@ -24,20 +24,22 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public String generateOtp(String email) {
+        String sanitizedEmail = (email != null) ? email.trim().toLowerCase() : "";
         String otp = String.format("%06d", new java.util.Random().nextInt(999999));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
-        otpStorage.put(email, new OtpData(otp, expiry));
+        otpStorage.put(sanitizedEmail, new OtpData(otp, expiry));
         return otp;
     }
 
     @Override
     public boolean isOtpValid(String email, String otp) {
-        OtpData data = otpStorage.get(email);
+        String sanitizedEmail = (email != null) ? email.trim().toLowerCase() : "";
+        OtpData data = otpStorage.get(sanitizedEmail);
         if (data != null && data.otp.equals(otp)) {
             if (data.expiry.isAfter(LocalDateTime.now())) {
                 return true;
             } else {
-                otpStorage.remove(email); // Clean up expired OTP
+                otpStorage.remove(sanitizedEmail); // Clean up expired OTP
                 return false;
             }
         }
@@ -46,6 +48,7 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void clearOtp(String email) {
-        otpStorage.remove(email);
+        String sanitizedEmail = (email != null) ? email.trim().toLowerCase() : "";
+        otpStorage.remove(sanitizedEmail);
     }
 }

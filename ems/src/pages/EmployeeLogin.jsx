@@ -37,10 +37,26 @@ function EmployeeLogin() {
         setResetLoading(true);
         setResetError("");
         try {
-            await AuthService.forgotPassword(resetEmail);
+            const trimmedEmail = resetEmail.trim().toLowerCase();
+            await AuthService.forgotPassword(trimmedEmail);
+            setResetEmail(trimmedEmail); // 🔄 Sync state for next steps
             setResetStep(2);
         } catch (error) {
             setResetError(error.response?.data || "Email not found.");
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        setResetLoading(true);
+        setResetError("");
+        try {
+            await AuthService.verifyResetOtp(resetEmail, resetOtp);
+            setResetStep(3);
+        } catch (error) {
+            setResetError(error.response?.data || "Invalid or expired OTP!");
         } finally {
             setResetLoading(false);
         }
@@ -384,7 +400,7 @@ function EmployeeLogin() {
                         )}
 
                         {resetStep === 2 && (
-                            <form onSubmit={(e) => { e.preventDefault(); setResetStep(3); }}>
+                            <form onSubmit={handleVerifyOtp}>
                                 <div className="mb-4">
                                     <label className="form-label small text-white-50 text-center d-block">Check your email for the 6-digit code</label>
                                     <input 
@@ -398,8 +414,8 @@ function EmployeeLogin() {
                                         required
                                     />
                                 </div>
-                                <button type="submit" className="btn btn-primary-gradient w-100 py-3 rounded-4 fw-bold">
-                                    Verify Code
+                                <button type="submit" className="btn btn-primary-gradient w-100 py-3 rounded-4 fw-bold" disabled={resetLoading}>
+                                    {resetLoading ? "Verifying..." : "Verify Code"}
                                 </button>
                             </form>
                         )}

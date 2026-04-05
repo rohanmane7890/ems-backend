@@ -140,7 +140,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(401).body("Invalid or expired OTP!");
+        log.warn("Login Verification failed for email: {} with OTP: {}", email, otp);
+        return ResponseEntity.status(400).body("Invalid or expired OTP!");
     }
 
     @PostMapping("/register")
@@ -227,12 +228,15 @@ public class AuthController {
             response.put("message", "Master PIN verified");
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(401).body("Invalid Master PIN");
+        return ResponseEntity.status(400).body("Invalid Master PIN");
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
+        String rawEmail = request.get("email");
+        String email = (rawEmail != null) ? rawEmail.trim().toLowerCase() : "";
+        log.info("Password reset requested for email: {}", email);
+
         Optional<Employee> employeeOpt = repository.findByEmail(email);
 
         if (employeeOpt.isEmpty()) {
@@ -243,17 +247,38 @@ public class AuthController {
 
         try {
             emailService.sendForgotPasswordOtp(email, otp);
+            log.info("Password Reset OTP generated and sent for: {}", email);
             return ResponseEntity.ok(Map.of("message", "OTP sent to your email."));
         } catch (Exception e) {
+            log.error("Failed to send OTP for {}: {}", email, e.getMessage());
             return ResponseEntity.status(500).body("Error sending email: " + e.getMessage());
         }
     }
 
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOtp(@RequestBody Map<String, String> request) {
+        String rawEmail = request.get("email");
+        String email = (rawEmail != null) ? rawEmail.trim().toLowerCase() : "";
+        String otp = request.get("otp");
+
+        log.info("Verifying Reset OTP for email: {} with OTP: {}", email, otp);
+
+        if (otpService.isOtpValid(email, otp)) {
+            return ResponseEntity.ok(Map.of("message", "OTP verified!"));
+        }
+
+        log.warn("Reset OTP verification failed for email: {} with OTP: {}", email, otp);
+        return ResponseEntity.status(400).body("Invalid or expired OTP!");
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
+        String rawEmail = request.get("email");
+        String email = (rawEmail != null) ? rawEmail.trim().toLowerCase() : "";
         String otp = request.get("otp");
         String newPassword = request.get("newPassword");
+
+        log.info("Attempting password reset for email: {} with OTP: {}", email, otp);
 
         Optional<Employee> employeeOpt = repository.findByEmail(email);
         if (employeeOpt.isEmpty()) {
@@ -265,9 +290,11 @@ public class AuthController {
             employee.setPassword(passwordEncoder.encode(newPassword));
             otpService.clearOtp(email);
             repository.save(employee);
+            log.info("Password successfully reset for email: {}", email);
             return ResponseEntity.ok(Map.of("message", "Password reset successful!"));
         }
 
-        return ResponseEntity.status(401).body("Invalid or expired OTP!");
+        log.warn("Password Reset failed for email: {} with OTP: {}", email, otp);
+        return ResponseEntity.status(400).body("Invalid or expired OTP!");
     }
 }

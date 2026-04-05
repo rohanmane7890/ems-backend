@@ -28,6 +28,10 @@ class AuthService {
         return axios.post(`${BASE_URL}/forgot-password`, { email });
     }
 
+    verifyResetOtp(email, otp) {
+        return axios.post(`${BASE_URL}/verify-reset-otp`, { email, otp });
+    }
+
     resetPassword(email, otp, newPassword) {
         return axios.post(`${BASE_URL}/reset-password`, { email, otp, newPassword });
     }
