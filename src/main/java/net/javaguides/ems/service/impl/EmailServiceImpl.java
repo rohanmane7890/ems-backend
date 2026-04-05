@@ -34,19 +34,19 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendOtp(String email, String otp) {
+    public void sendForgotPasswordOtp(String email, String otp) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(email);
-            message.setSubject("Your Login OTP");
-            message.setText("Hello,\n\nYour One-Time Password (OTP) for login is: " + otp
-                    + ".\n\nThis OTP is valid for 5 minutes. If you didn't request this, please ignore it.\n\nBest regards,\nEMS Team");
+            message.setSubject("Password Reset: Your One-Time Password (OTP)");
+            message.setText("Hello,\n\nYou have requested to reset your password. Your One-Time Password (OTP) is:\n\n" + otp
+                    + "\n\nThis OTP is valid for 10 minutes. If you did not request this reset, please change your password immediately or contact support.\n\nBest regards,\nEMS Corporate Team");
 
             mailSender.send(message);
-            System.out.println("OTP email sent to: " + email + " | OTP: " + otp);
+            System.out.println("✅ Password Reset OTP email sent to: " + email + " | OTP: " + otp);
         } catch (Exception e) {
-            System.err.println("Failed to send OTP email: " + e.getMessage());
+            System.err.println("❌ Failed to send Password Reset OTP email: " + e.getMessage());
         }
     }
 

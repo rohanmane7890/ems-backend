@@ -242,7 +242,7 @@ public class AuthController {
         String otp = otpService.generateOtp(email);
 
         try {
-            emailService.sendOtp(email, otp);
+            emailService.sendForgotPasswordOtp(email, otp);
             return ResponseEntity.ok(Map.of("message", "OTP sent to your email."));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error sending email: " + e.getMessage());
