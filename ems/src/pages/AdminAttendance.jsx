@@ -206,8 +206,12 @@ function AdminAttendance() {
                                                 </div>
                                             </td>
                                             <td className="py-3 small fw-medium" style={{ color: "#6366f1" }}>{record.designation || "N/A"}</td>
-                                            <td className="py-3 text-center text-info fw-bold">{record.checkIn || "--:--"}</td>
-                                            <td className="py-3 text-center text-warning fw-bold">{record.checkOut || "--:--"}</td>
+                                            <td className="py-3 text-center fw-bold" style={{ color: "#22d3ee" }}>
+                                                {record.checkIn ? record.checkIn.split(".")[0] : "--:--"}
+                                            </td>
+                                            <td className="py-3 text-center fw-bold" style={{ color: "#22d3ee" }}>
+                                                {record.checkOut ? record.checkOut.split(".")[0] : "--:--"}
+                                            </td>
                                             <td className="py-3 text-center">
                                                 <span className={`badge rounded-pill px-3 py-2 ${record.status === 'PRESENT' ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'}`} style={{ border: record.status === 'PRESENT' ? '1px solid rgba(25, 135, 84, 0.3)' : '1px solid rgba(220, 53, 69, 0.3)', fontSize: "0.7rem", letterSpacing: "1px" }}>
                                                     {record.status}

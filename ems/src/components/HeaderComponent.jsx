@@ -122,6 +122,11 @@ const HeaderComponent = () => {
                       Attendance
                     </NavLink>
                   </li>
+                  <li className="nav-item">
+                    <NavLink to="/admin/salaries" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
+                      Salaries
+                    </NavLink>
+                  </li>
                 </>
               )}
 
@@ -177,13 +182,13 @@ const HeaderComponent = () => {
                                 <span className="badge bg-primary rounded-pill small">{unreadCount} New</span>
                             </div>
                             <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
-                                {notifications.length === 0 ? (
+                                {notifications.length === 0 || notifications.filter(n => !n.isRead).length === 0 ? (
                                     <div className="p-4 text-center text-muted small">
                                         <i className="ri-chat-history-line fs-2 d-block mb-2 opacity-25"></i>
-                                        No notifications yet
+                                        No unread notifications
                                     </div>
                                 ) : (
-                                    notifications.slice().reverse().map((n) => (
+                                    notifications.filter(n => !n.isRead).slice().reverse().map((n) => (
                                         <div key={n.id} 
                                              className={`p-3 border-bottom position-relative ${n.isRead ? '' : 'bg-primary bg-opacity-10'}`}
                                              onClick={() => !n.isRead && handleMarkRead(n.id)}

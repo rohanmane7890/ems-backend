@@ -19,6 +19,7 @@ import net.javaguides.ems.mapper.EmployeeMapper;
 import net.javaguides.ems.repository.EmployeeRepository;
 import net.javaguides.ems.Security.JwtUtils;
 import net.javaguides.ems.service.EmailService;
+import net.javaguides.ems.service.OtpService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,6 +28,7 @@ public class AuthController {
     private final EmployeeRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final OtpService otpService;
     private final JwtUtils jwtUtils;
 
     @org.springframework.beans.factory.annotation.Value("${app.admin.email}")
@@ -39,10 +41,11 @@ public class AuthController {
     private String defaultPassword;
 
     public AuthController(EmployeeRepository repository, PasswordEncoder passwordEncoder, 
-                          EmailService emailService, JwtUtils jwtUtils) {
+                          EmailService emailService, OtpService otpService, JwtUtils jwtUtils) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.otpService = otpService;
         this.jwtUtils = jwtUtils;
     }
     
@@ -119,31 +122,25 @@ public class AuthController {
 
         Employee employee = repository.findByEmail(email).orElse(null);
 
-        if (employee != null && otp.equals(employee.getOtp())) {
-            if (employee.getOtpExpiry().isAfter(java.time.LocalDateTime.now())) {
-                // Clear OTP after successful verification
-                employee.setOtp(null);
-                employee.setOtpExpiry(null);
-                repository.save(employee);
+        if (employee != null && otpService.isOtpValid(email, otp)) {
+            // Clear OTP after successful verification
+            otpService.clearOtp(email);
 
-                Map<String, String> response = new HashMap<>();
-                response.put("role", employee.getRole().name());
-                response.put("id", String.valueOf(employee.getId()));
+            Map<String, String> response = new HashMap<>();
+            response.put("role", employee.getRole().name());
+            response.put("id", String.valueOf(employee.getId()));
 
-                // Trigger Login Notification Email
-                emailService.sendLoginNotification(employee.getEmail(), employee.getRole().name());
+            // Trigger Login Notification Email
+            emailService.sendLoginNotification(employee.getEmail(), employee.getRole().name());
 
-                // Generate real JWT token
-                String token = jwtUtils.generateToken(employee);
-                response.put("token", token);
+            // Generate real JWT token
+            String token = jwtUtils.generateToken(employee);
+            response.put("token", token);
 
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(401).body("OTP has expired!");
-            }
+            return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(401).body("Invalid OTP!");
+        return ResponseEntity.status(401).body("Invalid or expired OTP!");
     }
 
     @PostMapping("/register")
@@ -178,9 +175,7 @@ public class AuthController {
         employee.setSalary(0.0);
 
         // Generate 6-digit OTP for registration
-        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
-        employee.setOtp(otp);
-        employee.setOtpExpiry(java.time.LocalDateTime.now().plusMinutes(10));
+        String otp = otpService.generateOtp(employee.getEmail());
 
         repository.save(employee);
 
@@ -203,30 +198,25 @@ public class AuthController {
 
         Employee employee = repository.findByEmail(email).orElse(null);
 
-        if (employee != null && otp.equals(employee.getOtp())) {
-            if (employee.getOtpExpiry().isAfter(java.time.LocalDateTime.now())) {
-                // Clear OTP and activate user
-                employee.setOtp(null);
-                employee.setOtpExpiry(null);
-                employee.setStatus("Active");
-                repository.save(employee);
+        if (employee != null && otpService.isOtpValid(email, otp)) {
+            // Clear OTP and activate user
+            otpService.clearOtp(email);
+            employee.setStatus("Active");
+            repository.save(employee);
 
-                // Generate real JWT token for Auto-Login
-                String token = jwtUtils.generateToken(employee);
+            // Generate real JWT token for Auto-Login
+            String token = jwtUtils.generateToken(employee);
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("token", token);
-                response.put("role", employee.getRole().name());
-                response.put("id", String.valueOf(employee.getId()));
-                response.put("message", "Registration verified and account activated! Logging you in...");
-                
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(401).body("OTP has expired!");
-            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("role", employee.getRole().name());
+            response.put("id", String.valueOf(employee.getId()));
+            response.put("message", "Registration verified and account activated! Logging you in...");
+            
+            return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(401).body("Invalid OTP!");
+        return ResponseEntity.status(401).body("Invalid or expired OTP!");
     }
 
     @PostMapping("/verify-master-pin")
@@ -249,11 +239,7 @@ public class AuthController {
             return ResponseEntity.status(404).body("No account found with this email.");
         }
 
-        Employee employee = employeeOpt.get();
-        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
-        employee.setOtp(otp);
-        employee.setOtpExpiry(java.time.LocalDateTime.now().plusMinutes(10));
-        repository.save(employee);
+        String otp = otpService.generateOtp(email);
 
         try {
             emailService.sendOtp(email, otp);
@@ -275,18 +261,13 @@ public class AuthController {
         }
 
         Employee employee = employeeOpt.get();
-        if (employee.getOtp() != null && employee.getOtp().equals(otp)) {
-            if (employee.getOtpExpiry().isAfter(java.time.LocalDateTime.now())) {
-                employee.setPassword(passwordEncoder.encode(newPassword));
-                employee.setOtp(null);
-                employee.setOtpExpiry(null);
-                repository.save(employee);
-                return ResponseEntity.ok(Map.of("message", "Password reset successful!"));
-            } else {
-                return ResponseEntity.status(401).body("OTP has expired!");
-            }
+        if (otpService.isOtpValid(email, otp)) {
+            employee.setPassword(passwordEncoder.encode(newPassword));
+            otpService.clearOtp(email);
+            repository.save(employee);
+            return ResponseEntity.ok(Map.of("message", "Password reset successful!"));
         }
 
-        return ResponseEntity.status(401).body("Invalid OTP!");
+        return ResponseEntity.status(401).body("Invalid or expired OTP!");
     }
 }

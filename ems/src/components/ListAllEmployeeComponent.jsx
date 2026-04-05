@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllEmployees, deleteEmployee, updateEmployee } from "../services/EmployeeService";
-import { FaDownload, FaPlus, FaArrowLeft, FaFileExcel, FaFilePdf } from "react-icons/fa";
+import { FaDownload, FaPlus, FaArrowLeft, FaFileExcel, FaFilePdf, FaExclamationTriangle } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -9,6 +10,8 @@ import { toast } from "react-toastify";
 
 const ListEmployeeComponent = () => {
     const [employees, setEmployees] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
     const navigate = useNavigate();
 
     // useEffect(() => {
@@ -68,18 +71,25 @@ const ListEmployeeComponent = () => {
         navigate(`/edit-employee/${id}`);
     };
 
-    const removeEmployee = (id) => {
-        if (window.confirm("Are you sure you want to delete this employee?")) {
-            deleteEmployee(id)
-                .then(() => {
-                    fetchAll();
-                    toast.success("Employee deleted successfully");
-                })
-                .catch(error => {
-                    console.error(error);
-                    toast.error("Failed to delete employee");
-                });
-        }
+    const handleDeleteClick = (employee) => {
+        setSelectedEmployee(employee);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        if (!selectedEmployee) return;
+
+        deleteEmployee(selectedEmployee.id)
+            .then(() => {
+                fetchAll();
+                toast.success(`${selectedEmployee.firstName} removed from directory`);
+                setShowDeleteModal(false);
+                setSelectedEmployee(null);
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error("Deletion failed. Please try again.");
+            });
     };
 
     const toggleStatus = (employee) => {
@@ -187,7 +197,7 @@ const ListEmployeeComponent = () => {
                                                     <button
                                                         className="btn btn-sm fw-bold px-3 py-2"
                                                         style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px" }}
-                                                        onClick={() => removeEmployee(employee.id)}
+                                                        onClick={() => handleDeleteClick(employee)}
                                                     >
                                                         Delete
                                                     </button>
@@ -213,6 +223,51 @@ const ListEmployeeComponent = () => {
                 </div>
 
             </div>
+
+            {/* 🗑️ Premium Delete Confirmation Modal */}
+            <AnimatePresence>
+                {showDeleteModal && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                        style={{ zIndex: 1060, background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(8px)" }}
+                        onClick={() => setShowDeleteModal(false)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                            className="bg-white p-5 shadow-2xl text-center"
+                            style={{ borderRadius: "32px", maxWidth: "420px", border: "1px solid rgba(255, 255, 255, 0.1)" }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4"
+                                 style={{ width: "80px", height: "80px" }}>
+                                <FaExclamationTriangle className="text-danger fs-1" />
+                            </div>
+                            
+                            <h3 className="fw-bold mb-3" style={{ color: "#1e293b", letterSpacing: "-0.5px" }}>Confirm Deletion</h3>
+                            <p className="text-muted mb-4" style={{ fontSize: "1rem", lineHeight: "1.6" }}>
+                                Are you sure you want to remove <span className="text-dark fw-bold">{selectedEmployee?.firstName} {selectedEmployee?.lastName}</span> from the directory?
+                            </p>
+
+                            <div className="d-flex flex-column gap-2">
+                                <button className="btn btn-danger py-3 fw-bold shadow-lg" 
+                                        style={{ borderRadius: "16px", letterSpacing: "0.5px" }}
+                                        onClick={confirmDelete}>
+                                    DELETE PERMANENTLY
+                                </button>
+                                <button className="btn btn-link text-muted text-decoration-none fw-bold" 
+                                        onClick={() => setShowDeleteModal(false)}>
+                                    CANCEL
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     </div>
     );
