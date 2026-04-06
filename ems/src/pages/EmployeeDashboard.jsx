@@ -19,6 +19,7 @@ function EmployeeDashboard() {
     const [stats, setStats] = useState({ completed: 0, pending: 0, efficiency: 0 });
     const notifRef = useRef(null);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [todayAttendance, setTodayAttendance] = useState(null);
 
     useEffect(() => {
         const email = localStorage.getItem("loggedInEmail");
