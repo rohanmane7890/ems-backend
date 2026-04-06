@@ -13,6 +13,8 @@ function AdminWorkLogView() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
     const [attendanceMap, setAttendanceMap] = useState({}); // { "date": { "email": "status" } }
+    const [selectedLog, setSelectedLog] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         fetchLogs();
@@ -146,15 +148,30 @@ function AdminWorkLogView() {
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="bg-white bg-opacity-5 rounded-4 p-3 mb-3 border border-white border-opacity-5">
-                                                    <div className="text-white-50 small text-uppercase fw-bold mb-2 ls-1" style={{ fontSize: "0.6rem" }}>Tasks Completed</div>
-                                                    <p className="text-white small mb-0 fw-medium" style={{ lineHeight: "1.6" }}>{log.tasksDescription}</p>
+                                                <div className="rounded-4 p-3 mb-3 border border-white border-opacity-5" style={{ background: log.tasksDescription.startsWith('[MISSION REPORT]') ? "rgba(14, 165, 233, 0.1)" : "rgba(15, 23, 42, 0.5)", border: log.tasksDescription.startsWith('[MISSION REPORT]') ? "1px solid rgba(14, 165, 233, 0.2)" : "1px solid rgba(255,255,255,0.05)" }}>
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <div className="text-info small text-uppercase fw-bold ls-1" style={{ fontSize: "0.6rem" }}>
+                                                            {log.tasksDescription.startsWith('[MISSION REPORT]') ? '🚀 LINKED MISSION REPORT' : 'Tasks Completed'}
+                                                        </div>
+                                                        {log.tasksDescription.startsWith('[MISSION REPORT]') && (
+                                                            <div className="badge bg-info bg-opacity-10 text-info extra-small fw-bold border border-info border-opacity-10">MISSION SYNC</div>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-white small mb-0 fw-bold opacity-75" style={{ lineHeight: "1.6", letterSpacing: "0.5px" }}>{log.tasksDescription || "No detailed logs provided."}</p>
                                                 </div>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="badge bg-success bg-opacity-20 text-success rounded-pill px-3 py-1 fw-bold" style={{ fontSize: "0.75rem" }}>
-                                                        <FaTasks className="me-1" /> {log.hoursWorked} working hours
+                                                    <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill" style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)" }}>
+                                                        <FaTasks className="text-success shadow-sm" style={{ fontSize: "0.8rem" }} /> 
+                                                        <span className="text-white fw-bold" style={{ fontSize: "0.7rem", letterSpacing: "0.5px" }}>
+                                                            {log.hoursWorked}
+                                                        </span>
                                                     </div>
-                                                    <button className="btn btn-sm btn-link text-info text-decoration-none p-0 fw-bold">Review Report →</button>
+                                                    <button 
+                                                        className="btn btn-sm btn-link text-info text-decoration-none p-0 fw-bold"
+                                                        onClick={() => { setSelectedLog(log); setShowModal(true); }}
+                                                    >
+                                                        Review Report →
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -170,6 +187,55 @@ function AdminWorkLogView() {
                     </div>
                 )}
             </div>
+
+            {/* 🛡️ Premium Audit Modal */}
+            <AnimatePresence>
+                {showModal && selectedLog && (
+                    <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1100, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}>
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="card border-0 shadow-2xl mx-3" 
+                            style={{ borderRadius: "24px", background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(255, 255, 255, 0.1)", maxWidth: "600px", width: "100%" }}
+                        >
+                            <div className="card-body p-5">
+                                <div className="d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <h3 className="fw-bold text-white mb-1" style={{ letterSpacing: "-1px" }}>Work Audit Details</h3>
+                                        <div className="text-info small fw-bold text-uppercase ls-1">Verified Portal History</div>
+                                    </div>
+                                    <button className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+                                </div>
+
+                                <div className="p-4 rounded-4 mb-4" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                                    <div className="row g-3">
+                                        <div className="col-6">
+                                            <div className="extra-small text-white-50 text-uppercase fw-bold mb-1">Employee</div>
+                                            <div className="text-white fw-bold">{selectedLog.employeeName}</div>
+                                        </div>
+                                        <div className="col-6">
+                                            <div className="extra-small text-white-50 text-uppercase fw-bold mb-1">Reporting Date</div>
+                                            <div className="text-white fw-bold">{selectedLog.date}</div>
+                                        </div>
+                                        <div className="col-12 border-top border-white border-opacity-5 pt-3">
+                                            <div className="extra-small text-white-50 text-uppercase fw-bold mb-2">Detailed Work Log</div>
+                                            <div className="text-white small lh-lg fw-medium">{selectedLog.tasksDescription}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div className="badge bg-success bg-opacity-20 text-success rounded-pill px-3 py-2 fw-bold" style={{ fontSize: "0.8rem" }}>
+                                        <FaTasks className="me-2" /> {selectedLog.hoursWorked}
+                                    </div>
+                                    <button className="btn btn-info rounded-pill px-4 fw-bold" onClick={() => setShowModal(false)}>Close Audit</button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
             <style>{`
                 .ls-1 { letter-spacing: 1.5px; }
             `}</style>

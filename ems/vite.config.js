@@ -5,6 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
+    allowedHosts: ['nexgen-employee.loca.lt', 'localhost', '127.0.0.1', '192.168.1.35'],
+    cors: true,
+    hmr: {
+      host: 'nexgen-employee.loca.lt',
+      protocol: 'wss'
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8082',

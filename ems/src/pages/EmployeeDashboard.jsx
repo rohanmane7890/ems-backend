@@ -1,60 +1,28 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEmployeeByEmail, getAttendanceHistory, getNotifications, markNotificationAsRead, getAllEmployees, getEmployeeTasks } from "../services/EmployeeService";
+import { getEmployeeByEmail, getAttendanceHistory, getEmployeeTasks } from "../services/EmployeeService";
 import { 
-    FaUserCircle, FaClock, FaCalendarCheck, FaFileAlt, 
-    FaBell, FaSignOutAlt, FaCheckCircle, FaTimesCircle, FaFileExcel, FaTasks
+    FaUserCircle, FaHistory, FaCalendarAlt, FaTasks, 
+    FaRocket, FaClipboardList
 } from "react-icons/fa";
-import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 
 function EmployeeDashboard() {
     const navigate = useNavigate();
     const [employee, setEmployee] = useState(null);
     const [attendance, setAttendance] = useState([]);
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [tasks, setTasks] = useState([]);
-    const [stats, setStats] = useState({ completed: 0, pending: 0, efficiency: 0 });
-    const notifRef = useRef(null);
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [todayAttendance, setTodayAttendance] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const email = localStorage.getItem("loggedInEmail");
         const role = localStorage.getItem("role");
-        
         if (!email || role !== "EMPLOYEE") {
             navigate("/login");
             return;
         }
-
         fetchData(email);
     }, [navigate]);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (notifRef.current && !notifRef.current.contains(e.target)) {
-                setShowNotifications(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const handleToggleNotifications = async () => {
-        setShowNotifications(prev => !prev);
-        // Mark all unread as read
-        const unread = Array.isArray(notifications) ? notifications.filter(n => !n.isRead) : [];
-        if (unread.length > 0) {
-            try {
-                await Promise.all(unread.map(n => markNotificationAsRead(n.id)));
-                setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-            } catch {}
-        }
-    };
 
     const fetchData = async (email) => {
         try {
@@ -62,293 +30,139 @@ function EmployeeDashboard() {
             const empData = empRes.data;
             setEmployee(empData);
 
-            // Load secondary data independently so it doesn't block the dashboard
-            try {
-                const [attRes, noteRes, taskRes] = await Promise.all([
-                    getAttendanceHistory(empData.id),
-                    getNotifications(empData.id),
-                    getEmployeeTasks(empData.id)
-                ]);
-                setAttendance(attRes.data);
-                setNotifications(noteRes.data);
-                setTasks(taskRes.data);
+            const [attRes, taskRes] = await Promise.all([
+                getAttendanceHistory(empData.id).catch(() => ({ data: [] })),
+                getEmployeeTasks(empData.id).catch(() => ({ data: [] }))
+            ]);
 
-                // Calculate Stats
-                const completed = taskRes.data.filter(t => t.status === 'COMPLETED').length;
-                const pending = taskRes.data.filter(t => t.status !== 'COMPLETED').length;
-                const total = taskRes.data.length;
-                const efficiency = total > 0 ? Math.round((completed / total) * 100) : 0;
-                setStats({ completed, pending, efficiency });
-
-                const today = new Date().toLocaleDateString('en-CA');
-                const todayRecord = Array.isArray(attRes.data) ? attRes.data.find(a => a.date === today) : null;
-                setTodayAttendance(todayRecord);
-            } catch (secErr) {
-                console.warn("Could not load secondary data", secErr);
-            }
-
+            setAttendance(attRes.data);
+            setTasks(taskRes.data);
             setLoading(false);
         } catch (error) {
-            console.error("Error fetching employee data", error);
-            const msg = error?.response?.status === 401
-                ? "Session expired. Please log in again."
-                : error?.response?.status === 404
-                ? "Employee account not found. Contact admin."
-                : "Cannot reach server. Please ensure the backend is running.";
-            setError(msg);
-            toast.error(msg);
+            console.error("Dashboard error", error);
             setLoading(false);
         }
     };
 
-    const exportToExcel = async () => {
-        try {
-            const res = await getAllEmployees();
-            const data = res.data.map(({id, firstName, lastName, email, phoneNumber, department, joiningDate, status}) => ({
-                ID: id, Name: `${firstName} ${lastName}`, Email: email, Phone: phoneNumber, Dept: department, Date: joiningDate, Status: status
-            }));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Employees");
-            XLSX.writeFile(wb, "Employee_List.xlsx");
-            toast.success("Excel exported successfully!");
-        } catch (error) {
-           toast.error("Failed to export Excel");
-        }
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/login");
     };
 
+    if (loading) return <div className="d-flex justify-content-center align-items-center vh-100 bg-black text-white">Loading NexGen Elite...</div>;
 
-    if (loading) return <div className="text-center mt-5"><div className="spinner-border text-primary"></div></div>;
-    if (!employee) return (
-        <div className="d-flex align-items-center justify-content-center" style={{ minHeight: "80vh" }}>
-            <div className="text-center p-5">
-                <div style={{ fontSize: "4rem" }}>⚠️</div>
-                <h4 className="mt-3 fw-bold text-danger">Unable to Load Dashboard</h4>
-                <p className="text-muted">{error || "Could not fetch your employee data. Please check your connection or try logging in again."}</p>
-                <button className="btn btn-primary mt-2" onClick={() => navigate("/login")}>Back to Login</button>
-            </div>
-        </div>
-    );
-
-    
+    const doneTasks = tasks.filter(t => t.status === 'COMPLETED').length;
+    const pendingTasks = tasks.length - doneTasks;
+    const efficiency = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
 
     return (
-        <div style={{ 
-            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)", 
-            minHeight: "100vh",
-            fontFamily: "'Inter', sans-serif"
-        }}>
-
-            <div className="container py-5">
-                <div className="row g-4">
-                    {/* Top Alert Bar for New Tasks */}
-                    {notifications.filter(n => !n.isRead && n.type === 'TASK_ASSIGNED').length > 0 && (
-                        <div className="col-12 mb-0">
-                            <div className="alert border-0 shadow-sm d-flex align-items-center justify-content-between p-3" 
-                                 style={{ 
-                                     background: "rgba(59, 130, 246, 0.1)", 
-                                     borderLeft: "4px solid #3b82f6 !important",
-                                     borderRadius: "16px",
-                                     backdropFilter: "blur(10px)"
-                                 }}>
-                                <div className="d-flex align-items-center gap-3">
-                                    <div className="bg-primary p-2 rounded-circle animate-pulse">
-                                        <FaBell className="text-white" />
-                                    </div>
-                                    <div>
-                                        <strong className="text-white d-block">NexGen Nexus Alert</strong>
-                                        <span className="text-white-50 small">You have {notifications.filter(n => !n.isRead).length} unread task assignments.</span>
-                                    </div>
-                                </div>
-                                <button className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onClick={handleToggleNotifications}>
-                                    View All
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Welcome Section with Notification Bell */}
-                    <div className="col-12 mb-2">
-                        <div className="card border-0 shadow-2xl p-4 bg-primary text-white position-relative overflow-hidden" style={{ borderRadius: "20px", background: "linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)" }}>
-                            <div className="d-flex justify-content-between align-items-start position-relative z-1">
-                                <div>
-                                    <h2 className="fw-bold mb-1" style={{ letterSpacing: "-1px" }}>Hello, {employee.firstName}! 👋</h2>
-                                    <p className="mb-0 opacity-75">Welcome to your dashboard. Stay productive and track your progress.</p>
-                                </div>
-                                <div className="position-relative" ref={notifRef}>
-                                    <button 
-                                        className="btn btn-link text-white p-2 position-relative" 
-                                        onClick={handleToggleNotifications}
-                                        style={{ background: "rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                    >
-                                        <FaBell size={24} />
-                                        {notifications.some(n => !n.isRead) && (
-                                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary" style={{ fontSize: "0.6rem" }}>
-                                                {notifications.filter(n => !n.isRead).length}
-                                            </span>
-                                        )}
-                                    </button>
-
-                                    {showNotifications && (
-                                        <div className="position-absolute end-0 mt-2 shadow-2xl overflow-hidden" 
-                                             style={{ 
-                                                 width: "320px", 
-                                                 background: "rgba(30, 41, 59, 0.98)", 
-                                                 backdropFilter: "blur(20px)",
-                                                 borderRadius: "20px",
-                                                 border: "1px solid rgba(255,255,255,0.1)",
-                                                 zIndex: 1000
-                                             }}>
-                                            <div className="p-3 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
-                                                <h6 className="mb-0 fw-bold">Recent Alerts</h6>
-                                                <span className="badge bg-primary bg-opacity-20 text-primary small">{notifications.length} Total</span>
-                                            </div>
-                                            <div className="overflow-auto" style={{ maxHeight: "300px" }}>
-                                                {notifications.length > 0 ? (
-                                                    notifications.slice().reverse().map((n, i) => (
-                                                        <div key={i} className={`p-3 border-bottom border-white border-opacity-5 ${!n.isRead ? 'bg-primary bg-opacity-10' : ''}`}>
-                                                            <div className="small fw-bold text-white mb-1">{n.type?.replace('_', ' ') || 'SYSTEM'}</div>
-                                                            <p className="extra-small text-white-50 mb-0">{n.message}</p>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="p-4 text-center text-white-50 small">No notifications yet</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+        <div style={{ background: "#060b18", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#fff", padding: "25px 20px" }}>
+            <div className="container" style={{ maxWidth: "1200px" }}>
+                
+                {/* 👋 Hello Banner (Smaller & Compact) */}
+                <div className="p-4 mb-4" style={{ background: "linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)", borderRadius: "16px", boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 className="fw-bold mb-1" style={{ fontSize: "1.75rem" }}>Hello, {employee?.firstName}! 👋</h2>
+                            <p className="opacity-75 mb-0 small">Welcome to your dashboard. stay productive and track your progress.</p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Tasks & Momentum Section */}
+                <div className="row g-3">
+                    {/* 🚀 NexGen Momentum Card (Minimized) */}
                     <div className="col-lg-4">
-                        <div className="card border-0 shadow-2xl h-100 p-4 overflow-hidden position-relative" 
-                             style={{ 
-                                 borderRadius: "20px",
-                                 background: "rgba(30, 41, 59, 0.8)",
-                                 backdropFilter: "blur(20px)",
-                                 border: "1px solid rgba(59, 130, 246, 0.2)",
-                                 color: "white"
-                             }}>
-                            {/* Decorative Glow */}
-                            <div className="position-absolute top-0 end-0 bg-primary opacity-10 rounded-circle" style={{ width: "150px", height: "150px", filter: "blur(60px)", transform: "translate(30%, -30%)" }}></div>
+                        <div className="card h-100 shadow-lg border-0 p-3" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                            <div className="text-info fw-bold text-uppercase mb-3" style={{ fontSize: "0.7rem", letterSpacing: "1.5px" }}>NEXGEN MOMENTUM</div>
                             
-                            <div className="position-relative z-1">
-                                <h6 className="fw-bold text-uppercase small text-info ls-1 mb-4">NexGen Momentum</h6>
-                                
-                                <div className="text-center mb-4">
-                                    <div className="d-inline-flex position-relative align-items-center justify-content-center">
-                                        <svg width="120" height="120" viewBox="0 0 36 36">
-                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="3" />
-                                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray={`${stats.efficiency}, 100`} strokeLinecap="round" style={{ transition: "stroke-dasharray 1.5s ease" }} />
-                                        </svg>
-                                        <div className="position-absolute text-center">
-                                            <h2 className="fw-bold mb-0">{stats.efficiency}%</h2>
-                                            <span className="extra-small opacity-50">Efficiency</span>
-                                        </div>
+                            <div className="text-center py-2 mb-3 position-relative">
+                                <div className="mx-auto" style={{ width: "110px", height: "110px", position: "relative" }}>
+                                    <svg width="110" height="110" viewBox="0 0 160 160">
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="#2563eb" strokeWidth="18" strokeDasharray={`${efficiency * 4.39} 439`} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ filter: "drop-shadow(0 0 8px #2563eb)" }} />
+                                    </svg>
+                                    <div className="position-absolute top-50 start-50 translate-middle">
+                                        <div className="h3 fw-bold mb-0 text-white">{efficiency}%</div>
+                                        <div className="extra-small opacity-50 uppercase fw-bold" style={{ fontSize: "0.55rem" }}>Efficiency</div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="row g-2 text-center mt-2">
-                                    <div className="col-6">
-                                        <div className="p-2 border border-white border-opacity-10 rounded-4" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                            <div className="h4 fw-bold text-success mb-0" style={{ textShadow: "0 0 10px rgba(25, 135, 84, 0.3)" }}>{stats.completed}</div>
-                                            <div className="extra-small opacity-50 text-uppercase fw-bold ls-1" style={{ fontSize: "0.6rem" }}>Finished</div>
-                                        </div>
-                                    </div>
-                                    <div className="col-6">
-                                        <div className="p-2 border border-white border-opacity-10 rounded-4" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                            <div className="h4 fw-bold text-warning mb-0" style={{ textShadow: "0 0 10px rgba(255, 193, 7, 0.3)" }}>{stats.pending}</div>
-                                            <div className="extra-small opacity-50 text-uppercase fw-bold ls-1" style={{ fontSize: "0.6rem" }}>Pending</div>
-                                        </div>
+                            <div className="row g-2 mb-3">
+                                <div className="col-6">
+                                    <div className="bg-white rounded-3 p-2 text-dark text-center shadow-sm">
+                                        <div className="h4 fw-bold mb-0">{doneTasks}</div>
+                                        <div className="extra-small opacity-50 uppercase" style={{ fontSize: "0.5rem" }}>Done</div>
                                     </div>
                                 </div>
+                                <div className="col-6">
+                                    <div className="bg-white rounded-3 p-2 text-dark text-center shadow-sm">
+                                        <div className="h4 fw-bold mb-0">{pendingTasks}</div>
+                                        <div className="extra-small opacity-50 uppercase" style={{ fontSize: "0.5rem" }}>Pending</div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                <div className={`mt-4 p-3 rounded-4 border border-opacity-20 d-flex align-items-center gap-3 ${stats.pending > 0 ? 'bg-warning bg-opacity-10 border-warning' : 'bg-success bg-opacity-10 border-success'}`} style={{ transition: "0.3s" }}>
-                                    <div className={`p-2 rounded-circle shadow-sm ${stats.pending > 0 ? 'bg-warning text-dark' : 'bg-success text-white'}`}>
-                                        <FaTasks size={14} />
-                                    </div>
-                                    <div>
-                                        <div className="small fw-bold text-white">{stats.pending > 0 ? "Push Harder!" : "Clean Slate!"}</div>
-                                        <div className="extra-small text-white-50">{stats.pending > 0 ? `${stats.pending} items need your attention.` : "You've crushed all assignments!"}</div>
-                                    </div>
+                            <div className="p-3 d-flex align-items-center gap-3 mt-auto" style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                                <div className="rounded-circle bg-primary shadow-lg" style={{ width: "30px", height: "30px", boxShadow: "0 0 15px rgba(37, 99, 235, 0.4)" }}></div>
+                                <div>
+                                    <div className="fw-bold text-white" style={{ fontSize: "0.85rem" }}>Clean Slate!</div>
+                                    <div className="extra-small text-white-50" style={{ fontSize: "0.65rem" }}>{pendingTasks === 0 ? "All items crushed!" : `${pendingTasks} items remaining.`}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Navigation Cards */}
+                    {/* 🎮 Grid Cards Navigation (Minimized) */}
                     <div className="col-lg-8">
-                        <div className="row g-4">
-                            {[
-                                { title: "My Profile", icon: <FaUserCircle />, link: "/employee-profile", desc: "View & edit your information", color: "indigo" },
-                                { title: "Attendance History", icon: <FaCalendarCheck />, link: "/attendance", desc: "View your monthly records", color: "teal" },
-                                { title: "Leave Management", icon: <FaFileAlt />, link: "/leaves", desc: "Apply and track leaves", color: "orange" },
-                                { title: "Daily Work Log", icon: <FaTasks />, link: "/employee-worklogs", desc: "Report your daily tasks", color: "cyan" }
-                            ].map((item, idx) => (
-                                <div key={idx} className="col-md-6 col-xl-4">
-                                    <Link to={item.link} className="text-decoration-none">
-                                    <div className="card border-0 shadow-2xl h-100 text-center p-4 action-card" 
-                                             style={{ 
-                                                 borderRadius: "20px", 
-                                                 transition: "0.4s",
-                                                 background: "rgba(30, 41, 59, 0.7)",
-                                                 backdropFilter: "blur(12px)",
-                                                 border: "1px solid rgba(255, 255, 255, 0.1)"
-                                             }}>
-                                            <div className="mb-3">
-                                                <span style={{ fontSize: "2.5rem", color: item.color }}>{item.icon}</span>
-                                            </div>
-                                            <h5 className="fw-bold text-white">{item.title}</h5>
-                                            <p className="text-white-50 small mb-0">{item.desc}</p>
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))}
+                        <div className="row g-3 h-100">
+                            <MenuCard to="/employee-profile" icon={<FaUserCircle className="text-purple" />} title="My Profile" desc="View & edit your information" />
+                            <MenuCard to="/attendance" icon={<FaHistory className="text-teal" />} title="Attendance History" desc="View your monthly records" />
+                            <MenuCard to="/leaves" icon={<FaCalendarAlt className="text-warning" />} title="Leaves Management" desc="Apply & track leaves" />
+                            <MenuCard to="/employee-worklogs" icon={<FaClipboardList className="text-info" />} title="Daily Work Log" desc="Report your daily tasks" />
                         </div>
-                        
-                        {/* Recent Activity Mini Table */}
-                        <div className="card border-0 shadow-2xl mt-4 p-4" style={{ 
-                            borderRadius: "20px",
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            color: "white"
-                        }}>
-                            <h5 className="fw-bold mb-3 d-flex align-items-center text-white text-uppercase small" style={{ letterSpacing: "1px" }}>
-                                <FaCalendarCheck className="me-2 text-info" /> Recent Attendance History
-                            </h5>
-                            <div className="table-responsive">
-                                <table className="table table-hover align-middle mb-0 text-white">
-                                    <thead style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                        <tr className="text-white-50">
-                                            <th>Date</th>
-                                            <th>Check-In</th>
-                                            <th>Check-Out</th>
-                                            <th>Status</th>
+                    </div>
+
+                    {/* 📊 Recent Attendance History */}
+                    <div className="col-12 mt-3">
+                        <div className="card shadow-lg border-0 p-3" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.5)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                            <div className="d-flex align-items-center mb-3 text-info fw-bold text-uppercase" style={{ fontSize: "0.7rem", letterSpacing: "1.5px" }}>
+                                <FaHistory className="me-2" /> RECENT ATTENDANCE HISTORY
+                            </div>
+                            <div className="table-responsive rounded-3">
+                                <table className="table table-borderless align-middle mb-0" style={{ background: "#fff", borderRadius: "12px" }}>
+                                    <thead className="bg-white border-bottom text-dark" style={{ fontSize: "0.75rem", fontWeight: "700" }}>
+                                        <tr>
+                                            <th className="py-3 px-4">Date</th>
+                                            <th className="py-3">Check-In</th>
+                                            <th className="py-3">Check-Out</th>
+                                            <th className="py-3 px-4">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {Array.isArray(attendance) && attendance.length > 0 ? (
-                                            attendance.slice(-5).reverse().map((att, i) => (
-                                                <tr key={i}>
-                                                    <td>{att.date}</td>
-                                                    <td>{att.checkIn ? att.checkIn.split('.')[0] : '--:--'}</td>
-                                                    <td>{att.checkOut ? att.checkOut.split('.')[0] : '--:--'}</td>
-                                                    <td>
-                                                        <span className={`badge rounded-pill bg-${att.status === 'PRESENT' ? 'success' : 'danger'}`}>
-                                                            {att.status}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="4" className="text-center text-muted py-3">No recent activity detected</td>
+                                    <tbody style={{ fontSize: "0.85rem" }}>
+                                        {attendance.length > 0 ? attendance.slice(-4).reverse().map((att, i) => (
+                                            <tr key={i} className="bg-white border-bottom border-light">
+                                                <td className="fw-bold px-4 py-4 text-dark">{att.date}</td>
+                                                <td className="fw-bold text-dark">{att.checkIn || '--:--'}</td>
+                                                <td className="fw-bold text-dark">{att.checkOut || '--:--'}</td>
+                                                <td className="px-4">
+                                                    <div style={{ 
+                                                        display: "inline-block",
+                                                        padding: "4px 12px",
+                                                        background: att.status?.toLowerCase() === 'present' ? "#10b981" : "#ef4444", 
+                                                        color: "#fff",
+                                                        borderRadius: "20px",
+                                                        fontSize: "0.65rem",
+                                                        fontWeight: "800",
+                                                        textTransform: "uppercase",
+                                                        letterSpacing: "0.5px",
+                                                        boxShadow: `0 4px 10px ${att.status?.toLowerCase() === 'present' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                                                    }}>
+                                                        {att.status || 'N/A'}
+                                                    </div>
+                                                </td>
                                             </tr>
-                                        )}
+                                        )) : <tr><td colSpan="4" className="text-center py-5 text-muted">No recent work history recorded.</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -356,22 +170,31 @@ function EmployeeDashboard() {
                     </div>
                 </div>
             </div>
-            
+
+
+
             <style>{`
-                .action-card:hover {
-                    transform: translateY(-5px);
-                    background-color: rgba(59, 130, 246, 0.1) !important;
-                    border-color: rgba(59, 130, 246, 0.5) !important;
-                }
-                .ls-1 { letter-spacing: 1px; }
-                .extra-small { font-size: 0.7rem; }
-                .animate-pulse { animation: pulse 2s infinite; }
-                @keyframes pulse {
-                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                }
+                .text-purple { color: #a855f7; }
+                .text-teal { color: #2dd4bf; }
+                .text-warning { color: #f59e0b; }
+                .text-info { color: #0ea5e9; }
+                .card:hover { transform: translateY(-3px); transition: 0.2s ease-in-out; }
+                .extra-small { font-size: 0.65rem; }
+                .uppercase { text-transform: uppercase; }
+                .container { max-width: 1100px !important; }
             `}</style>
+        </div>
+    );
+}
+
+function MenuCard({ to, icon, title, desc }) {
+    return (
+        <div className="col-md-6">
+            <Link to={to} className="card h-100 shadow-lg border-0 p-4 text-center text-decoration-none" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                <div className="fs-2 mb-2">{icon}</div>
+                <div className="fw-bold text-white h6 mb-1">{title}</div>
+                <div className="extra-small text-white-50">{desc}</div>
+            </Link>
         </div>
     );
 }

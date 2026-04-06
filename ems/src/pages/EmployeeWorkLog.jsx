@@ -72,35 +72,59 @@ function EmployeeWorkLog() {
                 </button>
 
                 <div className="row g-4">
-                    {/* 📋 Assigned Tasks Column */}
+                    {/* 🚀 Active Mission Hub */}
                     <div className="col-12 mb-4">
-                        <div className="card border-0 shadow-sm p-4 text-white" style={{ borderRadius: "20px", background: "linear-gradient(90deg, #1e293b 0%, #334155 100%)" }}>
-                            <h5 className="fw-bold mb-3 d-flex align-items-center"><FaTasks className="me-2 text-info" /> Tasks Assigned by Admin</h5>
-                            <div className="row g-3">
+                        <div className="card shadow-2xl border-0 p-4 text-white" style={{ 
+                            borderRadius: "24px", 
+                            background: "linear-gradient(90deg, #0f172a 0%, #1e293b 100%)",
+                            border: "1px solid rgba(255, 255, 255, 0.05)"
+                        }}>
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <h4 className="fw-bold mb-0 d-flex align-items-center">
+                                    <FaTasks className="me-2 text-info" /> Assigned Missions
+                                </h4>
+                                <span className="small opacity-50 fw-bold uppercase ls-1">Elite Dispatch Hub</span>
+                            </div>
+                            <div className="row g-4">
                                 {assignedTasks.length > 0 ? (
                                     assignedTasks.filter(t => t.status !== 'COMPLETED').map(task => (
-                                        <div key={task.id} className="col-md-4">
-                                            <div className="p-3 rounded-4 border border-white border-opacity-10 h-100 bg-white bg-opacity-5" style={{ transition: "0.4s" }}>
-                                                <div className="d-flex justify-content-between align-items-start mb-2">
-                                                    <h6 className="fw-bold mb-0 text-truncate" title={task.title}>{task.title}</h6>
-                                                    <span className="badge bg-warning bg-opacity-10 text-warning" style={{ fontSize: "0.6rem" }}>{task.status}</span>
+                                        <div key={task.id} className="col-md-6 col-xl-4">
+                                            <div className="mission-card p-4 rounded-4 border border-white border-opacity-5 h-100" style={{ 
+                                                background: "rgba(255, 255, 255, 0.03)", 
+                                                transition: "0.3s ease-in-out",
+                                                boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)" 
+                                            }}>
+                                                <div className="d-flex justify-content-between align-items-start mb-3">
+                                                    <h6 className="fw-bold mb-0 text-truncate text-info" style={{ fontSize: "1rem" }}>{task.title}</h6>
+                                                    <div className="px-2 py-1 rounded bg-info bg-opacity-10 text-info extra-small fw-bold border border-info border-opacity-20">ACTIVE</div>
                                                 </div>
-                                                <p className="small opacity-75 mb-2" style={{ fontSize: "0.7rem", height: "40px", overflow: "hidden" }}>{task.description}</p>
+                                                <p className="small opacity-75 mb-4 lh-base" style={{ fontSize: "0.8rem" }}>{task.description}</p>
                                                 <div className="d-flex gap-2">
-                                                    <button className="btn btn-sm btn-info py-1 flex-grow-1 fw-bold" onClick={() => setFormData({ ...formData, tasksDescription: `[Task ID:${task.id}] ${task.title}: ` })} style={{ fontSize: "0.65rem" }}>Log Work</button>
-                                                    <button className="btn btn-sm btn-success py-1 flex-grow-1 fw-bold" onClick={async () => {
+                                                    <button className="btn btn-primary btn-sm flex-grow-1 fw-bold rounded-pill py-2 shadow-sm" onClick={() => {
+                                                        setFormData({ ...formData, tasksDescription: `[MISSION REPORT] ${task.title}: ` });
+                                                        window.scrollTo({ top: 400, behavior: 'smooth' });
+                                                        toast.info("Mission Mode Activated. Submit your report below.");
+                                                    }}>
+                                                        Send Report
+                                                    </button>
+                                                    <button className="btn btn-outline-success btn-sm flex-grow-1 fw-bold rounded-pill py-2" onClick={async () => {
                                                         try {
                                                             await updateTaskStatus(task.id, 'COMPLETED');
-                                                            toast.success("Task marked as COMPLETED! Admin has been informed.");
+                                                            toast.success("Mission Confirmed! Status sent to Admin.");
                                                             fetchTasks();
-                                                        } catch(e) { toast.error("Error updating task"); }
-                                                    }} style={{ fontSize: "0.65rem" }}>Mark Finished</button>
+                                                        } catch(e) { toast.error("Error confirming mission"); }
+                                                    }}>
+                                                        Finish Task
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-white-50 small mb-0 ms-2">No active tasks assigned.</p>
+                                    <div className="col-12 py-5 text-center opacity-50">
+                                        <div className="h1 mb-2">🔭</div>
+                                        <div className="small fw-bold ls-1 uppercase">No active missions dispatched yet.</div>
+                                    </div>
                                 )}
                             </div>
                         </div>
