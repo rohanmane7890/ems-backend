@@ -2,6 +2,7 @@ package net.javaguides.ems.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         attendance.setEmployeeId(employeeId);
         attendance.setDate(today);
         if (attendance.getCheckIn() == null) {
-            attendance.setCheckIn(LocalTime.now());
+            attendance.setCheckIn(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
             attendance.setStatus("PRESENT");
         }
         Attendance savedAttendance = attendanceRepository.save(attendance);
@@ -61,7 +62,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(employeeId, today)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found for today. Please check-in first."));
         
-        attendance.setCheckOut(LocalTime.now());
+        attendance.setCheckOut(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         Attendance savedAttendance = attendanceRepository.save(attendance);
 
         // 🔔 Notify Employee (Admin or Manual)

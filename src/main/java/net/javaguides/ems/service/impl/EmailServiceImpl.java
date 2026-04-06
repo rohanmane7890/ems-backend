@@ -87,4 +87,26 @@ public class EmailServiceImpl implements EmailService {
             System.err.println("❌ Failed to send leave status notification email: " + e.getMessage());
         }
     }
+
+    @Override
+    public void sendLeaveRequestToAdmin(String adminEmail, String employeeName, String type, String startDate, String endDate, String reason) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(adminEmail);
+            message.setSubject("New Leave Request: " + employeeName + " (" + type + ")");
+            message.setText("Dear Administrator,\n\nA new leave request has been submitted by an employee.\n\n" +
+                    "Employee Name: " + employeeName + "\n" +
+                    "Leave Type: " + type + "\n" +
+                    "Period: " + startDate + " to " + endDate + "\n" +
+                    "Reason: " + reason + "\n\n" +
+                    "Please log in to the EMS Admin Dashboard to approve or reject this request.\n\n" +
+                    "Best regards,\nEMS Automated System");
+
+            mailSender.send(message);
+            System.out.println("✅ Leave request notification sent to Admin: " + adminEmail);
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send leave request notification to Admin: " + e.getMessage());
+        }
+    }
 }

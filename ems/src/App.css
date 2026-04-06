@@ -47,3 +47,13 @@
   box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.5);
   filter: brightness(1.1);
 }
+
+.hover-white:hover {
+  color: white !important;
+  opacity: 1 !important;
+  transition: all 0.2s ease;
+}
+
+.form-label {
+  margin-bottom: 0.5rem;
+}

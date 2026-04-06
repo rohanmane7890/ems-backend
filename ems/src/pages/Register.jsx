@@ -92,6 +92,15 @@ function Register() {
             .finally(() => setLoading(false));
     };
 
+    const designationsByDept = {
+        "IT": ["Software Engineer", "Lead Developer", "System Architect", "QA Engineer", "DevOps Engineer", "UI/UX Designer"],
+        "HR": ["HR Manager", "Recruiter", "HR Specialist", "Talent Acquisition"],
+        "Finance": ["Accountant", "Financial Analyst", "Finance Manager", "Auditor"],
+        "Marketing": ["Marketing Specialist", "Content Strategist", "Social Media Manager", "SEO Specialist"],
+        "Operations": ["Operations Manager", "Logistics Coordinator", "Project Manager"],
+        "Sales": ["Sales Executive", "Account Manager", "Business Development", "Sales Lead"]
+    };
+
     return (
         <div
             className="d-flex align-items-center justify-content-center overflow-hidden position-relative"
@@ -140,9 +149,10 @@ function Register() {
 
                 {!isOtpSent ? (
                     <form onSubmit={handleRegister}>
+                        {/* --- Personal Information Section --- */}
                         <div className="row">
                             <div className="col-md-6 mb-3">
-                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>First Name</label>
+                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>First Name <span className="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent text-white"
@@ -155,7 +165,7 @@ function Register() {
                                 />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Last Name</label>
+                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Last Name <span className="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent text-white"
@@ -169,38 +179,53 @@ function Register() {
                             </div>
                         </div>
 
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Department</label>
-                                <select
-                                    className="form-select bg-transparent text-white"
-                                    style={{ borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.2)", padding: "12px", appearance: "none" }}
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="" disabled style={{ background: "#24243e" }}>Select Department</option>
-                                    <option value="IT" style={{ background: "#24243e" }}>IT</option>
-                                    <option value="HR" style={{ background: "#24243e" }}>HR</option>
-                                    <option value="Finance" style={{ background: "#24243e" }}>Finance</option>
-                                    <option value="Marketing" style={{ background: "#24243e" }}>Marketing</option>
-                                    <option value="Operations" style={{ background: "#24243e" }}>Operations</option>
-                                    <option value="Sales" style={{ background: "#24243e" }}>Sales</option>
-                                </select>
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>Designation</label>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent text-white"
-                                    style={{ borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.2)", padding: "12px" }}
-                                    name="designation"
-                                    placeholder="Lead Developer"
-                                    value={formData.designation}
-                                    onChange={handleChange}
-                                    required
-                                />
+                        {/* --- Work Information Section (Highlighted) --- */}
+                        <div className="p-3 mb-3 rounded-4" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                            <p className="small text-uppercase fw-bold mb-3" style={{ color: "#818cf8", letterSpacing: "1px" }}>
+                                <i className="ri-briefcase-line me-2"></i>Work Information
+                            </p>
+                            <div className="row">
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.6)" }}>
+                                        <i className="ri-building-line me-1"></i> Department <span className="text-danger">*</span>
+                                    </label>
+                                    <select
+                                        className="form-select bg-transparent text-white"
+                                        style={{ borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.2)", padding: "12px", appearance: "none" }}
+                                        name="department"
+                                        value={formData.department}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, department: e.target.value, designation: "" });
+                                        }}
+                                        required
+                                    >
+                                        <option value="" disabled style={{ background: "#1e1b4b" }}>Select Department</option>
+                                        {Object.keys(designationsByDept).map(dept => (
+                                            <option key={dept} value={dept} style={{ background: "#1e1b4b" }}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label small text-uppercase fw-semibold ps-1" style={{ color: "rgba(255, 255, 255, 0.6)" }}>
+                                        <i className="ri-award-line me-1"></i> Designation <span className="text-danger">*</span>
+                                    </label>
+                                    <select
+                                        className="form-select bg-transparent text-white"
+                                        style={{ borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.2)", padding: "12px", appearance: "none" }}
+                                        name="designation"
+                                        value={formData.designation}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={!formData.department}
+                                    >
+                                        <option value="" disabled style={{ background: "#1e1b4b" }}>
+                                            {!formData.department ? "Select Dept First" : "Select Role"}
+                                        </option>
+                                        {formData.department && designationsByDept[formData.department].map(role => (
+                                            <option key={role} value={role} style={{ background: "#1e1b4b" }}>{role}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 

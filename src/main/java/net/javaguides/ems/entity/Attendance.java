@@ -28,7 +28,10 @@ public class Attendance {
     
     private Long employeeId;
     private LocalDate date;
+    @jakarta.persistence.Column(columnDefinition = "TIME")
     private LocalTime checkIn;
+
+    @jakarta.persistence.Column(columnDefinition = "TIME")
     private LocalTime checkOut;
     private String status; // PRESENT, ABSENT, LEAVE, LATE
 }

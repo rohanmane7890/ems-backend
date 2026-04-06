@@ -19,7 +19,10 @@ public class AttendanceDTO {
     private String lastName;
     private String designation;
     private LocalDate date;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
     private LocalTime checkIn;
+
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
     private LocalTime checkOut;
     private String status;
 }

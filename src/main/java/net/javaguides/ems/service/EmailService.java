@@ -5,4 +5,5 @@ public interface EmailService {
     void sendForgotPasswordOtp(String email, String otp);
     void sendRegistrationOtp(String email, String otp);
     void sendLeaveStatusNotification(String email, String status, String startDate, String endDate);
+    void sendLeaveRequestToAdmin(String adminEmail, String employeeName, String type, String startDate, String endDate, String reason);
 }

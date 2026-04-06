@@ -16,6 +16,9 @@ import net.javaguides.ems.service.NotificationService;
 @Service
 public class LeaveRequestServiceImpl implements LeaveRequestService {
 
+    @org.springframework.beans.factory.annotation.Value("${app.admin.email}")
+    private String adminEmail;
+
     private final LeaveRequestRepository leaveRequestRepository;
     private final EmployeeRepository employeeRepository;
     private final EmailService emailService;
@@ -36,6 +39,27 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         LeaveRequest leaveRequest = LeaveRequestMapper.mapToLeaveRequest(leaveRequestDTO);
         leaveRequest.setStatus("PENDING");
         LeaveRequest savedLeave = leaveRequestRepository.save(leaveRequest);
+
+        // 🔔 Notify Admin
+        employeeRepository.findById(leaveRequest.getEmployeeId()).ifPresent(employee -> {
+            String employeeName = employee.getFirstName() + " " + employee.getLastName();
+            
+            // 📧 Send Email to Admin
+            emailService.sendLeaveRequestToAdmin(
+                adminEmail, 
+                employeeName, 
+                leaveRequest.getType(), 
+                leaveRequest.getStartDate().toString(), 
+                leaveRequest.getEndDate().toString(), 
+                leaveRequest.getReason()
+            );
+
+            // 🔔 Create Dashboard Notification for Admin (ID: -1)
+            String message = String.format("New Leave Request from %s (%s to %s)", 
+                employeeName, leaveRequest.getStartDate(), leaveRequest.getEndDate());
+            notificationService.createNotification(-1L, message, "LEAVE_REQUEST");
+        });
+
         return LeaveRequestMapper.mapToLeaveRequestDTO(savedLeave);
     }
 
