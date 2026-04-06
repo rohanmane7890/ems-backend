@@ -3,9 +3,11 @@ package net.javaguides.ems.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.internet.MimeMessage;
 import net.javaguides.ems.service.EmailService;
 
 @Service
@@ -39,15 +41,32 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendForgotPasswordOtp(String email, String otp) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
-            message.setSubject("Password Reset: Your One-Time Password (OTP)");
-            message.setText("Hello,\n\nYou have requested to reset your password. Your One-Time Password (OTP) is:\n\n" + otp
-                    + "\n\nThis OTP is valid for 10 minutes. If you did not request this reset, please change your password immediately or contact support.\n\nBest regards,\nEMS Corporate Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("🔐 Security Alert: Password Reset OTP");
+
+            String htmlContent = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; padding: 20px;\">" +
+                    "<div style=\"max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);\">" +
+                    "<div style=\"background: #0f172a; padding: 25px; text-align: center;\">" +
+                    "<h1 style=\"color: #38bdf8; margin: 0; font-size: 20px; letter-spacing: 1px;\">NEXGEN SECURITY</h1>" +
+                    "</div>" +
+                    "<div style=\"padding: 30px; text-align: center;\">" +
+                    "<h2 style=\"color: #0f172a; margin-top: 0;\">Password Reset Requested</h2>" +
+                    "<p style=\"color: #64748b; font-size: 15px;\">Use the secure code below to finalize your password reset. This code is valid for 10 minutes.</p>" +
+                    "<div style=\"background: #f1f5f9; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px dashed #cbd5e1;\">" +
+                    "<span style=\"font-size: 32px; font-weight: bold; color: #2563eb; letter-spacing: 8px;\">" + otp + "</span>" +
+                    "</div>" +
+                    "<p style=\"color: #94a3b8; font-size: 13px;\">If you did not request this reset, please ignore this email or contact support.</p>" +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+
+            helper.setText(htmlContent, true);
             mailSender.send(message);
-            System.out.println("✅ Password Reset OTP email sent to: " + email + " | OTP: " + otp);
+            System.out.println("✅ Elite Password Reset OTP sent to: " + email);
         } catch (Exception e) {
             System.err.println("❌ Failed to send Password Reset OTP email: " + e.getMessage());
         }
@@ -57,20 +76,34 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendRegistrationOtp(String email, String otp) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
-            message.setSubject("Account Registration: Your OTP Code");
-            message.setText(
-                    "Dear Employee,\n\nWelcome to EMS! We are excited to have you on board. Your verification code to activate your account is:\n\n"
-                            + otp
-                            + "\n\nThis OTP is valid for 10 minutes. Please enter it on the registration page to finalize your setup.\n\nBest regards,\nEMS Corporate Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("🚀 Welcome to NexGen: Verify Your Account");
+
+            String htmlContent = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; padding: 20px;\">" +
+                    "<div style=\"max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);\">" +
+                    "<div style=\"background: #0f172a; padding: 25px; text-align: center;\">" +
+                    "<h1 style=\"color: #38bdf8; margin: 0; font-size: 20px; letter-spacing: 1px;\">NEXGEN WORKFORCE</h1>" +
+                    "</div>" +
+                    "<div style=\"padding: 30px; text-align: center;\">" +
+                    "<h2 style=\"color: #0f172a; margin-top: 0;\">Account Verification</h2>" +
+                    "<p style=\"color: #64748b; font-size: 15px;\">Welcome aboard! Enter the verification code below to activate your employee profile and enter the mission portal.</p>" +
+                    "<div style=\"background: #f1f5f9; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px dashed #cbd5e1;\">" +
+                    "<span style=\"font-size: 32px; font-weight: bold; color: #2563eb; letter-spacing: 8px;\">" + otp + "</span>" +
+                    "</div>" +
+                    "<p style=\"color: #94a3b8; font-size: 13px;\">This code is valid for 10 minutes. Please do not share this code with anyone.</p>" +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+
+            helper.setText(htmlContent, true);
             mailSender.send(message);
-            System.out.println("✅ Registration OTP sent to: " + email);
+            System.out.println("✅ Elite Registration OTP sent to: " + email);
         } catch (Exception e) {
-            System.err.println("❌ CRITICAL: Failed to send OTP email: " + e.getMessage());
-            throw new RuntimeException("Email delivery failed. Please check your internet or email settings.");
+            System.err.println("❌ Failed to send Registration OTP email: " + e.getMessage());
         }
     }
 
@@ -120,20 +153,45 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendTaskAssignmentEmail(String email, String taskTitle, String dueDate) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
-            message.setSubject("🚨 Action Required: New Task Assigned - " + taskTitle);
-            message.setText("Dear Employee,\n\nA new task has been assigned to you in the NexGen Workforce System.\n\n" +
-                    "📌 Task Title: " + taskTitle + "\n" +
-                    "🕒 Due Date: " + dueDate + "\n\n" +
-                    "Please log in to your dashboard to view the full details and submit your daily work logs upon completion.\n\n" +
-                    "Best regards,\nNexGen Workforce Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("🚨 Mission Assigned: " + taskTitle);
+
+            String htmlContent = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; padding: 20px; color: #333;\">" +
+                    "<div style=\"max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);\">" +
+                    "<div style=\"background: #0f172a; padding: 30px; text-align: center;\">" +
+                    "<h1 style=\"color: #38bdf8; margin: 0; font-size: 24px; letter-spacing: -0.5px;\">NEXGEN WORKFORCE</h1>" +
+                    "</div>" +
+                    "<div style=\"padding: 30px;\">" +
+                    "<h2 style=\"margin-top: 0; color: #0f172a;\">New Mission Dispatched</h2>" +
+                    "<p style=\"font-size: 16px; line-height: 1.6;\">Dear Employee,</p>" +
+                    "<p style=\"font-size: 16px; line-height: 1.6;\">A high-priority mission has been assigned to your station. Please review the details and finalize the task before the deadline.</p>" +
+                    "<div style=\"background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #38bdf8; margin: 20px 0;\">" +
+                    "<p style=\"margin: 0; color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold;\">Mission Title</p>" +
+                    "<p style=\"margin: 5px 0 15px; font-size: 18px; font-weight: bold; color: #0f172a;\">" + taskTitle + "</p>" +
+                    "<p style=\"margin: 0; color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold;\">Due Date</p>" +
+                    "<p style=\"margin: 5px 0 0; font-size: 16px; font-weight: bold; color: #e11d48;\">" + dueDate + "</p>" +
+                    "</div>" +
+                    "<div style=\"text-align: center; margin: 30px 0;\">" +
+                    "<a href=\"http://192.168.1.35:5173/\" style=\"background-color: #2563eb; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);\">OPEN MISSION PORTAL</a>" +
+                    "</div>" +
+                    "<p style=\"font-size: 14px; color: #64748b;\">If the button doesn't work, copy and paste this link into your browser:</p>" +
+                    "<p style=\"font-size: 14px; color: #2563eb; word-break: break-all;\">http://192.168.1.35:5173/</p>" +
+                    "</div>" +
+                    "<div style=\"background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;\">" +
+                    "&copy; 2026 NexGen Workforce Systems. Secure Cloud Dispatch." +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+
+            helper.setText(htmlContent, true);
             mailSender.send(message);
-            System.out.println("✅ Task assignment notification sent to: " + email);
+            System.out.println("✅ Elite HTML Mission briefing sent to: " + email);
         } catch (Exception e) {
-            System.err.println("❌ Failed to send task assignment email: " + e.getMessage());
+            System.err.println("❌ CRITICAL: Failed to send HTML mission briefing: " + e.getMessage());
         }
     }
 }

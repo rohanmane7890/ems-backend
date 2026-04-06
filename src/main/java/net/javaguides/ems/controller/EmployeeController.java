@@ -95,7 +95,7 @@ public class EmployeeController {
     
 
     @PostMapping("/upload-photo")
-    public String uploadPhoto(@RequestParam("file") MultipartFile file) throws IOException {
+    public String uploadPhoto(@RequestParam("file") MultipartFile file, @RequestParam("employeeId") Long employeeId) throws IOException {
 
         // Create directory if not exists
         File dir = new File(uploadDir);
@@ -109,6 +109,11 @@ public class EmployeeController {
         // Save file
         File dest = new File(uploadDir + fileName);
         file.transferTo(dest);
+
+        // Update link in database
+        EmployeeDTO employee = employeeService.getEmployeeById(employeeId);
+        employee.setProfilePhoto(fileName);
+        employeeService.updateEmployee(employeeId, employee);
 
         // Return just the filename
         return fileName;

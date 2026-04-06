@@ -11,8 +11,14 @@ const HeaderComponent = () => {
   
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [employeeId, setEmployeeId] = useState(null);
   const notifRef = useRef(null);
+
+  // Close menu on navigation
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (role === "EMPLOYEE" && email) {
@@ -101,11 +107,11 @@ const HeaderComponent = () => {
                     <span className="fw-bold text-white">NexGen <span className="fw-light opacity-75">Workforce</span></span>
                 </Link>
 
-          <button className="navbar-toggler border-0 shadow-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+          <button className="navbar-toggler border-0 shadow-none text-white" type="button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <i className="ri-menu-3-line fs-3"></i>
           </button>
           
-          <div className="collapse navbar-collapse" id="navContent">
+          <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navContent">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
               {role === "ADMIN" && (
                 <>
