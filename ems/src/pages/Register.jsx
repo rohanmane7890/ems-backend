@@ -77,6 +77,21 @@ function Register() {
             .finally(() => setLoading(false));
     };
 
+    const handleChangeEmail = () => {
+        setLoading(true);
+        AuthService.rollbackRegistration(formData.email)
+            .then(() => {
+                setIsOtpSent(false);
+                setOtp("");
+                setMessage({ text: "Please enter your correct email address.", type: "info" });
+            })
+            .catch(() => {
+                // If it fails (e.g. record manually deleted), just go back anyway
+                setIsOtpSent(false);
+            })
+            .finally(() => setLoading(false));
+    };
+
     return (
         <div
             className="d-flex align-items-center justify-content-center overflow-hidden position-relative"
@@ -287,8 +302,13 @@ function Register() {
                             Verify & Activate
                         </button>
                         <div className="text-center">
-                            <button type="button" className="btn btn-link text-white-50 small p-0" onClick={() => setIsOtpSent(false)}>
-                                Back to registration
+                            <button 
+                                type="button" 
+                                className="btn btn-link text-white-50 small p-0 text-decoration-none hover-white" 
+                                onClick={handleChangeEmail}
+                                disabled={loading}
+                            >
+                                <i className="ri-arrow-left-line me-1"></i> Change Email
                             </button>
                         </div>
                     </form>

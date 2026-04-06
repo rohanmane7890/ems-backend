@@ -7,4 +7,5 @@ public interface NotificationService {
     NotificationDTO createNotification(Long employeeId, String message, String type);
     List<NotificationDTO> getEmployeeNotifications(Long employeeId);
     void markAsRead(Long notificationId);
+    void markAllAsRead(Long employeeId);
 }

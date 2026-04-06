@@ -20,6 +20,10 @@ class AuthService {
         return axios.post(`${BASE_URL}/verify-registration`, { email, otp });
     }
 
+    rollbackRegistration(email) {
+        return axios.post(`${BASE_URL}/rollback-registration`, { email });
+    }
+
     verifyMasterPin(pin) {
         return axios.post(`${BASE_URL}/verify-master-pin`, { pin });
     }

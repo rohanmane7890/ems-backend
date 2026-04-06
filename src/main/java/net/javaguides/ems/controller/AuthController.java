@@ -220,6 +220,27 @@ public class AuthController {
         return ResponseEntity.status(401).body("Invalid or expired OTP!");
     }
 
+    @PostMapping("/rollback-registration")
+    public ResponseEntity<?> rollbackRegistration(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
+
+        Optional<Employee> employeeOpt = repository.findByEmail(email);
+        if (employeeOpt.isPresent()) {
+            Employee employee = employeeOpt.get();
+            // Only allow rollback for INACTIVE accounts to prevent data corruption
+            if ("Inactive".equalsIgnoreCase(employee.getStatus())) {
+                repository.delete(employee);
+                otpService.clearOtp(email);
+                log.info("Audit: Registration rolled back for unverified email: {}", email);
+                return ResponseEntity.ok("Registration cancelled. You can now register with the correct email.");
+            }
+        }
+        return ResponseEntity.status(400).body("Cannot rollback registration for this email.");
+    }
+
     @PostMapping("/verify-master-pin")
     public ResponseEntity<?> verifyMasterPin(@RequestBody Map<String, String> request) {
         String pin = request.get("pin");

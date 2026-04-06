@@ -30,4 +30,10 @@ public class NotificationController {
         notificationService.markAsRead(id);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/employee/{employeeId}/read-all")
+    public ResponseEntity<Void> markAllAsRead(@PathVariable Long employeeId) {
+        notificationService.markAllAsRead(employeeId);
+        return ResponseEntity.ok().build();
+    }
 }

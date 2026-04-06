@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, NavLink, useLocation } from 'react-router-dom'
-import { getEmployeeByEmail, getNotifications, markNotificationAsRead } from '../services/EmployeeService'
+import { getEmployeeByEmail, getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/EmployeeService'
 
 const HeaderComponent = () => {
   const navigate = useNavigate();
@@ -54,6 +54,17 @@ const HeaderComponent = () => {
           await markNotificationAsRead(id);
           setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
       } catch {}
+  };
+
+  const handleMarkAllRead = async () => {
+      if (employeeId) {
+          try {
+              await markAllNotificationsAsRead(employeeId);
+              setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+          } catch (error) {
+              console.error("Error marking all as read", error);
+          }
+      }
   };
 
   // Close when clicking outside
@@ -178,8 +189,15 @@ const HeaderComponent = () => {
                         <div className="dropdown-menu show shadow-lg border-0 p-0" 
                              style={{ position: 'absolute', right: 0, top: '120%', width: '320px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#fff', zIndex: 1060 }}>
                             <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
-                                <span className="fw-bold small text-dark">Notifications</span>
-                                <span className="badge bg-primary rounded-pill small">{unreadCount} New</span>
+                                <div className="d-flex align-items-center gap-2">
+                                    <span className="fw-bold small text-dark">Notifications</span>
+                                    <span className="badge bg-primary rounded-pill" style={{ fontSize: '0.7rem' }}>{unreadCount} New</span>
+                                </div>
+                                {unreadCount > 0 && (
+                                    <button className="btn btn-link btn-sm p-0 text-primary small text-decoration-none fw-semibold" onClick={handleMarkAllRead}>
+                                        Mark all as read
+                                    </button>
+                                )}
                             </div>
                             <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
                                 {notifications.length === 0 || notifications.filter(n => !n.isRead).length === 0 ? (
