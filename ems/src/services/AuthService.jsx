@@ -4,8 +4,8 @@ const BASE_URL = "/api/auth";
 
 class AuthService {
     // Updated login with proper headers for CORS
-    login(email, password) {
-        return axios.post(`${BASE_URL}/login`, { email, password });
+    login(email, password, secretPin = null) {
+        return axios.post(`${BASE_URL}/login`, { email, password, secretPin });
     }
 
     verifyOtp(email, otp) {

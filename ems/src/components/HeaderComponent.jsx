@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, NavLink, useLocation } from 'react-router-dom'
+import { useNavigate, NavLink, useLocation, Link } from 'react-router-dom'
+import { FaBolt } from 'react-icons/fa'
 import { getEmployeeByEmail, getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/EmployeeService'
 
 const HeaderComponent = () => {
@@ -93,12 +94,12 @@ const HeaderComponent = () => {
     <header className="sticky-top shadow-sm">
       <nav className="navbar navbar-expand-lg py-3" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
         <div className="container">
-          <a className="navbar-brand d-flex align-items-center gap-2" href="/" style={{ color: "#fff", fontWeight: "800", letterSpacing: "0.5px" }}>
-            <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center shadow" style={{ width: "35px", height: "35px" }}>
-                <i className="ri-pulse-line text-white"></i>
-            </div>
-            <span style={{ fontSize: "1.4rem" }}>Pulse <span className="text-primary">EMS</span></span>
-          </a>
+                <Link className="navbar-brand d-flex align-items-center" to="/" style={{ fontSize: "1.5rem", letterSpacing: "-1px" }}>
+                    <div className="bg-white rounded-circle p-2 me-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: "40px", height: "40px" }}>
+                        <FaBolt className="text-primary" />
+                    </div>
+                    <span className="fw-bold text-white">NexGen <span className="fw-light opacity-75">Workforce</span></span>
+                </Link>
 
           <button className="navbar-toggler border-0 shadow-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
             <i className="ri-menu-3-line fs-3"></i>
@@ -134,8 +135,8 @@ const HeaderComponent = () => {
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/admin/salaries" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
-                      Salaries
+                    <NavLink to="/admin/work-reports" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
+                      Work Reports
                     </NavLink>
                   </li>
                 </>
@@ -164,8 +165,8 @@ const HeaderComponent = () => {
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/employee-salary" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
-                      Salary
+                    <NavLink to="/employee-worklogs" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
+                      Daily Work Log
                     </NavLink>
                   </li>
                 </>

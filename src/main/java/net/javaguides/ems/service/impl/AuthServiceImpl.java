@@ -24,6 +24,13 @@ public class AuthServiceImpl implements AuthService {
 	            throw new RuntimeException("Invalid Password");
 	        }
 
+	        // 🔒 Phase 9: Admin Master Key Security
+	        if (employee.getRole().name().equals("ADMIN")) {
+	            if (request.getSecretPin() == null || !request.getSecretPin().equals("7890")) {
+	                throw new RuntimeException("Unauthorized: Master PIN Required for Admin Access");
+	            }
+	        }
+
 	        return new LoginResponse("Login Successful", employee.getRole().name());
 	}
 

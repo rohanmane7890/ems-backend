@@ -4,7 +4,7 @@ import { getDashboardAnalytics, getAllEmployees, getEmployee, checkIn, checkOut 
 import { 
     FaUsers, FaUserCheck, FaUserTimes, FaUserPlus, 
     FaChartBar, FaChartPie, FaHistory, FaSignOutAlt, 
-    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaMoneyBillWave 
+    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaMoneyBillWave, FaTasks
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -179,6 +179,12 @@ function AdminDashboard() {
                                 </Link>
                                 <Link to="/search" className="btn btn-outline-info py-2 d-flex align-items-center justify-content-center">
                                     <FaSearch className="me-2" /> Advanced Search
+                                </Link>
+                                <Link to="/admin/work-reports" className="btn btn-outline-warning py-2 d-flex align-items-center justify-content-center">
+                                    <FaTasks className="me-2 text-info" /> View Work Reports
+                                </Link>
+                                <Link to="/admin/assign-task" className="btn btn-outline-success py-2 d-flex align-items-center justify-content-center">
+                                    <FaPlusCircle className="me-2 text-success" /> Assign New Task
                                 </Link>
                                 <Link to="/admin/attendance" className="btn btn-outline-primary py-2 d-flex align-items-center justify-content-center">
                                     <FaCalendarAlt className="me-2" /> Track Attendance

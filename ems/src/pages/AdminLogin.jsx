@@ -5,6 +5,7 @@ import AuthService from "../services/AuthService";
 function AdminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [secretPin, setSecretPin] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -14,8 +15,9 @@ function AdminLogin() {
         e.preventDefault();
         setErrorMessage("");
         setIsLoading(true);
-
-        AuthService.login(email, password)
+        
+        // Pass secretPin for Admin dual-factor verification
+        AuthService.login(email, password, secretPin)
             .then((response) => {
                 const role = response.data.role;
                 const id = response.data.id;
@@ -133,6 +135,33 @@ function AdminLogin() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 autoComplete="new-password"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-5">
+                        <label className="form-label ms-1 small text-uppercase fw-semibold" style={{ color: "rgba(100, 149, 237, 0.8)" }}>🛡️ Secondary Master Key (PIN)</label>
+                        <div className="input-group">
+                            <span className="input-group-text bg-transparent border-end-0 text-info" style={{ borderRadius: "14px 0 0 14px", border: "1px solid rgba(59, 130, 246, 0.3)" }}>
+                                <i className="ri-shield-keyhole-line"></i>
+                            </span>
+                            <input
+                                type="password"
+                                className="form-control bg-transparent text-white border-start-0 shadow-none"
+                                style={{ 
+                                    borderRadius: "0 14px 14px 0", 
+                                    border: "1px solid rgba(59, 130, 246, 0.3)",
+                                    background: "rgba(59, 130, 246, 0.05)",
+                                    padding: "14px",
+                                    color: "#fff",
+                                    letterSpacing: "4px",
+                                    fontWeight: "bold"
+                                }}
+                                placeholder="••••••"
+                                maxLength="6"
+                                value={secretPin}
+                                onChange={(e) => setSecretPin(e.target.value)}
+                                required
                             />
                         </div>
                     </div>

@@ -24,4 +24,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>{
 	List<Employee>findByRoleNot(Role role);
 
 	List<Employee> findByDepartmentIgnoreCaseAndStatusIgnoreCase(String department, String status);
+	List<Employee> findByDesignationIgnoreCase(String designation);
 }

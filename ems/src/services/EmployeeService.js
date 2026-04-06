@@ -70,6 +70,9 @@ export const checkOut = (employeeId) =>
 export const getAttendanceHistory = (employeeId) =>
     axios.get(`/api/attendance/employee/${employeeId}`, authHeader());
 
+export const getAttendanceByDate = (date) =>
+    axios.get(`/api/attendance/date?date=${date}`, authHeader());
+
 // 🔹 Leave Management APIs
 export const applyLeave = (leaveRequest) =>
     axios.post("/api/leaves", leaveRequest, authHeader());
@@ -99,3 +102,32 @@ export const updateProfile = (employeeId, employee) =>
 
 export const changePassword = (employeeId, newPassword) =>
     axios.put(`${REST_API_BASE_URL}/${employeeId}/change-password?newPassword=${newPassword}`, {}, authHeader());
+
+// 🔹 Work Log APIs
+export const submitWorkLog = (workLog) =>
+    axios.post("/api/work-logs", workLog, authHeader());
+
+export const getEmployeeWorkLogs = (employeeId) =>
+    axios.get(`/api/work-logs/employee/${employeeId}`, authHeader());
+
+export const getAllWorkLogs = () =>
+    axios.get("/api/work-logs/all", authHeader());
+
+// 🔹 Task Assignment APIs
+export const assignTask = (task) =>
+    axios.post("/api/tasks", task, authHeader());
+
+export const getEmployeeTasks = (employeeId) =>
+    axios.get(`/api/tasks/employee/${employeeId}`, authHeader());
+
+export const getAllTasks = () =>
+    axios.get("/api/tasks/all", authHeader());
+
+export const updateTaskStatus = (taskId, status) =>
+    axios.put(`/api/tasks/${taskId}/status?status=${status}`, {}, authHeader());
+
+export const assignTaskToDepartment = (dept, task) =>
+    axios.post(`/api/tasks/department?dept=${dept}`, task, authHeader());
+
+export const assignTaskByDesignation = (designation, task) =>
+    axios.post(`/api/tasks/designation?designation=${designation}`, task, authHeader());

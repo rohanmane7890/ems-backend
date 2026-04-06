@@ -21,6 +21,9 @@ import LeaveManagement from './pages/LeaveManagement'
 import AdminLeaveManagement from './pages/AdminLeaveManagement'
 import AdminAttendance from './pages/AdminAttendance'
 import AdminSalaryManagement from './pages/AdminSalaryManagement'
+import EmployeeWorkLog from './pages/EmployeeWorkLog'
+import AdminWorkLogView from './pages/AdminWorkLogView'
+import AdminAssignTask from './pages/AdminAssignTask'
 
 function App() {
 
@@ -150,6 +153,33 @@ function App() {
             element={
               <ProtectedRoute role="ADMIN">
                 <AdminSalaryManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employee-worklogs"
+            element={
+              <ProtectedRoute role="EMPLOYEE">
+                <EmployeeWorkLog />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/work-reports"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminWorkLogView />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/assign-task"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminAssignTask />
               </ProtectedRoute>
             }
           />

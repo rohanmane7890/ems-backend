@@ -115,4 +115,25 @@ public class EmailServiceImpl implements EmailService {
             System.err.println("❌ Failed to send leave request notification to Admin: " + e.getMessage());
         }
     }
+
+    @Async
+    @Override
+    public void sendTaskAssignmentEmail(String email, String taskTitle, String dueDate) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject("🚨 Action Required: New Task Assigned - " + taskTitle);
+            message.setText("Dear Employee,\n\nA new task has been assigned to you in the NexGen Workforce System.\n\n" +
+                    "📌 Task Title: " + taskTitle + "\n" +
+                    "🕒 Due Date: " + dueDate + "\n\n" +
+                    "Please log in to your dashboard to view the full details and submit your daily work logs upon completion.\n\n" +
+                    "Best regards,\nNexGen Workforce Team");
+
+            mailSender.send(message);
+            System.out.println("✅ Task assignment notification sent to: " + email);
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send task assignment email: " + e.getMessage());
+        }
+    }
 }
