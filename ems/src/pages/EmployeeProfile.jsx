@@ -20,7 +20,7 @@ function EmployeeProfile() {
     const [message, setMessage] = useState("");
 
     // 🛡️ Form States
-    const [editData, setEditData] = useState({ firstName: "", lastName: "", phoneNumber: "", address: "" });
+    const [editData, setEditData] = useState({ firstName: "", lastName: "", phoneNumber: "", address: "", department: "", designation: "" });
     const [passData, setPassData] = useState({ newPass: "", confirmPass: "" });
 
     useEffect(() => {
@@ -40,7 +40,9 @@ function EmployeeProfile() {
                 firstName: res.data.firstName,
                 lastName: res.data.lastName,
                 phoneNumber: res.data.phoneNumber || "",
-                address: res.data.address || ""
+                address: res.data.address || "",
+                department: res.data.department || "",
+                designation: res.data.designation || ""
             });
             setLoading(false);
         } catch (error) {
@@ -209,6 +211,14 @@ function EmployeeProfile() {
                                     <div className="col-md-6 text-start">
                                         <label className="small fw-bold text-secondary mb-1">LAST NAME</label>
                                         <input type="text" className="form-control" value={editData.lastName} onChange={(e) => setEditData({...editData, lastName: e.target.value})} required />
+                                    </div>
+                                    <div className="col-md-6 text-start">
+                                        <label className="small fw-bold text-secondary mb-1">DEPARTMENT</label>
+                                        <input type="text" className="form-control" value={editData.department} onChange={(e) => setEditData({...editData, department: e.target.value})} required />
+                                    </div>
+                                    <div className="col-md-6 text-start">
+                                        <label className="small fw-bold text-secondary mb-1">DESIGNATION</label>
+                                        <input type="text" className="form-control" value={editData.designation} onChange={(e) => setEditData({...editData, designation: e.target.value})} required />
                                     </div>
                                     <div className="col-12 text-start">
                                         <label className="small fw-bold text-secondary mb-1">PHONE NUMBER</label>
