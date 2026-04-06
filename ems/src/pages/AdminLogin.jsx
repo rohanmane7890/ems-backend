@@ -31,7 +31,8 @@ function AdminLogin() {
                 }
             })
             .catch((error) => {
-                setErrorMessage(error.response?.data || "Invalid Credentials. Please try again.");
+                const message = error.response?.data?.message || error.response?.data || "Invalid Credentials. Please try again.";
+                setErrorMessage(message);
             })
             .finally(() => {
                 setIsLoading(false);
@@ -102,7 +103,7 @@ function AdminLogin() {
                                     padding: "14px",
                                     color: "#fff"
                                 }}
-                                placeholder="admin@ems.com"
+                                placeholder="admin@gmail.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required

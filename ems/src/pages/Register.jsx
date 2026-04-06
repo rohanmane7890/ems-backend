@@ -32,7 +32,8 @@ function Register() {
         setLoading(true);
         setMessage({ text: "", type: "" });
 
-        AuthService.register(formData)
+        const normalizedData = { ...formData, email: formData.email.trim().toLowerCase() };
+        AuthService.register(normalizedData)
             .then((response) => {
                 setMessage({ text: "Registration almost complete! 📧 Check your email for a verification code.", type: "success" });
                 setIsOtpSent(true);

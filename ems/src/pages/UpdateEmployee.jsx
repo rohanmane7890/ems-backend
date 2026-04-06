@@ -16,6 +16,15 @@ const UpdateEmployee = () => {
         profilePhoto: ""
     });
 
+    const designationsByDept = {
+        "IT": ["Software Engineer", "Lead Developer", "System Architect", "QA Engineer", "DevOps Engineer", "UI/UX Designer"],
+        "HR": ["HR Manager", "Recruiter", "HR Specialist", "Talent Acquisition"],
+        "Finance": ["Accountant", "Financial Analyst", "Finance Manager", "Auditor"],
+        "Marketing": ["Marketing Specialist", "Content Strategist", "Social Media Manager", "SEO Specialist"],
+        "Operations": ["Operations Manager", "Logistics Coordinator", "Project Manager"],
+        "Sales": ["Sales Executive", "Account Manager", "Business Development", "Sales Lead"]
+    };
+
     useEffect(() => {
         getEmployee(id)
             .then((response) => setEmployee(response.data))
@@ -129,16 +138,15 @@ const UpdateEmployee = () => {
                                     <select
                                         name="department"
                                         value={employee.department || ""}
-                                        onChange={handleChange}
+                                        onChange={(e) => setEmployee({ ...employee, department: e.target.value, designation: "" })}
                                         className="form-select"
                                         id="floatingDept"
                                         required
                                     >
                                         <option value="">Select Department</option>
-                                        <option value="IT">IT</option>
-                                        <option value="HR">HR</option>
-                                        <option value="Finance">Finance</option>
-                                        <option value="Marketing">Marketing</option>
+                                        {Object.keys(designationsByDept).map(dept => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
                                     </select>
                                     <label htmlFor="floatingDept">Department</label>
                                 </div>
@@ -159,15 +167,20 @@ const UpdateEmployee = () => {
 
                                 {/* Designation */}
                                 <div className="form-floating mb-3">
-                                    <input
-                                        type="text"
+                                    <select
                                         name="designation"
                                         value={employee.designation || ""}
                                         onChange={handleChange}
-                                        className="form-control"
+                                        className="form-select"
                                         id="floatingDesg"
-                                        placeholder="Designation"
-                                    />
+                                        required
+                                        disabled={!employee.department}
+                                    >
+                                        <option value="">Select Designation</option>
+                                        {employee.department && designationsByDept[employee.department].map(desg => (
+                                            <option key={desg} value={desg}>{desg}</option>
+                                        ))}
+                                    </select>
                                     <label htmlFor="floatingDesg">Designation</label>
                                 </div>
 

@@ -23,6 +23,15 @@ function EmployeeProfile() {
     const [passwords, setPasswords] = useState({ newPass: "", confirmPass: "" });
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    
+    const designationsByDept = {
+        "IT": ["Software Engineer", "Lead Developer", "System Architect", "QA Engineer", "DevOps Engineer", "UI/UX Designer"],
+        "HR": ["HR Manager", "Recruiter", "HR Specialist", "Talent Acquisition"],
+        "Finance": ["Accountant", "Financial Analyst", "Finance Manager", "Auditor"],
+        "Marketing": ["Marketing Specialist", "Content Strategist", "Social Media Manager", "SEO Specialist"],
+        "Operations": ["Operations Manager", "Logistics Coordinator", "Project Manager"],
+        "Sales": ["Sales Executive", "Account Manager", "Business Development", "Sales Lead"]
+    };
 
     useEffect(() => {
         const email = localStorage.getItem("loggedInEmail");
@@ -226,7 +235,18 @@ function EmployeeProfile() {
                                             <label className="text-muted small fw-bold text-uppercase">Department</label>
                                             <div className="d-flex align-items-center mt-1">
                                                 <FaBriefcase className="text-primary me-2" />
-                                                <span className="fw-medium">{employee.department}</span>
+                                                {isEditing ? (
+                                                    <select 
+                                                        className="form-select" 
+                                                        value={editData.department || ""} 
+                                                        onChange={(e) => setEditData({...editData, department: e.target.value, designation: ""})}
+                                                    >
+                                                        <option value="">Select Department</option>
+                                                        {Object.keys(designationsByDept).map(dept => (
+                                                            <option key={dept} value={dept}>{dept}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : <span className="fw-medium">{employee.department}</span>}
                                             </div>
                                         </div>
                                         <div className="col-md-6">
@@ -234,7 +254,17 @@ function EmployeeProfile() {
                                             <div className="d-flex align-items-center mt-1">
                                                 <FaBriefcase className="text-primary me-2" />
                                                 {isEditing ? (
-                                                    <input type="text" className="form-control" value={editData.designation || ""} onChange={(e) => setEditData({...editData, designation: e.target.value})} />
+                                                    <select 
+                                                        className="form-select" 
+                                                        value={editData.designation || ""} 
+                                                        onChange={(e) => setEditData({...editData, designation: e.target.value})}
+                                                        disabled={!editData.department}
+                                                    >
+                                                        <option value="">Select Designation</option>
+                                                        {editData.department && designationsByDept[editData.department].map(desg => (
+                                                            <option key={desg} value={desg}>{desg}</option>
+                                                        ))}
+                                                    </select>
                                                 ) : <span className="fw-medium">{employee.designation || "Not set"}</span>}
                                             </div>
                                         </div>

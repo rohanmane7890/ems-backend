@@ -3,6 +3,7 @@ package net.javaguides.ems.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import net.javaguides.ems.service.EmailService;
@@ -16,6 +17,7 @@ public class EmailServiceImpl implements EmailService {
     @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Async
     @Override
     public void sendLoginNotification(String email, String role) {
         try {
@@ -33,6 +35,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendForgotPasswordOtp(String email, String otp) {
         try {
@@ -50,6 +53,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendRegistrationOtp(String email, String otp) {
         try {
@@ -70,6 +74,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendLeaveStatusNotification(String email, String status, String startDate, String endDate) {
         try {
@@ -88,6 +93,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendLeaveRequestToAdmin(String adminEmail, String employeeName, String type, String startDate, String endDate, String reason) {
         try {

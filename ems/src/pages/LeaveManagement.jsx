@@ -178,7 +178,7 @@ function LeaveManagement() {
                                                 const style = getStatusStyle(leave.status);
                                                 return (
                                                     <tr key={i}>
-                                                        <td className="fw-medium">{leave.type}</td>
+                                                        <td className="fw-medium">{leave.type || "General Leave"}</td>
                                                         <td>
                                                             <div className="small">{leave.startDate} to</div>
                                                             <div className="small">{leave.endDate}</div>

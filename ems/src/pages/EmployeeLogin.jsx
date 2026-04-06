@@ -120,7 +120,8 @@ function EmployeeLogin() {
                 }
             })
             .catch((error) => {
-                setErrorMessage(error.response?.data?.message || "Invalid Email or Password. Please try again.");
+                const message = error.response?.data?.message || error.response?.data || "Invalid Email or Password. Please try again.";
+                setErrorMessage(message);
             })
             .finally(() => {
                 setIsLoading(false);

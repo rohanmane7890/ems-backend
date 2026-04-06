@@ -55,12 +55,14 @@ public class AuthController {
         String password = user.get("password");
 
         if (email == null || password == null) {
-            return ResponseEntity.badRequest().body("Email and password are required");
+            return ResponseEntity.badRequest().body(Map.of("message", "Email and password are required"));
         }
 
+        final String normalizedEmail = email.trim().toLowerCase();
+
         // 🛡️ VIRTUAL ADMIN LOGIN (No Database Record Required)
-        if (adminEmail.equalsIgnoreCase(email) && defaultPassword.equals(password)) {
-            log.info("Audit: Virtual Admin logged in successfully: {}", email);
+        if (adminEmail.equalsIgnoreCase(normalizedEmail) && defaultPassword.equals(password)) {
+            log.info("Audit: Virtual Admin logged in successfully: {}", normalizedEmail);
             
             // Create a temporary in-memory employee for token generation
             Employee virtualAdmin = new Employee();
@@ -81,16 +83,16 @@ public class AuthController {
         }
 
 
-        Employee employee = repository.findByEmail(email).orElse(null);
+        Employee employee = repository.findByEmail(normalizedEmail).orElse(null);
 
         if (employee != null) {
             if (employee.getStatus() != null && !employee.getStatus().equalsIgnoreCase("Active")) {
-                log.warn("Audit: Failed login attempt for inactive account: {}", email);
-                return ResponseEntity.status(401).body("Account is inactive! Please contact admin.");
+                log.warn("Audit: Failed login attempt for inactive account: {}", normalizedEmail);
+                return ResponseEntity.status(401).body(Map.of("message", "Account is inactive! Please verify your email via OTP."));
             }
 
             if (passwordEncoder.matches(password, employee.getPassword())) {
-                log.info("Audit: User {} logged in successfully.", email);
+                log.info("Audit: User {} logged in successfully.", normalizedEmail);
                 // Return real JWT token and user info immediately
                 String token = jwtUtils.generateToken(employee);
                 
@@ -101,14 +103,17 @@ public class AuthController {
                 response.put("message", "Login successful!");
                 
                 // Optional: Still trigger a notification email that someone logged in
-                emailService.sendLoginNotification(employee.getEmail(), employee.getRole().name());
+                        emailService.sendLoginNotification(employee.getEmail(), employee.getRole().name());
 
                 return ResponseEntity.ok(response);
+            } else {
+                log.warn("Audit: Password mismatch for email: {}", normalizedEmail);
             }
+        } else {
+            log.warn("Audit: No user found for email: {}", normalizedEmail);
         }
 
-        log.warn("Audit: Failed login attempt for email: {}", email);
-        return ResponseEntity.status(401).body("Invalid email or password");
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
     }
 
     @PostMapping("/verify-otp")
@@ -141,7 +146,7 @@ public class AuthController {
         }
 
         log.warn("Login Verification failed for email: {} with OTP: {}", email, otp);
-        return ResponseEntity.status(400).body("Invalid or expired OTP!");
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired OTP!"));
     }
 
     @PostMapping("/register")
@@ -217,7 +222,7 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(401).body("Invalid or expired OTP!");
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired OTP!"));
     }
 
     @PostMapping("/rollback-registration")

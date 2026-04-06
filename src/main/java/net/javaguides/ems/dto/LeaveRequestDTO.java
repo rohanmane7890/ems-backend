@@ -19,4 +19,7 @@ public class LeaveRequestDTO {
     private String reason;
     private String status;
     private String type;
+    private String employeeName;
+    private String employeeEmail;
+    private LocalDate appliedOn;
 }

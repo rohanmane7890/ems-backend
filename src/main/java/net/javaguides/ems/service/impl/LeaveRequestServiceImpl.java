@@ -54,13 +54,17 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                 leaveRequest.getReason()
             );
 
-            // 🔔 Create Dashboard Notification for Admin (ID: -1)
             String message = String.format("New Leave Request from %s (%s to %s)", 
                 employeeName, leaveRequest.getStartDate(), leaveRequest.getEndDate());
             notificationService.createNotification(-1L, message, "LEAVE_REQUEST");
         });
 
-        return LeaveRequestMapper.mapToLeaveRequestDTO(savedLeave);
+        // Fetch employee details to return in DTO
+        var employee = employeeRepository.findById(savedLeave.getEmployeeId()).orElse(null);
+        String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
+        String email = (employee != null) ? employee.getEmail() : "N/A";
+
+        return LeaveRequestMapper.mapToLeaveRequestDTO(savedLeave, name, email);
     }
 
     @Override
@@ -81,20 +85,28 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                 leaveRequest.getEndDate().toString()
             );
 
-            // 🔔 Create Dashboard Notification
             String message = String.format("Your leave request from %s to %s has been %s.", 
                 leaveRequest.getStartDate(), leaveRequest.getEndDate(), status);
             notificationService.createNotification(employee.getId(), message, "LEAVE_STATUS");
         });
 
-        return LeaveRequestMapper.mapToLeaveRequestDTO(updatedLeave);
+        // Fetch employee details to return in DTO
+        var employee = employeeRepository.findById(updatedLeave.getEmployeeId()).orElse(null);
+        String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
+        String email = (employee != null) ? employee.getEmail() : "N/A";
+
+        return LeaveRequestMapper.mapToLeaveRequestDTO(updatedLeave, name, email);
     }
 
     @Override
     public List<LeaveRequestDTO> getEmployeeLeaves(Long employeeId) {
+        var employee = employeeRepository.findById(employeeId).orElse(null);
+        String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
+        String email = (employee != null) ? employee.getEmail() : "N/A";
+
         List<LeaveRequest> leaves = leaveRequestRepository.findByEmployeeId(employeeId);
         return (leaves != null) ? leaves.stream()
-                .map(LeaveRequestMapper::mapToLeaveRequestDTO)
+                .map(leave -> LeaveRequestMapper.mapToLeaveRequestDTO(leave, name, email))
                 .collect(Collectors.toList()) : new java.util.ArrayList<>();
     }
 
@@ -102,7 +114,12 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public List<LeaveRequestDTO> getAllPendingLeaves() {
         List<LeaveRequest> leaves = leaveRequestRepository.findByStatus("PENDING");
         return (leaves != null) ? leaves.stream()
-                .map(LeaveRequestMapper::mapToLeaveRequestDTO)
+                .map(leave -> {
+                    var employee = employeeRepository.findById(leave.getEmployeeId()).orElse(null);
+                    String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
+                    String email = (employee != null) ? employee.getEmail() : "N/A";
+                    return LeaveRequestMapper.mapToLeaveRequestDTO(leave, name, email);
+                })
                 .collect(Collectors.toList()) : new java.util.ArrayList<>();
     }
 }
