@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationDTO> getEmployeeNotifications(Long employeeId) {
-        List<Notification> notifications = notificationRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId);
+        List<Notification> notifications = notificationRepository.findByEmployeeIdAndIsReadFalseOrderByCreatedAtDesc(employeeId);
         return (notifications != null) ? notifications.stream()
                 .map(NotificationMapper::mapToNotificationDTO)
                 .collect(Collectors.toList()) : new java.util.ArrayList<>();
