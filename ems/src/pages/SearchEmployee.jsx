@@ -10,14 +10,18 @@ const SearchEmployeeComponent = () => {
     const [department, setDepartment] = useState("");
     const [status, setStatus] = useState("");
     const [employees, setEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [loading, setLoading] = useState(false);
     const [sortBy, setSortBy] = useState("firstName");
     const navigate = useNavigate();
 
     useEffect(() => {
-    
         fetchAll();
     }, []);
+
+    useEffect(() => {
+        applyFilters();
+    }, [searchTerm, department, status, sortBy, employees]);
 
     const fetchAll = async () => {
         setLoading(true);
@@ -31,36 +35,27 @@ const SearchEmployeeComponent = () => {
         }
     };
 
-    const handleSearch = async () => {
-        setLoading(true);
-        try {
-            // Using department filter if provided, or search term
-            let data = [];
-            if (department) {
-                const res = await getEmployeesByDepartment(department);
-                data = res.data;
-            } else {
-                const res = await getAllEmployees();
-                data = res.data;
-            }
+    const applyFilters = () => {
+        if (!Array.isArray(employees)) return;
 
-            // Client-side filtering for search term and status
-            let filtered = data.filter(emp => {
-                const matchesSearch = (emp.firstName + " " + emp.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                     emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesStatus = status ? emp.status === status : true;
-                return matchesSearch && matchesStatus;
-            });
+        let filtered = employees.filter(emp => {
+            const matchesSearch = (emp.firstName + " " + emp.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                 emp.email.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesDept = department ? emp.department === department : true;
+            const matchesStatus = status ? emp.status === status : true;
+            
+            return matchesSearch && matchesDept && matchesStatus;
+        });
 
-            // Sorting
-            filtered.sort((a, b) => (a[sortBy] > b[sortBy] ? 1 : -1));
+        // Sorting
+        filtered.sort((a, b) => {
+            const valA = (a[sortBy] || "").toString().toLowerCase();
+            const valB = (b[sortBy] || "").toString().toLowerCase();
+            return valA > valB ? 1 : -1;
+        });
 
-            setEmployees(Array.isArray(filtered) ? filtered : []);
-            setLoading(false);
-        } catch (error) {
-            toast.error("Search failed");
-            setLoading(false);
-        }
+        setFilteredEmployees(filtered);
     };
 
     const handleToggleStatus = (employee) => {
@@ -69,7 +64,7 @@ const SearchEmployeeComponent = () => {
         updateEmployee(employee.id, updated)
             .then(() => {
                 toast.success(`${employee.firstName}'s status updated to ${newStatus}`);
-                handleSearch(); // Refresh list
+                fetchAll(); // Refresh the master list
             })
             .catch(() => toast.error("Failed to update status"));
     };
@@ -131,10 +126,10 @@ const SearchEmployeeComponent = () => {
                                     </select>
                                 </div>
                             </div>
-                            <div className="col-lg-2">
-                                <button className="btn btn-primary w-100 fw-bold" onClick={handleSearch}>
-                                    Apply Filters
-                                </button>
+                            <div className="col-lg-4">
+                                <div className="p-2 text-muted small fw-bold">
+                                    Showing {filteredEmployees.length} of {employees.length} employees
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -146,8 +141,8 @@ const SearchEmployeeComponent = () => {
                 ) : (
                     <div className="row g-4">
                         <AnimatePresence>
-                            {Array.isArray(employees) && employees.length > 0 ? (
-                                employees.map((emp, index) => (
+                            {Array.isArray(filteredEmployees) && filteredEmployees.length > 0 ? (
+                                filteredEmployees.map((emp, index) => (
                                     <motion.div 
                                         key={emp.id || index}
                                         layout

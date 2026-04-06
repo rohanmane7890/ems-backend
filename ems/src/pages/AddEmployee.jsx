@@ -14,15 +14,28 @@ function AddEmployee() {
         department: "",
         designation: "",
         salary: "",
-        joiningDate: "",
+        joiningDate: new Date().toISOString().split('T')[0],
         address: "",
         role: "EMPLOYEE",
         status: "Active",
         profilePhoto: ""
     });
 
+    const designationsByDept = {
+        "IT": ["Software Engineer", "Frontend Developer", "Backend Developer", "QA Engineer", "IT Support"],
+        "HR": ["HR Manager", "Recruiter", "HR Coordinator", "Talent Acquisition"],
+        "Finance": ["Accountant", "Financial Analyst", "Finance Manager", "Auditor"],
+        "Marketing": ["Marketing Manager", "Social Media Expert", "SEO Specialist", "Content Writer"],
+        "Sales": ["Sales Manager", "Sales Executive", "Account Manager"]
+    };
+
     const handleChange = (e) => {
-        setEmployee({ ...employee, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "department") {
+            setEmployee({ ...employee, [name]: value, designation: "" });
+        } else {
+            setEmployee({ ...employee, [name]: value });
+        }
     };
 
     const handlePhotoChange = (e) => {
@@ -52,182 +65,127 @@ function AddEmployee() {
 
 
     return (
-        <div style={{ backgroundColor: "#f4f6f9", minHeight: "100vh" }}>
-            <nav className="navbar navbar-dark bg-dark shadow">
-                <div className="container">
-                    <span className="navbar-brand fw-bold">Add New Employee</span>
-                </div>
-            </nav>
-
-            <div className="container mt-5 mb-5">
-                <div className="card shadow-lg border-0 p-4" style={{ borderRadius: "20px" }}>
-                    <h4 className="mb-4 fw-bold text-primary">Employee Details</h4>
-                    <form onSubmit={saveEmployee}>
-                        <div className="row">
-                            {/* First Name */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">First Name</label>
-                                <input
-                                    name="firstName"
-                                    className="form-control"
-                                    value={employee.firstName}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            {/* Last Name */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Last Name</label>
-                                <input
-                                    name="lastName"
-                                    className="form-control"
-                                    value={employee.lastName}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            {/* Email */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    className="form-control"
-                                    value={employee.email}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    className="form-control"
-                                    value={employee.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-
-                            {/* Phone */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Phone Number</label>
-                                <input
-                                    name="phoneNumber"
-                                    className="form-control"
-                                    value={employee.phoneNumber}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Department</label>
-                                <select 
-                                    name="department" 
-                                    className="form-select" 
-                                    value={employee.department} 
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select Department</option>
-                                    <option value="IT">IT</option>
-                                    <option value="HR">HR</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Marketing">Marketing</option>
-                                </select>
-                            </div>
-
-                            {/* Designation */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label text-muted small fw-bold">Designation</label>
-                                <input
-                                    name="designation"
-                                    className="form-control shadow-sm"
-                                    placeholder="e.g. Software Engineer"
-                                    value={employee.designation}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            {/* Salary */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label text-muted small fw-bold">Salary (Monthly)</label>
-                                <input
-                                    type="number"
-                                    name="salary"
-                                    className="form-control shadow-sm"
-                                    placeholder="e.g. 50000"
-                                    value={employee.salary}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            {/* Joining Date */}
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label text-muted small fw-bold">Joining Date</label>
-                                <input
-                                    type="date"
-                                    name="joiningDate"
-                                    className="form-control shadow-sm"
-                                    value={employee.joiningDate}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            {/* Address */}
-                            <div className="col-12 mb-3">
-                                <label className="form-label">Address</label>
-                                <textarea
-                                    name="address"
-                                    className="form-control"
-                                    rows="3"
-                                    value={employee.address}
-                                    onChange={handleChange}
-                                ></textarea>
-                            </div>
-
-                            {/* Status */}
-                            <div className="col-md-6 mb-4">
-                                <label className="form-label">Status</label>
-                                <select
-                                    name="status"
-                                    className="form-select"
-                                    onChange={handleChange}
-                                >
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-
-                            {/* Profile Photo */}
-                            <div className="col-md-6 mb-4">
-                                <label className="form-label">Profile Photo</label>
-                                <input
-                                    type="file"
-                                    className="form-control"
-                                    onChange={handlePhotoChange}
-                                    accept="image/*"
-                                />
-                                {employee.profilePhoto && (
-                                    <img 
-                                        src={employee.profilePhoto} 
-                                        alt="Preview" 
-                                        className="mt-2 rounded-circle" 
-                                        style={{ width: "50px", height: "50px", objectFit: "cover" }} 
-                                    />
-                                )}
-                            </div>
+        <div style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", minHeight: "100vh", paddingBottom: "50px" }}>
+            <div className="container py-5">
+                <div className="row justify-content-center">
+                    <div className="col-lg-10">
+                        <div className="d-flex align-items-center mb-4">
+                            <button className="btn btn-link text-decoration-none text-muted p-0 me-3" onClick={() => navigate("/admin-dashboard")}>
+                                ← Back
+                            </button>
+                            <h2 className="fw-bold mb-0">Add New Employee</h2>
                         </div>
 
-                        <div className="text-end">
-                            <button className="btn btn-success px-4">Save Employee</button>
+                        <div className="card shadow-sm border-0" style={{ borderRadius: "20px", overflow: "hidden" }}>
+                            <div className="row g-0">
+                                <div className="col-md-4 bg-primary text-white p-5 d-flex flex-column align-items-center justify-content-center text-center">
+                                    <div className="mb-4">
+                                        {employee.profilePhoto ? (
+                                            <img 
+                                                src={employee.profilePhoto} 
+                                                alt="Preview" 
+                                                className="rounded-circle shadow-lg border border-4 border-white-50" 
+                                                style={{ width: "150px", height: "150px", objectFit: "cover" }} 
+                                            />
+                                        ) : (
+                                            <div className="rounded-circle bg-white-50 shadow-lg d-flex align-items-center justify-content-center" style={{ width: "150px", height: "150px" }}>
+                                                <span className="display-1 fw-bold text-white opacity-50">?</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <h4 className="fw-bold">{employee.firstName || "New"} {employee.lastName || "Employee"}</h4>
+                                    <p className="opacity-75 small mb-4">{employee.designation || "No Designation"} | {employee.department || "No Dept"}</p>
+                                    
+                                    <label className="btn btn-outline-light btn-sm rounded-pill px-4">
+                                        Upload Photo
+                                        <input type="file" hidden onChange={handlePhotoChange} accept="image/*" />
+                                    </label>
+                                </div>
+
+                                <div className="col-md-8 p-5 bg-white">
+                                    <form onSubmit={saveEmployee}>
+                                        <h5 className="fw-bold mb-4 border-bottom pb-2">Personal Information</h5>
+                                        <div className="row g-3 mb-4">
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">First Name</label>
+                                                <input name="firstName" className="form-control bg-light border-0 py-2" value={employee.firstName} onChange={handleChange} required />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Last Name</label>
+                                                <input name="lastName" className="form-control bg-light border-0 py-2" value={employee.lastName} onChange={handleChange} required />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Email Address</label>
+                                                <input type="email" name="email" className="form-control bg-light border-0 py-2" value={employee.email} onChange={handleChange} required />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Phone Number</label>
+                                                <input name="phoneNumber" className="form-control bg-light border-0 py-2" value={employee.phoneNumber} onChange={handleChange} />
+                                            </div>
+                                            <div className="col-12">
+                                                <label className="form-label small fw-bold text-muted">Address</label>
+                                                <textarea name="address" className="form-control bg-light border-0 py-2" rows="2" value={employee.address} onChange={handleChange}></textarea>
+                                            </div>
+                                        </div>
+
+                                        <h5 className="fw-bold mb-4 border-bottom pb-2">Job & Account Details</h5>
+                                        <div className="row g-3 mb-4">
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Department</label>
+                                                <select name="department" className="form-select bg-light border-0 py-2" value={employee.department} onChange={handleChange} required>
+                                                    <option value="">Select Department</option>
+                                                    {Object.keys(designationsByDept).map(dept => (
+                                                        <option key={dept} value={dept}>{dept}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Designation</label>
+                                                <select 
+                                                    name="designation" 
+                                                    className="form-select bg-light border-0 py-2" 
+                                                    value={employee.designation} 
+                                                    onChange={handleChange}
+                                                    disabled={!employee.department}
+                                                    required
+                                                >
+                                                    <option value="">Select Designation</option>
+                                                    {employee.department && designationsByDept[employee.department].map(des => (
+                                                        <option key={des} value={des}>{des}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Joining Date</label>
+                                                <input type="date" name="joiningDate" className="form-control bg-light border-0 py-2" value={employee.joiningDate} onChange={handleChange} />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Monthly Salary</label>
+                                                <input type="number" name="salary" className="form-control bg-light border-0 py-2" value={employee.salary} onChange={handleChange} />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Login Password</label>
+                                                <input type="password" name="password" className="form-control bg-light border-0 py-2" value={employee.password} onChange={handleChange} required />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label className="form-label small fw-bold text-muted">Account Status</label>
+                                                <select name="status" className="form-select bg-light border-0 py-2" value={employee.status} onChange={handleChange}>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-end mt-4">
+                                            <button type="submit" className="btn btn-primary px-5 py-2 fw-bold shadow-sm rounded-pill">
+                                                Save Employee
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
