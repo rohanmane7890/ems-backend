@@ -14,6 +14,7 @@ import net.javaguides.ems.service.NotificationService;
 
 @Service
 @AllArgsConstructor
+@SuppressWarnings("null")
 public class NotificationServiceImpl implements NotificationService {
 
     private NotificationRepository notificationRepository;

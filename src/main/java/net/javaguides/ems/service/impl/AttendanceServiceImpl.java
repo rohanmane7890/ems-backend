@@ -19,6 +19,7 @@ import net.javaguides.ems.service.NotificationService;
 
 @Service
 @AllArgsConstructor
+@SuppressWarnings("null")
 public class AttendanceServiceImpl implements AttendanceService {
 
     private AttendanceRepository attendanceRepository;

@@ -16,6 +16,7 @@ import net.javaguides.ems.service.WorkLogService;
 
 @Service
 @AllArgsConstructor
+@SuppressWarnings("null")
 public class WorkLogServiceImpl implements WorkLogService {
 
     private WorkLogRepository workLogRepository;

@@ -58,6 +58,7 @@ public class AIServiceImpl implements AIService {
         return runPrototypeEngine(message, role, name, totalEmployees, presentToday, pendingLeaves);
     }
 
+    @SuppressWarnings("null")
     private String callGeminiAPI(String context, String userMessage) {
         String url = GEMINI_URL + apiKey;
         Map<String, Object> body = Map.of(
@@ -69,10 +70,11 @@ public class AIServiceImpl implements AIService {
         );
         
         try {
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<Map<String, Object>>(body);
             ResponseEntity<GeminiResponse> response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
-                new HttpEntity<>(body),
+                requestEntity,
                 GeminiResponse.class
             );
             

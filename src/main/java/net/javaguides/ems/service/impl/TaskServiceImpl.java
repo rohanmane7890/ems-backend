@@ -18,6 +18,7 @@ import net.javaguides.ems.service.TaskService;
 
 @Service
 @AllArgsConstructor
+@SuppressWarnings("null")
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final EmployeeRepository employeeRepository;

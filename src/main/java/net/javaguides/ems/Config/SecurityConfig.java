@@ -13,6 +13,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import lombok.AllArgsConstructor;
 import net.javaguides.ems.Security.JwtAuthenticationFilter;
 import net.javaguides.ems.service.CustomOAuth2UserService;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Configuration
 @AllArgsConstructor
@@ -44,10 +48,31 @@ public class SecurityConfig {
                     .userService(customOAuth2UserService)
                 )
             )
-            .cors(org.springframework.security.config.Customizer.withDefaults())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // 🌐 Allow Cloudflare URL, Localhost, and Local Network IP
+        configuration.setAllowedOrigins(Arrays.asList(
+            "https://dull-catfish-78.loca.lt",
+            "https://dull-catfish-78.loca.lt/",
+            "http://192.168.1.35:5173",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

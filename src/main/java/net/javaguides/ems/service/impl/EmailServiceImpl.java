@@ -11,6 +11,7 @@ import jakarta.mail.internet.MimeMessage;
 import net.javaguides.ems.service.EmailService;
 
 @Service
+@SuppressWarnings("null")
 public class EmailServiceImpl implements EmailService {
 
     @Autowired

@@ -13,6 +13,7 @@ import net.javaguides.ems.repository.EmployeeRepository;
 import net.javaguides.ems.service.EmployeeService;
 
 @Service
+@SuppressWarnings("null")
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;

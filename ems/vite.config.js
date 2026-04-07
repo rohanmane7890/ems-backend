@@ -7,11 +7,10 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: true,
-    cors: true,
-    hmr: {
-      host: 'nexgen-employee.loca.lt',
-      protocol: 'wss'
-    },
+    port: 5173,
+    strictPort: true,
+    hmr: true, // Let Vite detect the HMR settings automatically
+    origin: 'https://nexgen-employee-ems.loca.lt', // Ensure assets load from the tunnel URL
     proxy: {
       '/api': {
         target: 'http://localhost:8082',

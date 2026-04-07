@@ -1,6 +1,7 @@
 package net.javaguides.ems.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -28,10 +29,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                                    EmployeeRepository employeeRepository, 
                                    EmailService emailService,
                                    NotificationService notificationService) {
-        this.leaveRequestRepository = leaveRequestRepository;
-        this.employeeRepository = employeeRepository;
-        this.emailService = emailService;
-        this.notificationService = notificationService;
+        this.leaveRequestRepository = Objects.requireNonNull(leaveRequestRepository, "leaveRequestRepository must not be null");
+        this.employeeRepository = Objects.requireNonNull(employeeRepository, "employeeRepository must not be null");
+        this.emailService = Objects.requireNonNull(emailService, "emailService must not be null");
+        this.notificationService = Objects.requireNonNull(notificationService, "notificationService must not be null");
     }
 
     @Override
@@ -41,7 +42,9 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         LeaveRequest savedLeave = leaveRequestRepository.save(leaveRequest);
 
         // 🔔 Notify Admin
-        employeeRepository.findById(leaveRequest.getEmployeeId()).ifPresent(employee -> {
+        Long employeeId = leaveRequest.getEmployeeId();
+        if (employeeId != null) {
+            employeeRepository.findById(employeeId).ifPresent(employee -> {
             String employeeName = employee.getFirstName() + " " + employee.getLastName();
             
             // 📧 Send Email to Admin
@@ -57,10 +60,12 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             String message = String.format("New Leave Request from %s (%s to %s)", 
                 employeeName, leaveRequest.getStartDate(), leaveRequest.getEndDate());
             notificationService.createNotification(-1L, message, "LEAVE_REQUEST");
-        });
+            });
+        }
 
         // Fetch employee details to return in DTO
-        var employee = employeeRepository.findById(savedLeave.getEmployeeId()).orElse(null);
+        Long savedEmployeeId = (savedLeave != null) ? savedLeave.getEmployeeId() : null;
+        var employee = (savedEmployeeId != null) ? employeeRepository.findById(savedEmployeeId).orElse(null) : null;
         String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
         String email = (employee != null) ? employee.getEmail() : "N/A";
 
@@ -69,6 +74,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     @Override
     public LeaveRequestDTO updateLeaveStatus(Long leaveId, String status) {
+        if (leaveId == null) throw new IllegalArgumentException("leaveId must not be null");
         LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
         
@@ -76,7 +82,9 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         LeaveRequest updatedLeave = leaveRequestRepository.save(leaveRequest);
 
         // Fetch employee to send email and dashboard notification
-        employeeRepository.findById(leaveRequest.getEmployeeId()).ifPresent(employee -> {
+        Long employeeIdForStatus = leaveRequest.getEmployeeId();
+        if (employeeIdForStatus != null) {
+            employeeRepository.findById(employeeIdForStatus).ifPresent(employee -> {
             // 📧 Send Email
             emailService.sendLeaveStatusNotification(
                 employee.getEmail(), 
@@ -88,10 +96,12 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             String message = String.format("Your leave request from %s to %s has been %s.", 
                 leaveRequest.getStartDate(), leaveRequest.getEndDate(), status);
             notificationService.createNotification(employee.getId(), message, "LEAVE_STATUS");
-        });
+            });
+        }
 
         // Fetch employee details to return in DTO
-        var employee = employeeRepository.findById(updatedLeave.getEmployeeId()).orElse(null);
+        Long updatedEmployeeId = (updatedLeave != null) ? updatedLeave.getEmployeeId() : null;
+        var employee = (updatedEmployeeId != null) ? employeeRepository.findById(updatedEmployeeId).orElse(null) : null;
         String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
         String email = (employee != null) ? employee.getEmail() : "N/A";
 
@@ -100,6 +110,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     @Override
     public List<LeaveRequestDTO> getEmployeeLeaves(Long employeeId) {
+        if (employeeId == null) return new java.util.ArrayList<>();
         var employee = employeeRepository.findById(employeeId).orElse(null);
         String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
         String email = (employee != null) ? employee.getEmail() : "N/A";
@@ -115,7 +126,8 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> leaves = leaveRequestRepository.findByStatus("PENDING");
         return (leaves != null) ? leaves.stream()
                 .map(leave -> {
-                    var employee = employeeRepository.findById(leave.getEmployeeId()).orElse(null);
+                    Long lEmpId = (leave != null) ? leave.getEmployeeId() : null;
+                    var employee = (lEmpId != null) ? employeeRepository.findById(lEmpId).orElse(null) : null;
                     String name = (employee != null) ? employee.getFirstName() + " " + employee.getLastName() : "Employee";
                     String email = (employee != null) ? employee.getEmail() : "N/A";
                     return LeaveRequestMapper.mapToLeaveRequestDTO(leave, name, email);
