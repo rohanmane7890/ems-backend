@@ -8,24 +8,33 @@ import lombok.Setter;
 
 @Configuration
 @ConfigurationProperties(prefix = "app")
-@Getter
-@Setter
+@lombok.Data
 public class AppProperties {
 
     private final Jwt jwt = new Jwt();
     private final Admin admin = new Admin();
+    private final Ai ai = new Ai();
+    private final Frontend frontend = new Frontend();
 
-    @Getter
-    @Setter
+    @lombok.Data
     public static class Jwt {
         private String secret;
     }
 
-    @Getter
-    @Setter
+    @lombok.Data
     public static class Admin {
         private String email;
         private String masterPin;
         private String defaultPassword;
+    }
+
+    @lombok.Data
+    public static class Ai {
+        private String apiKey;
+    }
+
+    @lombok.Data
+    public static class Frontend {
+        private String url;
     }
 }

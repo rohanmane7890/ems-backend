@@ -25,6 +25,15 @@ function EmployeeLogin() {
 
     const navigate = useNavigate();
 
+    // 🛡️ Login Guard: Redirect if already authenticated
+    React.useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+        if (token && role === "EMPLOYEE") {
+            navigate("/employee-dashboard", { replace: true });
+        }
+    }, [navigate]);
+
     const handleAdminAccess = () => {
         setPinInput("");
         setPinError("");

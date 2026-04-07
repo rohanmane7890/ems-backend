@@ -21,6 +21,15 @@ function Register() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // 🛡️ Registration Guard: Redirect if already authenticated
+    React.useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+        if (token && role === "EMPLOYEE") {
+            navigate("/employee-dashboard", { replace: true });
+        }
+    }, [navigate]);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };

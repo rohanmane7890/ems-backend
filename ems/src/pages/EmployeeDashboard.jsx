@@ -19,7 +19,7 @@ function EmployeeDashboard() {
         const email = localStorage.getItem("loggedInEmail");
         const role = localStorage.getItem("role");
         if (!email || role !== "EMPLOYEE") {
-            navigate("/login");
+            navigate("/login", { replace: true });
             return;
         }
         fetchData(email);
@@ -49,7 +49,7 @@ function EmployeeDashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
-        navigate("/login");
+        navigate("/login", { replace: true });
     };
 
     if (loading) return <div className="d-flex justify-content-center align-items-center vh-100 bg-black text-white">Loading NexGen Elite...</div>;
