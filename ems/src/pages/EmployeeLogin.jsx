@@ -262,16 +262,6 @@ function EmployeeLogin() {
                     <p style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "0.85rem" }}>
                         New employee? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: "#14b8a6" }}>Register here</Link>
                     </p>
-                    <hr style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)", margin: "1.5rem 0" }} />
-                    <span 
-                        onClick={handleAdminAccess} 
-                        className="text-decoration-none small fw-medium" 
-                        style={{ color: "rgba(255, 255, 255, 0.3)", cursor: "pointer", transition: "0.3s" }}
-                        onMouseOver={(e) => e.target.style.color = "rgba(255, 255, 255, 0.7)"}
-                        onMouseOut={(e) => e.target.style.color = "rgba(255, 255, 255, 0.3)"}
-                    >
-                        <i className="ri-admin-line me-1"></i> Are you an Administrator?
-                    </span>
                  </div>
             </div>
 
