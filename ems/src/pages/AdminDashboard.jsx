@@ -4,7 +4,7 @@ import { getDashboardAnalytics, getAllEmployees, getEmployee, checkIn, checkOut 
 import { 
     FaUsers, FaUserCheck, FaUserTimes, FaUserPlus, 
     FaChartBar, FaChartPie, FaHistory, FaSignOutAlt, 
-    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaMoneyBillWave, FaTasks
+    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaWallet, FaTasks
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -128,7 +128,7 @@ function AdminDashboard() {
                         { title: "Total Employees", value: analytics.totalEmployees, icon: <FaUsers />, color: "#4e73df" },
                         { title: "Present Today", value: analytics.presentToday, icon: <FaUserCheck />, color: "#1cc88a" },
                         { title: "Absent Today", value: analytics.absentToday, icon: <FaUserTimes />, color: "#e74a3b" },
-                        { title: "Monthly Payroll", value: `₹${(analytics.totalMonthlyPayroll || 0).toLocaleString()}`, icon: <FaMoneyBillWave />, color: "#36b9cc" }
+                        { title: "Monthly Payroll", value: `₹${(analytics.totalMonthlyPayroll || 0).toLocaleString()}`, icon: <FaWallet />, color: "#36b9cc" }
                     ].map((stat, idx) => (
                         <div key={idx} className="col-xl-3 col-md-6">
                             <div className="card shadow-lg border-0 h-100" style={{ 
@@ -231,7 +231,7 @@ function AdminDashboard() {
                                     <FaList className="me-2" /> Manage Employees
                                 </Link>
                                 <Link to="/admin/salaries" className="btn btn-outline-info py-2 d-flex align-items-center justify-content-center">
-                                    <FaMoneyBillWave className="me-2 text-warning" /> Manage Salaries
+                                    <FaWallet className="me-2 text-warning" /> Manage Salaries
                                 </Link>
                                 <Link to="/admin/leaves" className="btn btn-outline-warning py-2 d-flex align-items-center justify-content-center">
                                     <FaCalendarAlt className="me-2" /> Manage Leave Requests

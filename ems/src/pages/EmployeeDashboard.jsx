@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getEmployeeByEmail, getAttendanceHistory, getEmployeeTasks, getSalaryHistory } from "../services/EmployeeService";
 import { 
     FaUserCircle, FaHistory, FaCalendarAlt, FaTasks, 
-    FaRocket, FaClipboardList, FaMoneyBillWave
+    FaRocket, FaClipboardList, FaWallet
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -117,7 +117,7 @@ function EmployeeDashboard() {
                             {/* Latest Salary Badge */}
                             {salaryHistory.length > 0 && (
                                 <div className="p-3 d-flex align-items-center gap-3 mt-3 animate-pulse" style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
-                                    <div className="text-success"><FaMoneyBillWave /></div>
+                                    <div className="text-success"><FaWallet /></div>
                                     <div>
                                         <div className="extra-small text-success fw-bold uppercase" style={{ fontSize: "0.55rem" }}>Latest Disbursement</div>
                                         <div className="fw-bold text-white" style={{ fontSize: "0.8rem" }}>{salaryHistory.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate))[0].paymentMonth} Paid</div>
@@ -132,7 +132,7 @@ function EmployeeDashboard() {
                         <div className="row g-3 h-100">
                             <MenuCard to="/employee-profile" icon={<FaUserCircle className="text-purple" />} title="My Profile" desc="View & edit account" />
                             <MenuCard to="/attendance" icon={<FaHistory className="text-teal" />} title="Attendance" desc="Check monthly records" />
-                            <MenuCard to="/employee-salary" icon={<FaMoneyBillWave className="text-success" />} title="My Salary" desc="Salary & History" />
+                            <MenuCard to="/employee-salary" icon={<FaWallet className="text-success" />} title="My Salary" desc="Salary & History" />
                             <MenuCard to="/leaves" icon={<FaCalendarAlt className="text-warning" />} title="Leaves" desc="Apply & track requests" />
                             <MenuCard to="/employee-worklogs" icon={<FaClipboardList className="text-info" />} title="Daily Log" desc="Report mission status" />
                         </div>
