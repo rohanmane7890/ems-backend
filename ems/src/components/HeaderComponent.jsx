@@ -175,6 +175,11 @@ const HeaderComponent = () => {
                       Daily Work Log
                     </NavLink>
                   </li>
+                  <li className="nav-item">
+                    <NavLink to="/employee-salary" className={({isActive}) => `nav-link px-3 py-2 rounded-pill ${isActive ? 'active bg-primary text-white fw-bold shadow-sm' : 'text-white-50 hover-light'}`}>
+                      My Salary
+                    </NavLink>
+                  </li>
                 </>
               )}
             </ul>

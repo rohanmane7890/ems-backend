@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getAllEmployees, updateEmployee } from "../services/EmployeeService";
-import { FaMoneyBillWave, FaArrowLeft, FaEdit, FaSearch, FaTimes, FaSave } from "react-icons/fa";
+import { getAllEmployees, updateEmployee, paySalary, getSalaryHistory } from "../services/EmployeeService";
+import { FaMoneyBillWave, FaArrowLeft, FaEdit, FaSearch, FaTimes, FaSave, FaCreditCard, FaHistory } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 function AdminSalaryManagement() {
@@ -15,6 +15,16 @@ function AdminSalaryManagement() {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [tempSalary, setTempSalary] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+
+    // Payment Modal State
+    const [showPayModal, setShowPayModal] = useState(false);
+    const [payMonth, setPayMonth] = useState("");
+    const [isPaying, setIsPaying] = useState(false);
+
+    // History Modal State
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [salaryHistory, setSalaryHistory] = useState([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
 
     useEffect(() => {
         fetchEmployees();
@@ -32,6 +42,20 @@ function AdminSalaryManagement() {
         }
     };
 
+    const handleViewHistory = async (emp) => {
+        setSelectedEmployee(emp);
+        setShowHistoryModal(true);
+        setHistoryLoading(true);
+        try {
+            const res = await getSalaryHistory(emp.id);
+            setSalaryHistory(res.data || []);
+        } catch (error) {
+            toast.error("Failed to fetch payment history.");
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
     const handleEditSalary = (emp) => {
         setSelectedEmployee(emp);
         setTempSalary(emp.salary || "");
@@ -40,24 +64,46 @@ function AdminSalaryManagement() {
 
     const handleSaveSalary = async () => {
         if (!selectedEmployee) return;
-        
         setIsSaving(true);
         try {
             const updatedData = { ...selectedEmployee, salary: tempSalary };
             await updateEmployee(selectedEmployee.id, updatedData);
-            
-            // Update local state
-            setEmployees(employees.map(e => 
-                e.id === selectedEmployee.id ? { ...e, salary: tempSalary } : e
-            ));
-            
-            toast.success(`Salary updated for ${selectedEmployee.firstName}`);
+            toast.success("Monthly salary updated successfully!");
             setShowModal(false);
+            fetchEmployees();
         } catch (error) {
-            console.error("Failed to update salary", error);
-            toast.error("Failed to save changes. Please try again.");
+            console.error("Update failed", error);
+            toast.error("Failed to update salary.");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handlePaySalary = (emp) => {
+        setSelectedEmployee(emp);
+        const now = new Date();
+        const monthYear = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+        setPayMonth(monthYear);
+        setShowPayModal(true);
+    };
+
+    const confirmPayment = async () => {
+        if (!selectedEmployee) return;
+        setIsPaying(true);
+        try {
+            const paymentData = {
+                employeeId: selectedEmployee.id,
+                amount: selectedEmployee.salary,
+                paymentMonth: payMonth
+            };
+            await paySalary(paymentData);
+            toast.success(`Salary payment recorded for ${selectedEmployee.firstName} - ${payMonth}`);
+            setShowPayModal(false);
+        } catch (error) {
+            console.error("Payment failed", error);
+            toast.error("Failed to record payment.");
+        } finally {
+            setIsPaying(false);
         }
     };
 
@@ -177,20 +223,42 @@ function AdminSalaryManagement() {
                                                     </div>
                                                 </td>
                                                 <td className="py-4 text-center bg-transparent">
-                                                    <button 
-                                                        className="btn btn-sm text-white rounded-pill px-4 py-2 fw-bold shadow-lg hover-grow"
-                                                        onClick={() => handleEditSalary(emp)}
-                                                        style={{ 
-                                                            fontSize: "0.8rem", 
-                                                            transition: "all 0.3s ease",
-                                                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                                                            border: "none",
-                                                            letterSpacing: "0.5px",
-                                                            boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)"
-                                                        }}
-                                                    >
-                                                        <FaEdit className="me-2" /> UPDATE
-                                                    </button>
+                                                    <div className="d-flex gap-2 justify-content-center">
+                                                        <button 
+                                                            className="btn btn-sm text-white rounded-pill px-3 py-2 fw-bold shadow-lg hover-grow"
+                                                            onClick={() => handleEditSalary(emp)}
+                                                            style={{ 
+                                                                fontSize: "0.75rem", 
+                                                                background: "rgba(255, 255, 255, 0.05)",
+                                                                border: "1px solid rgba(255, 255, 255, 0.1)"
+                                                            }}
+                                                        >
+                                                            <FaEdit className="me-1" /> EDIT
+                                                        </button>
+                                                        <button 
+                                                            className="btn btn-sm text-white rounded-pill px-3 py-2 fw-bold shadow-lg hover-grow"
+                                                            onClick={() => handleViewHistory(emp)}
+                                                            style={{ 
+                                                                fontSize: "0.75rem", 
+                                                                background: "rgba(0, 255, 255, 0.08)",
+                                                                border: "1px solid rgba(0, 255, 255, 0.2)"
+                                                            }}
+                                                        >
+                                                            <FaHistory className="me-1 text-info" /> HISTORY
+                                                        </button>
+                                                        <button 
+                                                            className="btn btn-sm text-white rounded-pill px-3 py-2 fw-bold shadow-lg hover-grow"
+                                                            onClick={() => handlePaySalary(emp)}
+                                                            style={{ 
+                                                                fontSize: "0.75rem", 
+                                                                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                                                                border: "none",
+                                                                boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)"
+                                                            }}
+                                                        >
+                                                            <FaCreditCard className="me-1" /> PAY NOW
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
@@ -290,6 +358,129 @@ function AdminSalaryManagement() {
                                 )}
                                 SAVE UPDATED SALARY
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Payment Confirmation Modal */}
+            {showPayModal && (
+                <div className="custom-modal-overlay d-flex align-items-center justify-content-center">
+                    <div className="custom-modal-content card shadow-2xl p-0 overflow-hidden" 
+                         style={{ 
+                             width: "480px", 
+                             background: "#1e293b", 
+                             borderRadius: "28px", 
+                             border: "1px solid rgba(255, 255, 255, 0.1)",
+                             animation: "modalFadeUp 0.3s ease-out"
+                         }}>
+                        <div className="p-4 bg-success bg-opacity-10 d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25">
+                            <h5 className="text-white fw-bold mb-0">Disburse Salary</h5>
+                            <button className="btn btn-link text-info p-0" onClick={() => setShowPayModal(false)}>
+                                <FaTimes size={20} />
+                            </button>
+                        </div>
+                        <div className="p-5">
+                            <div className="text-center mb-4">
+                                <div className="rounded-circle bg-success bg-opacity-20 d-inline-flex align-items-center justify-content-center mb-3 text-success fw-bold" style={{ width: "70px", height: "70px", fontSize: "1.4rem", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                                    <FaMoneyBillWave size={30} />
+                                </div>
+                                <h4 className="text-white fw-bold mb-1">₹{(selectedEmployee?.salary || 0).toLocaleString()}</h4>
+                                <p className="text-success small fw-bold text-uppercase">Payment to {selectedEmployee?.firstName} {selectedEmployee?.lastName}</p>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <label className="form-label text-info fw-bold small opacity-75 mb-2">Benefit Period (Month/Year)</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control bg-transparent text-white border-secondary border-opacity-50 py-3"
+                                    value={payMonth}
+                                    onChange={(e) => setPayMonth(e.target.value)}
+                                    placeholder="e.g. April 2026"
+                                    style={{ borderRadius: "14px", fontWeight: "600" }}
+                                />
+                            </div>
+
+                            <div className="p-3 mb-4 rounded-4 small" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                                <div className="d-flex justify-content-between text-white-50 mb-2">
+                                    <span>Base Pay:</span>
+                                    <span className="text-white fw-bold">₹{Math.round((selectedEmployee?.salary || 0) * 0.6).toLocaleString()}</span>
+                                </div>
+                                <div className="d-flex justify-content-between text-white-50">
+                                    <span>Allowances:</span>
+                                    <span className="text-white fw-bold">₹{Math.round((selectedEmployee?.salary || 0) * 0.4).toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <button 
+                                className="btn w-100 py-3 rounded-pill text-white fw-bold d-flex align-items-center justify-content-center shadow-lg"
+                                style={{ 
+                                    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                                    border: "none",
+                                    fontSize: "1rem"
+                                }}
+                                onClick={confirmPayment}
+                                disabled={isPaying || !payMonth}
+                            >
+                                {isPaying ? (
+                                    <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                                ) : (
+                                    <FaCreditCard className="me-2" />
+                                )}
+                                CONFIRM & RECORD DISBURSEMENT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Salary History Modal */}
+            {showHistoryModal && (
+                <div className="custom-modal-overlay d-flex align-items-center justify-content-center">
+                    <div className="custom-modal-content card shadow-2xl p-0 overflow-hidden" 
+                         style={{ 
+                             width: "650px", 
+                             background: "#0f172a", 
+                             borderRadius: "28px", 
+                             border: "1px solid rgba(255, 255, 255, 0.1)",
+                             animation: "modalFadeUp 0.3s ease-out"
+                         }}>
+                        <div className="p-4 bg-info bg-opacity-10 d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25">
+                            <h5 className="text-white fw-bold mb-0">Payment History: {selectedEmployee?.firstName}</h5>
+                            <button className="btn btn-link text-info p-0" onClick={() => setShowHistoryModal(false)}>
+                                <FaTimes size={20} />
+                            </button>
+                        </div>
+                        <div className="p-0" style={{ maxHeight: "400px", overflowY: "auto" }}>
+                            {historyLoading ? (
+                                <div className="p-5 text-center"><div className="spinner-border text-info"></div></div>
+                            ) : salaryHistory.length > 0 ? (
+                                <table className="table table-dark table-hover table-borderless align-middle mb-0">
+                                    <thead className="sticky-top bg-dark text-info small fw-bold">
+                                        <tr style={{ background: "rgba(30, 41, 59, 0.9)" }}>
+                                            <th className="p-4">Period</th>
+                                            <th>Amount</th>
+                                            <th>Disbursed On</th>
+                                            <th className="text-center">Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {salaryHistory.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate)).map((record) => (
+                                            <tr key={record.id} className="border-bottom border-white border-opacity-5">
+                                                <td className="p-4 fw-bold">{record.paymentMonth}</td>
+                                                <td>₹{record.amount.toLocaleString()}</td>
+                                                <td className="small text-white-50">{new Date(record.transactionDate).toLocaleDateString()}</td>
+                                                <td className="text-center"><span className="badge bg-secondary extra-small fw-bold">{record.referenceId}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div className="p-5 text-center text-white-50">No disbursement history found for this employee.</div>
+                            )}
+                        </div>
+                        <div className="p-4 bg-dark bg-opacity-50 text-center">
+                            <button className="btn btn-outline-info rounded-pill px-4 btn-sm fw-bold" onClick={() => setShowHistoryModal(false)}>CLOSE VIEWER</button>
                         </div>
                     </div>
                 </div>

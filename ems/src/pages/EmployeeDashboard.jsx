@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEmployeeByEmail, getAttendanceHistory, getEmployeeTasks } from "../services/EmployeeService";
+import { getEmployeeByEmail, getAttendanceHistory, getEmployeeTasks, getSalaryHistory } from "../services/EmployeeService";
 import { 
     FaUserCircle, FaHistory, FaCalendarAlt, FaTasks, 
-    FaRocket, FaClipboardList
+    FaRocket, FaClipboardList, FaMoneyBillWave
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -12,6 +12,7 @@ function EmployeeDashboard() {
     const [employee, setEmployee] = useState(null);
     const [attendance, setAttendance] = useState([]);
     const [tasks, setTasks] = useState([]);
+    const [salaryHistory, setSalaryHistory] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,13 +31,15 @@ function EmployeeDashboard() {
             const empData = empRes.data;
             setEmployee(empData);
 
-            const [attRes, taskRes] = await Promise.all([
+            const [attRes, taskRes, salRes] = await Promise.all([
                 getAttendanceHistory(empData.id).catch(() => ({ data: [] })),
-                getEmployeeTasks(empData.id).catch(() => ({ data: [] }))
+                getEmployeeTasks(empData.id).catch(() => ({ data: [] })),
+                getSalaryHistory(empData.id).catch(() => ({ data: [] }))
             ]);
-
-            setAttendance(attRes.data);
-            setTasks(taskRes.data);
+            
+            setAttendance(attRes.data || []);
+            setTasks(taskRes.data || []);
+            setSalaryHistory(salRes.data || []);
             setLoading(false);
         } catch (error) {
             console.error("Dashboard error", error);
@@ -110,16 +113,28 @@ function EmployeeDashboard() {
                                     <div className="extra-small text-white-50" style={{ fontSize: "0.65rem" }}>{pendingTasks === 0 ? "All items crushed!" : `${pendingTasks} items remaining.`}</div>
                                 </div>
                             </div>
+                            
+                            {/* Latest Salary Badge */}
+                            {salaryHistory.length > 0 && (
+                                <div className="p-3 d-flex align-items-center gap-3 mt-3 animate-pulse" style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+                                    <div className="text-success"><FaMoneyBillWave /></div>
+                                    <div>
+                                        <div className="extra-small text-success fw-bold uppercase" style={{ fontSize: "0.55rem" }}>Latest Disbursement</div>
+                                        <div className="fw-bold text-white" style={{ fontSize: "0.8rem" }}>{salaryHistory.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate))[0].paymentMonth} Paid</div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {/* 🎮 Grid Cards Navigation (Minimized) */}
                     <div className="col-lg-8">
                         <div className="row g-3 h-100">
-                            <MenuCard to="/employee-profile" icon={<FaUserCircle className="text-purple" />} title="My Profile" desc="View & edit your information" />
-                            <MenuCard to="/attendance" icon={<FaHistory className="text-teal" />} title="Attendance History" desc="View your monthly records" />
-                            <MenuCard to="/leaves" icon={<FaCalendarAlt className="text-warning" />} title="Leaves Management" desc="Apply & track leaves" />
-                            <MenuCard to="/employee-worklogs" icon={<FaClipboardList className="text-info" />} title="Daily Work Log" desc="Report your daily tasks" />
+                            <MenuCard to="/employee-profile" icon={<FaUserCircle className="text-purple" />} title="My Profile" desc="View & edit account" />
+                            <MenuCard to="/attendance" icon={<FaHistory className="text-teal" />} title="Attendance" desc="Check monthly records" />
+                            <MenuCard to="/employee-salary" icon={<FaMoneyBillWave className="text-success" />} title="My Salary" desc="Salary & History" />
+                            <MenuCard to="/leaves" icon={<FaCalendarAlt className="text-warning" />} title="Leaves" desc="Apply & track requests" />
+                            <MenuCard to="/employee-worklogs" icon={<FaClipboardList className="text-info" />} title="Daily Log" desc="Report mission status" />
                         </div>
                     </div>
 
@@ -182,6 +197,12 @@ function EmployeeDashboard() {
                 .extra-small { font-size: 0.65rem; }
                 .uppercase { text-transform: uppercase; }
                 .container { max-width: 1100px !important; }
+                .animate-pulse { animation: pulse-border 2s infinite; }
+                @keyframes pulse-border {
+                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+                    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                }
             `}</style>
         </div>
     );
@@ -189,8 +210,8 @@ function EmployeeDashboard() {
 
 function MenuCard({ to, icon, title, desc }) {
     return (
-        <div className="col-md-6">
-            <Link to={to} className="card h-100 shadow-lg border-0 p-4 text-center text-decoration-none" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+        <div className="col-md-4 col-sm-6">
+            <Link to={to} className="card h-100 shadow-lg border-0 p-3 text-center text-decoration-none" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
                 <div className="fs-2 mb-2">{icon}</div>
                 <div className="fw-bold text-white h6 mb-1">{title}</div>
                 <div className="extra-small text-white-50">{desc}</div>

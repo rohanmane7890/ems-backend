@@ -75,9 +75,29 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<AttendanceDTO> getAttendanceHistory(Long employeeId) {
-        return attendanceRepository.findByEmployeeId(employeeId).stream()
+        List<AttendanceDTO> history = attendanceRepository.findByEmployeeId(employeeId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        // Check if today's record exists in the history
+        LocalDate today = LocalDate.now();
+        boolean todayExists = history.stream().anyMatch(a -> a.getDate().equals(today));
+
+        if (!todayExists) {
+            Employee employee = employeeRepository.findById(employeeId).orElse(null);
+            if (employee != null) {
+                // Return a mock DTO as ABSENT for current date if not set
+                AttendanceDTO absentDto = new AttendanceDTO();
+                absentDto.setEmployeeId(employee.getId());
+                absentDto.setFirstName(employee.getFirstName());
+                absentDto.setLastName(employee.getLastName());
+                absentDto.setDesignation(employee.getDesignation());
+                absentDto.setDate(today);
+                absentDto.setStatus("ABSENT");
+                history.add(absentDto);
+            }
+        }
+        return history;
     }
 
     @Override

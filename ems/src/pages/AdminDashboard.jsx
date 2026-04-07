@@ -128,7 +128,7 @@ function AdminDashboard() {
                         { title: "Total Employees", value: analytics.totalEmployees, icon: <FaUsers />, color: "#4e73df" },
                         { title: "Present Today", value: analytics.presentToday, icon: <FaUserCheck />, color: "#1cc88a" },
                         { title: "Absent Today", value: analytics.absentToday, icon: <FaUserTimes />, color: "#e74a3b" },
-                        { title: "New Joiners", value: analytics.newJoinersThisMonth, icon: <FaUserPlus />, color: "#f6c23e" }
+                        { title: "Monthly Payroll", value: `₹${(analytics.totalMonthlyPayroll || 0).toLocaleString()}`, icon: <FaMoneyBillWave />, color: "#36b9cc" }
                     ].map((stat, idx) => (
                         <div key={idx} className="col-xl-3 col-md-6">
                             <div className="card shadow-lg border-0 h-100" style={{ 

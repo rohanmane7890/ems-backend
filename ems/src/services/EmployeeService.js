@@ -133,3 +133,10 @@ export const assignTaskToDepartment = (dept, task) =>
 
 export const assignTaskByDesignation = (designation, task) =>
     axios.post(`/api/tasks/designation?designation=${designation}`, task, authHeader());
+
+// 🔹 Salary Transaction APIs
+export const getSalaryHistory = (employeeId) =>
+    axios.get(`/api/salaries/history/${employeeId}`, authHeader());
+
+export const paySalary = (paymentData) =>
+    axios.post("/api/salaries/pay", paymentData, authHeader());

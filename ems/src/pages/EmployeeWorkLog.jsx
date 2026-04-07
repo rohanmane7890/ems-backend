@@ -9,6 +9,7 @@ function EmployeeWorkLog() {
     const [logs, setLogs] = useState([]);
     const [assignedTasks, setAssignedTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedTaskId, setSelectedTaskId] = useState(null);
     const [employeeId, setEmployeeId] = useState(localStorage.getItem("employeeId"));
     const [formData, setFormData] = useState({
         tasksDescription: "",
@@ -52,13 +53,27 @@ function EmployeeWorkLog() {
                 employeeId: parseInt(employeeId)
             };
             await submitWorkLog(payload);
-            toast.success("Work log submitted successfully!");
+            
+            // 🚀 Auto-complete task if it was a mission report
+            if (selectedTaskId && formData.tasksDescription.startsWith("[MISSION REPORT]")) {
+                try {
+                    await updateTaskStatus(selectedTaskId, 'COMPLETED');
+                    toast.success("Mission Confirmed & Log Submitted!");
+                } catch (err) {
+                    console.error("Task auto-complete failed", err);
+                }
+            } else {
+                toast.success("Work log submitted successfully!");
+            }
+
             setFormData({ 
                 tasksDescription: "", 
                 hoursWorked: "", 
                 date: new Date().toISOString().split('T')[0] 
             });
+            setSelectedTaskId(null);
             fetchLogs();
+            fetchTasks();
         } catch (error) {
             toast.error("Failed to submit work log");
         }
@@ -101,6 +116,7 @@ function EmployeeWorkLog() {
                                                 <p className="small opacity-75 mb-4 lh-base" style={{ fontSize: "0.8rem" }}>{task.description}</p>
                                                 <div className="d-flex gap-2">
                                                     <button className="btn btn-primary btn-sm flex-grow-1 fw-bold rounded-pill py-2 shadow-sm" onClick={() => {
+                                                        setSelectedTaskId(task.id);
                                                         setFormData({ ...formData, tasksDescription: `[MISSION REPORT] ${task.title}: ` });
                                                         window.scrollTo({ top: 400, behavior: 'smooth' });
                                                         toast.info("Mission Mode Activated. Submit your report below.");

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEmployeeByEmail } from "../services/EmployeeService";
-import { FaMoneyBillWave, FaArrowLeft } from "react-icons/fa";
+import { getEmployeeByEmail, getSalaryHistory } from "../services/EmployeeService";
+import { FaMoneyBillWave, FaArrowLeft, FaHistory, FaCheckCircle, FaReceipt } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 function EmployeeSalary() {
     const navigate = useNavigate();
     const [employee, setEmployee] = useState(null);
+    const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,9 +23,21 @@ function EmployeeSalary() {
         try {
             const res = await getEmployeeByEmail(email);
             setEmployee(res.data);
+            if (res.data.id) {
+                fetchHistory(res.data.id);
+            }
             setLoading(false);
         } catch (error) {
             setLoading(false);
+        }
+    };
+
+    const fetchHistory = async (id) => {
+        try {
+            const res = await getSalaryHistory(id);
+            setHistory(res.data || []);
+        } catch (err) {
+            console.error("Failed to fetch history", err);
         }
     };
 
@@ -143,6 +156,77 @@ function EmployeeSalary() {
                             </div>
                         </motion.div>
                     </div>
+
+                    {/* Transaction History Section */}
+                    <div className="col-lg-8 col-xl-7 mt-4">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="card border-0 shadow-2xl overflow-hidden" 
+                            style={{ 
+                                borderRadius: "24px", 
+                                background: "rgba(15, 23, 42, 0.4)", 
+                                border: "1px solid rgba(255, 255, 255, 0.05)",
+                                backdropFilter: "blur(20px)"
+                            }}
+                        >
+                            <div className="card-header bg-transparent border-bottom border-white border-opacity-5 p-4 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 className="text-white fw-bold mb-0">Disbursement History</h5>
+                                    <p className="text-white-50 small mb-0 mt-1" style={{ fontSize: "0.7rem" }}>All past salary transactions recorded for your account.</p>
+                                </div>
+                                <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 rounded-pill small fw-bold">
+                                    {history.length} PAYOUTS
+                                </span>
+                            </div>
+                            <div className="card-body p-4">
+                                {history.length > 0 ? (
+                                    <div className="transaction-list d-flex flex-column gap-3">
+                                        {history.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate)).map((record) => (
+                                            <div key={record.id} className="transaction-item p-3 d-flex align-items-center justify-content-between transition-all rounded-4 shadow-sm"
+                                                 style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.04)" }}>
+                                                <div className="d-flex align-items-center gap-3">
+                                                    <div className="p-2 rounded bg-info bg-opacity-10 text-info">
+                                                        <FaReceipt size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <h6 className="text-white fw-bold mb-0">{record.paymentMonth}</h6>
+                                                        <p className="text-white-50 small mb-0" style={{ fontSize: "0.65rem" }}>
+                                                            On {new Date(record.transactionDate).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="text-center d-none d-md-block opacity-75">
+                                                    <div className="badge bg-dark bg-opacity-50 text-white-50 border border-white border-opacity-10 px-2 py-1 fw-bold" style={{ fontSize: "0.55rem", letterSpacing: "1px" }}>
+                                                        REF: {record.referenceId}
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-end d-flex align-items-center gap-4">
+                                                    <div>
+                                                        <h5 className="text-success fw-bold mb-0">₹{record.amount.toLocaleString()}</h5>
+                                                        <div className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-2 py-0.5 rounded-pill extra-small fw-bold" style={{ fontSize: "0.5rem" }}>
+                                                            <FaCheckCircle className="me-1 animate-pulse" /> {record.status?.toUpperCase() || 'PAID'}
+                                                        </div>
+                                                    </div>
+                                                    <button className="btn btn-outline-info btn-sm rounded-circle p-1 border-0 hover-scale-up" style={{ width: "32px", height: "32px", background: "rgba(0, 255, 255, 0.05)" }}>
+                                                        <FaReceipt size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-5">
+                                        <div className="mb-3 text-white-25"><FaHistory size={48} /></div>
+                                        <h6 className="text-white-50">No payout records found.</h6>
+                                        <p className="text-white-25 small">Salary disbursements will appear here once processed by HR.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
 
@@ -189,6 +273,7 @@ function EmployeeSalary() {
                 }
 
                 .transition-all { transition: all 0.2s ease; }
+                .hover-bg-light:hover { background: rgba(255, 255, 255, 0.03); }
             `}</style>
         </div>
     );
