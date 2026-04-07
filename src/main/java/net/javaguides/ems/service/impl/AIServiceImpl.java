@@ -29,8 +29,8 @@ public class AIServiceImpl implements AIService {
     @Value("${app.ai.api-key:}")
     private String apiKey;
 
+    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
 
     @Override
     public String generateResponse(String message, String role, String name) {
@@ -60,7 +60,13 @@ public class AIServiceImpl implements AIService {
 
     private String callGeminiAPI(String context, String userMessage) {
         String url = GEMINI_URL + apiKey;
-        Map<String, Object> body = Map.of("contents", List.of(Map.of("parts", List.of(Map.of("text", context + "\n\nUser: " + userMessage)))));
+        Map<String, Object> body = Map.of(
+            "contents", List.of(
+                Map.of("parts", List.of(
+                    Map.of("text", context + "\n\nUser: " + userMessage)
+                ))
+            )
+        );
         
         try {
             ResponseEntity<GeminiResponse> response = restTemplate.exchange(
@@ -71,22 +77,33 @@ public class AIServiceImpl implements AIService {
             );
             
             GeminiResponse responseBody = response.getBody();
-            if (responseBody == null || responseBody.candidates == null || responseBody.candidates.isEmpty()) {
-                return "AI link disrupted.";
+            if (responseBody != null && responseBody.getCandidates() != null && !responseBody.getCandidates().isEmpty()) {
+                return responseBody.getCandidates().get(0).getContent().getParts().get(0).getText();
             }
-
-            return responseBody.candidates.get(0).content.parts.get(0).text;
+            return "AI link established but target signal was unclear.";
         } catch (Exception e) {
-            return "Neural link instability detected. Continuing in Prototype Hub Mode.";
+            String error = e.getMessage() != null ? e.getMessage() : "Unknown Signal Error";
+            if (error.contains("429")) {
+                return "Neural cooling in progress. The AI is processing high traffic; please wait a few seconds before your next mission query.";
+            }
+            System.err.println("Neural Error: " + error);
+            return "Neural link instability. System reverting to Prototype Hub Mode.";
         }
     }
 
-    // Type-safe DTOs for Gemini API Response
-    private static class GeminiResponse {
-        public List<Candidate> candidates;
-        static class Candidate { public Content content; }
-        static class Content { public List<Part> parts; }
-        static class Part { public String text; }
+    // 🧠 Elite DTOs for Precise Neural Mapping
+    @lombok.Data
+    public static class GeminiResponse {
+        private List<Candidate> candidates;
+        
+        @lombok.Data
+        public static class Candidate { private Content content; }
+        
+        @lombok.Data
+        public static class Content { private List<Part> parts; }
+        
+        @lombok.Data
+        public static class Part { private String text; }
     }
 
     private String runPrototypeEngine(String message, String role, String name, long totalEmployees, long presentToday, long pendingLeaves) {

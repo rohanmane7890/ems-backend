@@ -156,14 +156,17 @@ const AIAssistant = () => {
                                         key={idx} 
                                         className={`d-flex ${msg.role === "user" ? "justify-content-end" : "justify-content-start"}`}
                                     >
-                                        <div className={`p-2 px-3 shadow-md ${msg.role === "user" ? "bg-primary text-white" : "bg-light text-dark shadow-sm"}`} 
-                                             style={{ 
-                                                 maxWidth: "92%", 
-                                                 fontSize: "0.82rem", 
-                                                 lineHeight: "1.4",
-                                                 borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                                                 border: msg.role === "user" ? "none" : "1px solid rgba(0,0,0,0.05)"
-                                             }}>
+                                        <div 
+                                            className={`p-3 rounded-4 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white ms-auto' : 'bg-white bg-opacity-5 text-white'}`}
+                                            style={{ 
+                                                maxWidth: "85%", 
+                                                fontSize: "0.85rem", 
+                                                lineHeight: "1.5",
+                                                wordWrap: "break-word",
+                                                whiteSpace: "pre-wrap",
+                                                border: msg.role === 'bot' ? "1px solid rgba(255,255,255,0.05)" : "none"
+                                            }}
+                                        >
                                             {msg.text}
                                         </div>
                                     </motion.div>
