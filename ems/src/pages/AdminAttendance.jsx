@@ -4,7 +4,7 @@ import { FaCalendarAlt, FaUserCheck, FaUserTimes, FaArrowLeft, FaSearch, FaSignI
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const API_URL = "http://localhost:8082/api/attendance";
+const API_URL = "/api/attendance";
 
 function AdminAttendance() {
     const navigate = useNavigate();

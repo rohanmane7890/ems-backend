@@ -159,7 +159,7 @@ function EmployeeLogin() {
                     <div className="mb-3">
                         <i className="ri-user-heart-line" style={{ fontSize: "4rem", background: "linear-gradient(135deg, #818cf8 0%, #c084fc 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
                     </div>
-                    <h2 className="fw-bold mb-2" style={{ letterSpacing: "-0.5px", fontSize: "2.2rem" }}>Pulse EMS</h2>
+                    <h2 className="fw-bold mb-2" style={{ letterSpacing: "-0.5px", fontSize: "2.2rem" }}>NexGen Workforce</h2>
                     <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.95rem" }}>Secure Employee Portal Access</p>
                 </div>
 

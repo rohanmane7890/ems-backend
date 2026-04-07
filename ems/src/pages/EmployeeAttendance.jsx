@@ -86,7 +86,7 @@ const EmployeeAttendance = () => {
         return null;
     };
 
-    if (loading) return <div className="d-flex justify-content-center align-items-center vh-100 bg-black text-white">Loading Pulse Vault...</div>;
+    if (loading) return <div className="d-flex justify-content-center align-items-center vh-100 bg-black text-white">Loading NexGen Vault...</div>;
 
     return (
         <div style={{ background: "#060b18", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#fff", padding: "40px 20px" }}>

@@ -24,12 +24,14 @@ import AdminSalaryManagement from './pages/AdminSalaryManagement'
 import EmployeeWorkLog from './pages/EmployeeWorkLog'
 import AdminWorkLogView from './pages/AdminWorkLogView'
 import AdminAssignTask from './pages/AdminAssignTask'
+import AIAssistant from './components/AIAssistant'
 
 function App() {
 
   return (
     <div className='app-container'>
       <BrowserRouter>
+        <AIAssistant />
         <HeaderComponent />
         <div className='main-content'>
           <Routes>

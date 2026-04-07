@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    allowedHosts: ['nexgen-employee.loca.lt', 'localhost', '127.0.0.1', '192.168.1.35'],
+    allowedHosts: true,
     cors: true,
     hmr: {
       host: 'nexgen-employee.loca.lt',

@@ -149,6 +149,9 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     @Async
     @Override
     public void sendTaskAssignmentEmail(String email, String taskTitle, String dueDate) {
@@ -176,10 +179,10 @@ public class EmailServiceImpl implements EmailService {
                     "<p style=\"margin: 5px 0 0; font-size: 16px; font-weight: bold; color: #e11d48;\">" + dueDate + "</p>" +
                     "</div>" +
                     "<div style=\"text-align: center; margin: 30px 0;\">" +
-                    "<a href=\"http://192.168.1.35:5173/\" style=\"background-color: #2563eb; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);\">OPEN MISSION PORTAL</a>" +
+                    "<a href=\"" + frontendUrl + "/\" style=\"background-color: #2563eb; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);\">OPEN MISSION PORTAL</a>" +
                     "</div>" +
                     "<p style=\"font-size: 14px; color: #64748b;\">If the button doesn't work, copy and paste this link into your browser:</p>" +
-                    "<p style=\"font-size: 14px; color: #2563eb; word-break: break-all;\">http://192.168.1.35:5173/</p>" +
+                    "<p style=\"font-size: 14px; color: #2563eb; word-break: break-all;\">" + frontendUrl + "/</p>" +
                     "</div>" +
                     "<div style=\"background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;\">" +
                     "&copy; 2026 NexGen Workforce Systems. Secure Cloud Dispatch." +

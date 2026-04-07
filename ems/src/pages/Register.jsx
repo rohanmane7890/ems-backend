@@ -133,7 +133,7 @@ function Register() {
                         <i className="ri-user-add-line" style={{ fontSize: "3.5rem", background: "linear-gradient(135deg, #818cf8 0%, #c084fc 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
                     </div>
                     <h2 className="fw-bold mb-1" style={{ letterSpacing: "-0.5px" }}>Create Account</h2>
-                    <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.9rem" }}>Join the excellence at Pulse EMS</p>
+                    <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.9rem" }}>Join the excellence at NexGen Workforce</p>
                 </div>
 
                 {message.text && (

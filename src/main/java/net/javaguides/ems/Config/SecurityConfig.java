@@ -29,6 +29,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/login/**", "/oauth2/**").permitAll()
                 .requestMatchers("/api/employees/register", "/api/employees/login", "/api/employees/upload-photo").permitAll()
+                .requestMatchers("/api/ai/**").permitAll()
                 // Allow authenticated users (Employees and Admins) to check-in/out
                 .requestMatchers("/api/attendance/check-in/**", "/api/attendance/check-out/**").authenticated()
                 // Protect other endpoints
