@@ -161,9 +161,13 @@ function EmployeeDashboard() {
                             <MenuCard to="/employee-salary" icon={<FaWallet />} title="My Salary" subtitle="Salary & History" color="#10b981" />
                             <MenuCard to="/leaves" icon={<FaCalendarAlt />} title="Leaves" subtitle="Apply & track requests" color="#f59e0b" />
                             <MenuCard to="/employee-worklogs" icon={<FaClipboardList />} title="Daily Log" subtitle="Report mission status" color="#0ea5e9" />
-                            <div className="col-md-4 col-sm-6" onClick={() => setShowMgmtModal(true)} style={{ cursor: "pointer" }}>
-                                <MenuCard to="#" icon={<FaCommentAlt />} title="Message Admin" subtitle="Send alert to management" color="#f43f5e" />
-                            </div>
+                            <MenuCard 
+                                onClick={() => setShowMgmtModal(true)} 
+                                icon={<FaCommentAlt />} 
+                                title="Message Admin" 
+                                subtitle="Send alert to management" 
+                                color="#f43f5e" 
+                            />
                         </div>
 
                         {/* 📊 Recent Attendance History */}
@@ -320,14 +324,17 @@ function EmployeeDashboard() {
     );
 }
 
-function MenuCard({ to, icon, title, subtitle, color }) {
+function MenuCard({ to, icon, title, subtitle, color, onClick }) {
+    const Component = onClick ? 'div' : Link;
+    const props = onClick ? { onClick, style: { cursor: 'pointer' } } : { to };
+
     return (
         <div className="col-md-4 col-sm-6">
-            <Link to={to} className="dashboard-card menu-card">
+            <Component {...props} className="dashboard-card menu-card">
                 <div className="fs-2 mb-3" style={{ color: color }}>{icon}</div>
                 <div className="fw-bold text-white small mb-1">{title}</div>
                 <div className="text-white text-opacity-40 extra-small">{subtitle}</div>
-            </Link>
+            </Component>
         </div>
     );
 }
