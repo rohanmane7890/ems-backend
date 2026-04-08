@@ -48,18 +48,47 @@ function AdminWorkLogView() {
     const fetchLogs = async () => {
         try {
             const [logsRes, tasksRes] = await Promise.all([getAllWorkLogs(), getAllTasks()]);
-            const logs = logsRes.data.map(l => ({ ...l, type: 'MANUAL' }));
-            const completedTasks = tasksRes.data.filter(t => t.status === 'COMPLETED').map(t => ({
+            const allTasks = tasksRes.data;
+            const logEntries = logsRes.data;
+
+            const processedLogs = logEntries.map(log => {
+                const missionPrefix = "[MISSION REPORT] ";
+                if (log.tasksDescription.startsWith(missionPrefix)) {
+                    // Extract the title. Format is usually "[MISSION REPORT] Title: "
+                    const rest = log.tasksDescription.substring(missionPrefix.length);
+                    const titlePart = rest.split(":")[0];
+                    
+                    // Find matching task
+                    const matchingTask = allTasks.find(t => t.title === titlePart && t.employeeEmail === log.employeeEmail);
+                    
+                    if (matchingTask) {
+                        matchingTask.isLinked = true; // Mark as linked so we don't show it as a separate standalone task
+                        return {
+                            ...log,
+                            type: 'MISSION_SYNC',
+                            missionTitle: matchingTask.title,
+                            missionDescription: matchingTask.description,
+                            missionDueDate: matchingTask.dueDate,
+                            employeeResponse: rest.substring(titlePart.length + 2).trim()
+                        };
+                    }
+                }
+                return { ...log, type: 'MANUAL' };
+            });
+
+            // Add standalone completed tasks that don't have a linked manual report
+            const standaloneTasks = allTasks.filter(t => t.status === 'COMPLETED' && !t.isLinked).map(t => ({
                 id: `T${t.id}`,
                 employeeName: t.employeeName,
                 employeeEmail: t.employeeEmail,
                 date: t.dueDate || "N/A",
                 hoursWorked: "Task Complete",
                 tasksDescription: t.title + ": " + t.description,
-                type: 'ASSIGNED'
+                type: 'ASSIGNED',
+                isStandaloneTask: true
             }));
             
-            setAllLogs([...logs, ...completedTasks].sort((a, b) => new Date(b.date) - new Date(a.date)));
+            setAllLogs([...processedLogs, ...standaloneTasks].sort((a, b) => new Date(b.date) - new Date(a.date)));
             setLoading(false);
         } catch (error) {
             toast.error("Failed to fetch reports");
@@ -138,39 +167,51 @@ function AdminWorkLogView() {
                                                         <span className="text-info small opacity-75">{log.employeeEmail}</span>
                                                     </div>
                                                     <div className="d-flex flex-column align-items-end gap-2">
-                                                        <span className={`badge ${log.type === 'ASSIGNED' ? 'bg-success' : 'bg-info'} bg-opacity-10 ${log.type === 'ASSIGNED' ? 'text-success' : 'text-info'} border ${log.type === 'ASSIGNED' ? 'border-success' : 'border-info'} border-opacity-25 px-3 py-2 rounded-pill fw-bold`} style={{ fontSize: "0.7rem" }}>
-                                                            {log.type === 'ASSIGNED' ? '✅ COMPLETED TASK' : log.date}
+                                                        <span className={`badge ${log.type === 'MISSION_SYNC' ? 'bg-success' : 'bg-info'} bg-opacity-10 ${log.type === 'MISSION_SYNC' ? 'text-success' : 'text-info'} border ${log.type === 'MISSION_SYNC' ? 'border-success' : 'border-info'} border-opacity-25 px-3 py-2 rounded-pill fw-bold`} style={{ fontSize: "0.7rem" }}>
+                                                            {log.type === 'MISSION_SYNC' ? '🚀 MISSION COMPLETE' : log.date}
                                                         </span>
-                                                        {attendanceMap[log.date] && attendanceMap[log.date][log.employeeEmail] === 'ABSENT' && (
-                                                            <span className="badge bg-warning bg-opacity-75 text-dark fw-bold px-3 py-1 rounded-pill" style={{ fontSize: "0.6rem" }}>
-                                                                📦 REMOTE/EXTRA EFFORT
-                                                            </span>
-                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className="rounded-4 p-3 mb-3 border border-white border-opacity-5" style={{ background: log.tasksDescription.startsWith('[MISSION REPORT]') ? "rgba(14, 165, 233, 0.1)" : "rgba(15, 23, 42, 0.5)", border: log.tasksDescription.startsWith('[MISSION REPORT]') ? "1px solid rgba(14, 165, 233, 0.2)" : "1px solid rgba(255,255,255,0.05)" }}>
-                                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                                        <div className="text-info small text-uppercase fw-bold ls-1" style={{ fontSize: "0.6rem" }}>
-                                                            {log.tasksDescription.startsWith('[MISSION REPORT]') ? '🚀 LINKED MISSION REPORT' : 'Tasks Completed'}
+
+                                                {log.type === 'MISSION_SYNC' ? (
+                                                    <div className="mission-qa-container">
+                                                        {/* Section 1: The Question (Assignment) */}
+                                                        <div className="rounded-4 p-3 mb-2" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                                            <div className="text-white-50 extra-small fw-bold text-uppercase ls-1 mb-2">1. System Assignment (Question)</div>
+                                                            <div className="text-info fw-bold small mb-1">{log.missionTitle}</div>
+                                                            <div className="text-white-50 extra-small opacity-75">{log.missionDescription}</div>
                                                         </div>
-                                                        {log.tasksDescription.startsWith('[MISSION REPORT]') && (
-                                                            <div className="badge bg-info bg-opacity-10 text-info extra-small fw-bold border border-info border-opacity-10">MISSION SYNC</div>
-                                                        )}
+
+                                                        {/* Section 2: The Answer (Response) */}
+                                                        <div className="rounded-4 p-3 mb-3" style={{ background: "rgba(16, 185, 129, 0.05)", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+                                                            <div className="text-success extra-small fw-bold text-uppercase ls-1 mb-2 d-flex justify-content-between">
+                                                                <span>2. Employee Response (Answer)</span>
+                                                                <span>{log.hoursWorked} hrs</span>
+                                                            </div>
+                                                            <p className="text-white small mb-0 fw-medium">{log.employeeResponse || "No detailed logs provided."}</p>
+                                                        </div>
                                                     </div>
-                                                    <p className="text-white small mb-0 fw-bold opacity-75" style={{ lineHeight: "1.6", letterSpacing: "0.5px" }}>{log.tasksDescription || "No detailed logs provided."}</p>
-                                                </div>
+                                                ) : (
+                                                    <div className="rounded-4 p-3 mb-3 border border-white border-opacity-5" style={{ background: "rgba(15, 23, 42, 0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                                        <div className="text-info small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: "0.6rem" }}>
+                                                            Tasks Completed
+                                                        </div>
+                                                        <p className="text-white small mb-0 fw-bold opacity-75" style={{ lineHeight: "1.6", letterSpacing: "0.5px" }}>{log.tasksDescription || "No detailed logs provided."}</p>
+                                                    </div>
+                                                )}
+
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill" style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)" }}>
                                                         <FaTasks className="text-success shadow-sm" style={{ fontSize: "0.8rem" }} /> 
                                                         <span className="text-white fw-bold" style={{ fontSize: "0.7rem", letterSpacing: "0.5px" }}>
-                                                            {log.hoursWorked}
+                                                            {log.type === 'MISSION_SYNC' ? 'MISSION STATUS: VERIFIED' : log.hoursWorked}
                                                         </span>
                                                     </div>
                                                     <button 
                                                         className="btn btn-sm btn-link text-info text-decoration-none p-0 fw-bold"
                                                         onClick={() => { setSelectedLog(log); setShowModal(true); }}
                                                     >
-                                                        Review Report →
+                                                        Review Full Audit →
                                                     </button>
                                                 </div>
                                             </div>
@@ -219,8 +260,18 @@ function AdminWorkLogView() {
                                             <div className="text-white fw-bold">{selectedLog.date}</div>
                                         </div>
                                         <div className="col-12 border-top border-white border-opacity-5 pt-3">
-                                            <div className="extra-small text-white-50 text-uppercase fw-bold mb-2">Detailed Work Log</div>
-                                            <div className="text-white small lh-lg fw-medium">{selectedLog.tasksDescription}</div>
+                                            <div className="extra-small text-white-50 text-uppercase fw-bold mb-2">Detailed Work Record</div>
+                                            {selectedLog.type === 'MISSION_SYNC' ? (
+                                                <div className="p-3 rounded-4 mb-2" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                                                    <div className="text-info extra-small fw-bold text-uppercase mb-2">Original Assignment</div>
+                                                    <div className="text-white small mb-3 opacity-75">{selectedLog.missionTitle}: {selectedLog.missionDescription}</div>
+                                                    
+                                                    <div className="text-success extra-small fw-bold text-uppercase mb-2">Employee Response</div>
+                                                    <div className="text-white small lh-lg fw-medium">{selectedLog.employeeResponse}</div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-white small lh-lg fw-medium">{selectedLog.tasksDescription}</div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
