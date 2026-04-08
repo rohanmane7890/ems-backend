@@ -23,12 +23,27 @@ const HeaderComponent = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (role === "EMPLOYEE" && email) {
-      fetchEmployeeAndNotifications();
+    if (email) {
+      if (role === "EMPLOYEE") {
+        fetchEmployeeAndNotifications();
+      } else if (role === "ADMIN") {
+        fetchAdminNotifications();
+      }
       const interval = setInterval(fetchNotifsOnly, 30000);
       return () => clearInterval(interval);
     }
   }, [role, email]);
+
+  const fetchAdminNotifications = async () => {
+    try {
+      const empId = localStorage.getItem("employeeId") || "-1";
+      setEmployeeId(empId);
+      const notifRes = await getNotifications(empId);
+      setNotifications(notifRes.data);
+    } catch (error) {
+      console.error("Error fetching admin notifications", error);
+    }
+  };
 
   const fetchEmployeeAndNotifications = async () => {
     try {
@@ -53,7 +68,7 @@ const HeaderComponent = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   };
 
   const toggleNotif = () => setShowNotif(!showNotif);
@@ -135,7 +150,7 @@ const HeaderComponent = () => {
                   <NavItem to="/search" icon={FaSearch} label="Search" />
                   <NavItem to="/admin/leaves" icon={FaCalendarCheck} label="Leaves" />
                   <NavItem to="/admin/attendance" icon={FaCalendarAlt} label="Tracking" />
-                  <NavItem to="/admin/work-reports" icon={FaFileAlt} label="Intelligence" />
+                  <NavItem to="/admin/work-reports" icon={FaFileAlt} label="Work Report" />
                 </>
               ) : (
                 <>
@@ -150,7 +165,7 @@ const HeaderComponent = () => {
             </ul>
 
             <div className="d-flex align-items-center gap-2 mt-4 mt-lg-0">
-             {role === "EMPLOYEE" && (
+              {(role === "EMPLOYEE" || role === "ADMIN") && (
                  <div className="position-relative" ref={notifRef}>
                     <button className="notification-trigger" onClick={toggleNotif}>
                         <FaBell className="fs-5" />

@@ -180,11 +180,6 @@ function AdminLogin() {
                     </button>
                 </form>
 
-                <div className="text-center mt-3">
-                    <Link to="/" className="text-decoration-none small fw-medium" style={{ color: "rgba(255, 255, 255, 0.3)", transition: "0.3s" }} onMouseOver={(e) => e.target.style.color = "rgba(255, 255, 255, 0.7)"} onMouseOut={(e) => e.target.style.color = "rgba(255, 255, 255, 0.3)"}>
-                        <i className="ri-arrow-left-line me-1"></i> Back to Employee Portal
-                    </Link>
-                </div>
             </div>
         </div>
     );

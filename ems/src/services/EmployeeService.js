@@ -98,6 +98,9 @@ export const markNotificationAsRead = (id) =>
 export const markAllNotificationsAsRead = (employeeId) =>
     axios.put(`/api/notifications/employee/${employeeId}/read-all`, {}, authHeader());
 
+export const createNotification = (notificationData) =>
+    axios.post("/api/notifications", notificationData, authHeader());
+
 // 🔹 Profile & Password Management
 export const updateProfile = (employeeId, employee) =>
     axios.put(`${REST_API_BASE_URL}/${employeeId}`, employee, authHeader());

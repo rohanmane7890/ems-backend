@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +21,15 @@ import net.javaguides.ems.service.NotificationService;
 public class NotificationController {
 
     private NotificationService notificationService;
+    
+    @PostMapping
+    public ResponseEntity<NotificationDTO> createNotification(@RequestBody NotificationDTO notificationDTO) {
+        return ResponseEntity.ok(notificationService.createNotification(
+                notificationDTO.getEmployeeId(), 
+                notificationDTO.getMessage(), 
+                notificationDTO.getType()
+        ));
+    }
 
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Long employeeId) {

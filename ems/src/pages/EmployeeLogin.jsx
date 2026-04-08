@@ -25,20 +25,7 @@ function EmployeeLogin() {
 
     const navigate = useNavigate();
 
-    // 🛡️ Login Guard: Redirect if already authenticated
-    React.useEffect(() => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-        if (token && role === "EMPLOYEE") {
-            navigate("/employee-dashboard", { replace: true });
-        }
-    }, [navigate]);
 
-    const handleAdminAccess = () => {
-        setPinInput("");
-        setPinError("");
-        setShowPinModal(true);
-    };
 
     // 🔐 Password Reset Handlers
     const handleForgotRequest = async (e) => {
@@ -91,21 +78,6 @@ function EmployeeLogin() {
         } finally {
             setResetLoading(false);
         }
-    };
-
-    const verifyPin = (e) => {
-        e.preventDefault();
-        setPinError("");
-        AuthService.verifyMasterPin(pinInput)
-            .then(() => {
-                setShowPinModal(false);
-                setPinInput("");
-                navigate("/admin-login");
-            })
-            .catch(() => {
-                setPinError("❌ Security Alert: Invalid PIN! Access Denied.");
-                setPinInput("");
-            });
     };
 
     const handleLogin = (e) => {
@@ -265,86 +237,6 @@ function EmployeeLogin() {
                  </div>
             </div>
 
-            {/* 🔐 Professional PIN Modal Overlay */}
-            {showPinModal && (
-                <div 
-                    className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-                    style={{ 
-                        background: "rgba(0, 0, 0, 0.8)", 
-                        backdropFilter: "blur(15px)", 
-                        zIndex: 1050
-                    }}
-                >
-                    <div 
-                        className="card p-5 border-0 shadow-lg"
-                        style={{ 
-                            width: "440px", 
-                            borderRadius: "32px", 
-                            background: "rgba(15, 23, 42, 0.95)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            color: "#fff",
-                            fontFamily: "'Poppins', sans-serif",
-                            boxShadow: "0 50px 100px -20px rgba(0, 0, 0, 0.8)"
-                        }}
-                    >
-                        <div className="text-center mb-4">
-                            <div className="mb-3">
-                                <i className="ri-shield-keyhole-line" style={{ fontSize: "4rem", background: "linear-gradient(135deg, #60a5fa 0%, #a855f7 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
-                            </div>
-                            <h3 className="fw-bold mb-2">Security Hub</h3>
-                            <p className="text-white-50 small">Restricted Management: Enter Master PIN</p>
-                        </div>
-                        
-                        {pinError && (
-                            <div className="alert alert-danger py-2 small text-center mb-4" 
-                                 style={{ borderRadius: "12px", background: "rgba(220, 38, 38, 0.2)", color: "#fca5a5", border: "none" }}>
-                                <i className="ri-error-warning-line me-2"></i>{pinError}
-                            </div>
-                        )}
-
-                        <form onSubmit={verifyPin}>
-                            <div className="mb-4 text-center">
-                                <input
-                                    type="password"
-                                    className="form-control bg-transparent text-white text-center fw-bold placeholder-light shadow-none"
-                                    style={{ 
-                                        borderRadius: "18px", 
-                                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                                        background: "rgba(255, 255, 255, 0.03)",
-                                        padding: "18px",
-                                        fontSize: "1.8rem",
-                                        letterSpacing: "12px"
-                                    }}
-                                    autoFocus
-                                    placeholder="••••••"
-                                    maxLength="6"
-                                    value={pinInput}
-                                    onChange={(e) => setPinInput(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="d-flex gap-3">
-                                <button 
-                                    type="button" 
-                                    className="btn btn-outline-light w-50 py-3 rounded-4 fw-semibold opacity-50"
-                                    style={{ transition: "0.3s", border: "1px solid rgba(255, 255, 255, 0.2)" }}
-                                    onClick={() => { setShowPinModal(false); setPinInput(""); setPinError(""); }}
-                                    onMouseOver={(e) => e.target.style.opacity = "1"}
-                                    onMouseOut={(e) => e.target.style.opacity = "0.5"}
-                                >
-                                    Dismiss
-                                </button>
-                                <button 
-                                    type="submit" 
-                                    className="btn w-50 py-3 rounded-4 fw-bold btn-primary-gradient"
-                                >
-                                    Verify Hub
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
             {/* 🔄 Password Reset Modal Overlay */}
             {showResetModal && (
                 <div 

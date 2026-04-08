@@ -21,7 +21,7 @@ const SearchEmployeeComponent = () => {
 
     useEffect(() => {
         applyFilters();
-    }, [searchTerm, department, status, sortBy, employees]);
+    }, [employees]); // Only filter when initial data is loaded or changed
 
     const fetchAll = async () => {
         setLoading(true);
@@ -39,7 +39,7 @@ const SearchEmployeeComponent = () => {
         if (!Array.isArray(employees)) return;
 
         let filtered = employees.filter(emp => {
-            const matchesSearch = (emp.firstName + " " + emp.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
+            const matchesSearch = (emp.firstName + " " + (emp.lastName || "")).toLowerCase().includes(searchTerm.toLowerCase()) || 
                                  emp.email.toLowerCase().includes(searchTerm.toLowerCase());
             
             const matchesDept = department ? emp.department === department : true;
@@ -71,12 +71,12 @@ const SearchEmployeeComponent = () => {
 
     return (
         <div style={{ 
-            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)", 
+            background: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
             minHeight: "100vh", 
             padding: "40px 0",
             fontFamily: "'Inter', sans-serif"
         }}>
-            <div className="container">
+            <div className="container" style={{ maxWidth: "1350px" }}>
                 <div className="d-flex justify-content-between align-items-center mb-5">
                     <button className="btn btn-link text-decoration-none text-white-50 p-0 fw-bold hover-light" onClick={() => navigate("/admin-dashboard")}>
                         <FaArrowLeft className="me-2" /> Back to Dashboard
@@ -85,50 +85,57 @@ const SearchEmployeeComponent = () => {
                 </div>
 
                 {/* Filter Card */}
-                <div className="card border-0 shadow-2xl mb-5" style={{ borderRadius: "20px", background: "rgba(255, 255, 255, 0.95)" }}>
+                <div className="card border-0 shadow-2xl mb-5" style={{ borderRadius: "24px", background: "rgba(15, 23, 42, 0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
                     <div className="card-body p-4">
-                        <div className="row g-3">
-                            <div className="col-lg-4">
+                        <div className="row g-3 align-items-center">
+                            <div className="col-lg-3">
                                 <div className="input-group">
-                                    <span className="input-group-text bg-white border-end-0"><FaSearch className="text-muted" /></span>
+                                    <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ border: "1px solid rgba(255, 255, 255, 0.1)" }}><FaSearch /></span>
                                     <input 
                                         type="text" 
-                                        className="form-control border-start-0" 
-                                        placeholder="Search by name or email..." 
+                                        className="form-control bg-transparent text-white border-start-0 shadow-none" 
+                                        style={{ border: "1px solid rgba(255, 255, 255, 0.1)" }}
+                                        placeholder="Search by name..." 
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
                             </div>
                             <div className="col-lg-2">
-                                <select className="form-select" value={department} onChange={(e) => setDepartment(e.target.value)}>
-                                    <option value="">All Departments</option>
-                                    <option value="IT">IT</option>
-                                    <option value="HR">HR</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Marketing">Marketing</option>
+                                <select className="form-select bg-transparent text-white border-white border-opacity-10 shadow-none custom-select" value={department} onChange={(e) => setDepartment(e.target.value)}>
+                                    <option value="" className="bg-dark">All Departments</option>
+                                    <option value="IT" className="bg-dark">IT</option>
+                                    <option value="HR" className="bg-dark">HR</option>
+                                    <option value="Finance" className="bg-dark">Finance</option>
+                                    <option value="Marketing" className="bg-dark">Marketing</option>
                                 </select>
                             </div>
                             <div className="col-lg-2">
-                                <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                    <option value="">All Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
+                                <select className="form-select bg-transparent text-white border-white border-opacity-10 shadow-none custom-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                    <option value="" className="bg-dark">All Status</option>
+                                    <option value="Active" className="bg-dark">Active</option>
+                                    <option value="Inactive" className="bg-dark">Inactive</option>
                                 </select>
                             </div>
                             <div className="col-lg-2">
-                                <div className="input-group">
-                                    <span className="input-group-text bg-white"><FaSortAmountDown className="text-muted" /></span>
-                                    <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                                        <option value="firstName">Sort by Name</option>
-                                        <option value="department">Sort by Dept</option>
-                                        <option value="status">Sort by Status</option>
-                                    </select>
-                                </div>
+                                <select className="form-select bg-transparent text-white border-white border-opacity-10 shadow-none custom-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                    <option value="firstName" className="bg-dark">Sort by Name</option>
+                                    <option value="department" className="bg-dark">Sort by Dept</option>
+                                    <option value="status" className="bg-dark">Sort by Status</option>
+                                </select>
                             </div>
-                            <div className="col-lg-4">
-                                <div className="p-2 text-muted small fw-bold">
-                                    Showing {filteredEmployees.length} of {employees.length} employees
+                            <div className="col-lg-2">
+                                <button 
+                                    className="btn btn-primary w-100 py-2 fw-bold rounded-3 shadow-lg d-flex align-items-center justify-content-center gap-2"
+                                    onClick={applyFilters}
+                                    style={{ background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)", border: "none" }}
+                                >
+                                    <FaFilter className="small" /> Filter Data
+                                </button>
+                            </div>
+                            <div className="col-lg-1 d-flex justify-content-center">
+                                <div className="text-white-50 extra-small fw-bold text-center">
+                                    <span className="text-white">{filteredEmployees.length}</span><br />FOUND
                                 </div>
                             </div>
                         </div>
