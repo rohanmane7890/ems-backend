@@ -17,6 +17,7 @@ function AdminDashboard() {
         presentToday: 0,
         absentToday: 0,
         newJoinersThisMonth: 0,
+        totalMonthlyPayroll: 0,
         employeesByDepartment: {}
     });
     const [recentEmployees, setRecentEmployees] = useState([]);
@@ -131,23 +132,17 @@ function AdminDashboard() {
                         { title: "Monthly Payroll", value: `₹${(analytics.totalMonthlyPayroll || 0).toLocaleString()}`, icon: <FaWallet />, color: "#36b9cc" }
                     ].map((stat, idx) => (
                         <div key={idx} className="col-xl-3 col-md-6">
-                            <div className="card shadow-lg border-0 h-100" style={{ 
-                                background: "rgba(30, 41, 59, 0.7)", 
-                                backdropFilter: "blur(12px)",
-                                borderLeft: `5px solid ${stat.color}`, 
-                                borderRadius: "15px",
-                                border: "1px solid rgba(255, 255, 255, 0.1)"
-                            }}>
-                                <div className="card-body">
+                            <div className="elite-glass-card p-4 h-100" style={{ borderLeft: `5px solid ${stat.color}` }}>
+                                <div className="card-body p-0">
                                     <div className="row align-items-center">
                                         <div className="col mr-2">
                                             <div className="text-xs font-weight-bold text-uppercase mb-1" style={{ color: stat.color, fontSize: "0.85rem", letterSpacing: "1px" }}>
                                                 {stat.title}
                                             </div>
-                                            <div className="h4 mb-0 font-weight-bold text-white">{stat.value}</div>
+                                            <div className="h3 mb-0 font-weight-bold text-white tracking-tighter" style={{ fontSize: "1.75rem" }}>{stat.value}</div>
                                         </div>
                                         <div className="col-auto">
-                                            <span style={{ fontSize: "2.2rem", color: "rgba(255, 255, 255, 0.2)" }}>{stat.icon}</span>
+                                            <span style={{ fontSize: "2.2rem", color: "rgba(255, 255, 255, 0.15)" }}>{stat.icon}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -208,7 +203,7 @@ function AdminDashboard() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-3 p-3 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-5">
+                            <div className="mt-3 p-3 rounded-4 border border-white border-opacity-5" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
                                 <div className="text-white small fw-bold mb-1">Dispatch Guide</div>
                                 <p className="text-white-50 extra-small mb-0">1. Link your computer to the **Universal Link** above for office Wi-Fi. 2. Use the **Global Command** for employees working from home. 3. Dispatch the final URL via WhatsApp or Email.</p>
                             </div>
@@ -219,12 +214,7 @@ function AdminDashboard() {
                 <div className="row g-4">
                     {/* Quick Actions */}
                     <div className="col-lg-4">
-                        <div className="card shadow-2xl border-0 p-4 h-100" style={{ 
-                            borderRadius: "20px", 
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)"
-                        }}>
+                        <div className="elite-glass-card p-4 h-100">
                             <h5 className="fw-bold mb-4 text-white">Quick Actions</h5>
                             <div className="d-grid gap-3">
                                 <Link to="/employees" className="btn btn-outline-success py-2 d-flex align-items-center justify-content-center">
@@ -257,12 +247,7 @@ function AdminDashboard() {
 
                     {/* Recent Activity */}
                     <div className="col-lg-8">
-                        <div className="card shadow-2xl border-0 p-4 h-100" style={{ 
-                            borderRadius: "20px", 
-                            background: "rgba(30, 41, 59, 0.7)",
-                            backdropFilter: "blur(12px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)"
-                        }}>
+                        <div className="elite-glass-card p-4 h-100">
                             <h5 className="fw-bold mb-4 d-flex align-items-center text-white">
                                 <FaHistory className="me-2 text-warning" /> Recent Joiners
                             </h5>

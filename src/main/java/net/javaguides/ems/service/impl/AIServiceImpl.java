@@ -49,7 +49,7 @@ public class AIServiceImpl implements AIService {
 
         if (apiKey != null && !apiKey.isEmpty() && !apiKey.equals("REPLACE_WITH_YOUR_KEY")) {
             try {
-                return callGeminiAPI(systemContext, message);
+                return callGeminiAPI(systemContext, message, role, name);
             } catch (Exception e) {
                 System.err.println("AI Error: " + e.getMessage());
             }
@@ -59,8 +59,15 @@ public class AIServiceImpl implements AIService {
     }
 
     @SuppressWarnings("null")
-    private String callGeminiAPI(String context, String userMessage) {
+    private String callGeminiAPI(String context, String userMessage, String role, String name) {
         String url = GEMINI_URL + apiKey;
+        
+        long totalEmployees = employeeRepository.count();
+        long presentToday = attendanceRepository.countByDate(LocalDate.now());
+        long pendingLeaves = leaveRequestRepository.findAll().stream()
+                .filter(l -> "PENDING".equals(l.getStatus()))
+                .count();
+
         Map<String, Object> body = Map.of(
             "contents", List.of(
                 Map.of("parts", List.of(
@@ -82,14 +89,16 @@ public class AIServiceImpl implements AIService {
             if (responseBody != null && responseBody.getCandidates() != null && !responseBody.getCandidates().isEmpty()) {
                 return responseBody.getCandidates().get(0).getContent().getParts().get(0).getText();
             }
-            return "AI link established but target signal was unclear.";
+            return runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            System.err.println("Gemini API Error [" + e.getStatusCode() + "]: " + e.getResponseBodyAsString());
+            // Fallback to local intelligence if cloud fails
+            return "[Neural Link Offline (Status " + e.getStatusCode().value() + ")] " + 
+                   runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
         } catch (Exception e) {
-            String error = e.getMessage() != null ? e.getMessage() : "Unknown Signal Error";
-            if (error.contains("429")) {
-                return "Neural cooling in progress. The AI is processing high traffic; please wait a few seconds before your next mission query.";
-            }
-            System.err.println("Neural Error: " + error);
-            return "Neural link instability. System reverting to Prototype Hub Mode.";
+            System.err.println("Neural Error: " + e.getMessage());
+            return "[Neural Link Offline] " + 
+                   runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
         }
     }
 

@@ -16,4 +16,5 @@ public class AnalyticsDTO {
     private long absentToday;
     private long newJoinersThisMonth;
     private Map<String, Long> employeesByDepartment;
+    private double totalMonthlyPayroll;
 }

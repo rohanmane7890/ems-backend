@@ -44,11 +44,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .filter(e -> e.getDepartment() != null)
                 .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting())) : new java.util.HashMap<>();
 
+        double totalMonthlyPayroll = (allEmployees != null) ? allEmployees.stream()
+                .filter(e -> e.getSalary() != null)
+                .mapToDouble(Employee::getSalary)
+                .sum() : 0.0;
+
         analytics.setTotalEmployees(totalEmployees);
         analytics.setPresentToday(presentToday);
         analytics.setAbsentToday(absentToday);
         analytics.setNewJoinersThisMonth(newJoiners);
         analytics.setEmployeesByDepartment(employeesByDept);
+        analytics.setTotalMonthlyPayroll(totalMonthlyPayroll);
 
         return analytics;
     }

@@ -157,14 +157,17 @@ const AIAssistant = () => {
                                         className={`d-flex ${msg.role === "user" ? "justify-content-end" : "justify-content-start"}`}
                                     >
                                         <div 
-                                            className={`p-3 rounded-4 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white ms-auto' : 'bg-white bg-opacity-5 text-white'}`}
+                                            className={`p-3 rounded-4 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white ms-auto' : ''}`}
                                             style={{ 
                                                 maxWidth: "85%", 
                                                 fontSize: "0.85rem", 
                                                 lineHeight: "1.5",
                                                 wordWrap: "break-word",
                                                 whiteSpace: "pre-wrap",
-                                                border: msg.role === 'bot' ? "1px solid rgba(255,255,255,0.05)" : "none"
+                                                background: msg.role === 'bot' ? "rgba(255, 255, 255, 0.08)" : "inherit",
+                                                color: "white",
+                                                border: msg.role === 'bot' ? "1px solid rgba(255,255,255,0.1)" : "none",
+                                                boxShadow: msg.role === 'bot' ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : "none"
                                             }}
                                         >
                                             {msg.text}
