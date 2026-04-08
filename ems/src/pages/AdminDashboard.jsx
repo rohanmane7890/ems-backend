@@ -4,7 +4,7 @@ import { getDashboardAnalytics, getAllEmployees, getEmployee, checkIn, checkOut 
 import { 
     FaUsers, FaUserCheck, FaUserTimes, FaUserPlus, 
     FaChartBar, FaChartPie, FaHistory, FaSignOutAlt, 
-    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaWallet, FaTasks
+    FaPlusCircle, FaList, FaSearch, FaCalendarAlt, FaFileExcel, FaWallet, FaTasks, FaBolt
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
@@ -150,8 +150,7 @@ function AdminDashboard() {
                         </div>
                     ))}
                 </div>
-
-                {/* 🌐 Portal Access Bridge */}
+                {/* Local Network Sharing */}
                 <div className="row mb-5">
                     <div className="col-12">
                         <div className="card shadow-2xl border-0 p-4" style={{ 
@@ -166,8 +165,8 @@ function AdminDashboard() {
                                         <FaPlusCircle className="text-white fs-4" />
                                     </div>
                                     <div>
-                                        <h5 className="fw-bold text-white mb-0">Share Portal Access</h5>
-                                        <p className="text-info opacity-75 small mb-0">Send this link to employees for instant Mobile/Remote login on your network.</p>
+                                        <h5 className="fw-bold text-white mb-0">Local Network Access</h5>
+                                        <p className="text-info opacity-75 small mb-0">Share this link to employees on your local Wi-Fi network.</p>
                                     </div>
                                 </div>
                                 <div className="d-flex gap-2 align-items-center bg-dark bg-opacity-25 p-2 rounded-pill border border-white border-opacity-10">
@@ -176,54 +175,12 @@ function AdminDashboard() {
                                     <button 
                                         onClick={() => {
                                             navigator.clipboard.writeText("http://192.168.1.35:5173");
-                                            toast.success("Universal Network Link copied!");
+                                            toast.success("Network Link copied!");
                                         }}
                                         className="btn btn-link btn-sm text-info p-0 me-2"
                                     >
                                         <i className="ri-file-copy-line"></i>
                                     </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 🌐 Global Remote Access Hub */}
-                        <div className="col-12 mt-4">
-                            <div className="elite-glass-card p-4" style={{ 
-                                background: "rgba(37, 99, 235, 0.1)", 
-                                border: "1px solid rgba(37, 99, 235, 0.2)" 
-                            }}>
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 className="fw-bold text-white mb-0 d-flex align-items-center">
-                                        <FaBolt className="text-warning me-2" /> Elite Universal Access Hub
-                                    </h5>
-                                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill small">
-                                        <i className="ri-earth-line me-1"></i> Global Broadcast Active
-                                    </span>
-                                </div>
-                                <p className="text-white-50 small mb-4">Your portal is now live globally. Remote employees can access the system from anywhere using this secure encrypted link.</p>
-                                
-                                <div className="row g-3">
-                                    <div className="col-md-8">
-                                        <div className="bg-dark bg-opacity-50 p-3 rounded-3 border border-white border-opacity-10 d-flex justify-content-between align-items-center">
-                                            <code className="text-info extra-small fw-bold">https://nexgen-elite-portal.loca.lt</code>
-                                            <button className="btn btn-link btn-sm text-white-50 p-0 hover-white" onClick={() => {
-                                                navigator.clipboard.writeText("https://nexgen-elite-portal.loca.lt");
-                                                toast.success("Universal Link Copied!");
-                                            }}>
-                                                <i className="ri-file-copy-line fs-5"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-4">
-                                        <a href={`https://wa.me/?text=Hello! Please access the NexGen Workforce portal using this secure universal link: https://nexgen-elite-portal.loca.lt`} target="_blank" className="btn btn-success w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-lg">
-                                            <i className="ri-whatsapp-line fs-5"></i> Broadcast via WhatsApp
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div className="mt-3 p-3 rounded-4 border border-white border-opacity-5" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                    <div className="text-white small fw-bold mb-1">Universal Dispatch Protocol</div>
-                                    <p className="text-white-50 extra-small mb-0">1. Start the tunnel on your terminal using `npm run tunnel`. 2. Copy the **Universal Link** above. 3. Dispatch to all employees via WhatsApp or Email.</p>
                                 </div>
                             </div>
                         </div>

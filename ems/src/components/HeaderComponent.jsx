@@ -79,7 +79,7 @@ const HeaderComponent = () => {
   useEffect(() => {
       const handleClickOutside = (e) => {
           if (notifRef.current && !notifRef.current.contains(e.target)) {
-              setShowNotif(false);
+               setShowNotif(false);
           }
       };
       document.addEventListener("mousedown", handleClickOutside);
@@ -117,7 +117,7 @@ const HeaderComponent = () => {
             <div className="bg-primary rounded-3 p-2 me-2 d-flex align-items-center justify-content-center shadow-lg" style={{ width: "35px", height: "35px" }}>
               <FaBolt className="text-white fs-5" />
             </div>
-            <span className="fw-bold text-white fs-5">NexGen<span className="text-primary-gradient fw-light">Hub</span></span>
+            <span className="fw-bold text-white fs-5">NexGen<span className="fw-light opacity-50 ms-1">Workforce</span></span>
           </Link>
 
           <button className="navbar-toggler border-0 shadow-none" type="button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -167,7 +167,7 @@ const HeaderComponent = () => {
                                     </button>
                                 )}
                             </div>
-                            <div className="notification-list custom-scroll">
+                            <div className="notification-list custom-scroll" style={{ maxHeight: "300px", overflowY: "auto" }}>
                                 {notifications.length === 0 || notifications.filter(n => !n.isRead).length === 0 ? (
                                     <div className="p-4 text-center text-white-50 small opacity-50">
                                         No unread alerts
@@ -187,8 +187,8 @@ const HeaderComponent = () => {
                             </div>
                         </div>
                     )}
-                 </div>
-             )}
+                  </div>
+              )}
 
                 <button className="logout-btn gap-2" onClick={handleLogout}>
                     <FaSignOutAlt className="small" />
@@ -278,9 +278,9 @@ const HeaderComponent = () => {
           background: rgba(255, 255, 255, 0.05);
         }
         .logout-btn {
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          color: #f87171;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.7);
           padding: 8px 20px;
           border-radius: 12px;
           font-size: 0.85rem;
@@ -290,8 +290,9 @@ const HeaderComponent = () => {
           transition: all 0.2s ease;
         }
         .logout-btn:hover {
-          background: #ef4444;
+          background: rgba(255, 255, 255, 0.1);
           color: white;
+          border-color: rgba(255, 255, 255, 0.2);
         }
         .text-primary-gradient {
           background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
