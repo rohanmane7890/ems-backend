@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getEmployeeByEmail, getAttendanceHistory, getEmployeeTasks, getSalaryHistory } from "../services/EmployeeService";
 import { 
     FaUserCircle, FaHistory, FaCalendarAlt, FaTasks, 
-    FaRocket, FaClipboardList, FaWallet
+    FaRocket, FaClipboardList, FaWallet, FaBolt, FaCheckCircle, FaExclamationCircle
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -47,137 +47,141 @@ function EmployeeDashboard() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate("/login", { replace: true });
-    };
-
-    if (loading) return <div className="d-flex justify-content-center align-items-center vh-100 bg-black text-white">Loading NexGen Elite...</div>;
+    if (loading) return (
+        <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-black text-white">
+            <div className="spinner-border text-primary mb-3" role="status"></div>
+            <div className="fw-bold tracking-widest text-uppercase small">Initializing Elite Command Center...</div>
+        </div>
+    );
 
     const doneTasks = tasks.filter(t => t.status === 'COMPLETED').length;
     const pendingTasks = tasks.length - doneTasks;
     const efficiency = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
 
     return (
-        <div style={{ background: "#060b18", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#fff", padding: "25px 20px" }}>
-            <div className="container" style={{ maxWidth: "1200px" }}>
+        <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #020617 100%)", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#fff", padding: "40px 20px" }}>
+            <div className="container" style={{ maxWidth: "1250px" }}>
                 
-                {/* 👋 Hello Banner (Smaller & Compact) */}
-                <div className="p-4 mb-4" style={{ background: "linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)", borderRadius: "16px", boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>
-                    <div className="d-flex justify-content-between align-items-center">
+                {/* 👋 Hello Banner (Elite Style) */}
+                <div className="elite-glass-card p-5 mb-5 overflow-hidden position-relative">
+                    <div className="position-absolute top-0 end-0 p-5 opacity-10">
+                        <FaRocket size={120} />
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center position-relative z-index-10">
                         <div>
-                            <h2 className="fw-bold mb-1" style={{ fontSize: "1.75rem" }}>Hello, {employee?.firstName}! 👋</h2>
-                            <p className="opacity-75 mb-0 small">Welcome to your dashboard. stay productive and track your progress.</p>
+                            <div className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 small fw-bold mb-3 d-inline-block">
+                                <FaBolt className="me-2" /> OPERATIONAL STATUS: ONLINE
+                            </div>
+                            <h1 className="fw-bold mb-2 tracking-tighter" style={{ fontSize: "3rem" }}>Welcome, {employee?.firstName}.</h1>
+                            <p className="text-white-50 fs-5 mb-0">System diagnostic complete. You are operating at <span className="text-primary fw-bold">{efficiency}% efficiency</span> today.</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="row g-3">
-                    {/* 🚀 NexGen Momentum Card (Minimized) */}
+                <div className="row g-4">
+                    {/* 🚀 Neural Pulse Efficiency Card */}
                     <div className="col-lg-4">
-                        <div className="card h-100 shadow-lg border-0 p-3" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
-                            <div className="text-info fw-bold text-uppercase mb-3" style={{ fontSize: "0.7rem", letterSpacing: "1.5px" }}>NEXGEN MOMENTUM</div>
+                        <div className="elite-glass-card p-4 h-100 d-flex flex-column">
+                            <div className="text-info fw-bold text-uppercase mb-4 d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem", letterSpacing: "2px" }}>
+                                <span>NEURAL PULSE</span>
+                                <span className="text-success small">PEAK</span>
+                            </div>
                             
-                            <div className="text-center py-2 mb-3 position-relative">
-                                <div className="mx-auto" style={{ width: "110px", height: "110px", position: "relative" }}>
-                                    <svg width="110" height="110" viewBox="0 0 160 160">
-                                        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
-                                        <circle cx="80" cy="80" r="70" fill="none" stroke="#2563eb" strokeWidth="18" strokeDasharray={`${efficiency * 4.39} 439`} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ filter: "drop-shadow(0 0 8px #2563eb)" }} />
+                            <div className="text-center py-4 mb-4 position-relative flex-grow-1 d-flex align-items-center justify-content-center">
+                                <div className="pulse-ring-container">
+                                    <svg width="180" height="180" viewBox="0 0 160 160">
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="12" />
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="url(#neuralGradient)" strokeWidth="12" strokeDasharray={`${efficiency * 4.39} 439`} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ filter: "drop-shadow(0 0 12px rgba(37, 99, 235, 0.5))", transition: "stroke-dasharray 1s ease-out" }} />
+                                        <defs>
+                                            <linearGradient id="neuralGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stopColor="#3b82f6" />
+                                                <stop offset="100%" stopColor="#60a5fa" />
+                                            </linearGradient>
+                                        </defs>
                                     </svg>
                                     <div className="position-absolute top-50 start-50 translate-middle">
-                                        <div className="h3 fw-bold mb-0 text-white">{efficiency}%</div>
-                                        <div className="extra-small opacity-50 uppercase fw-bold" style={{ fontSize: "0.55rem" }}>Efficiency</div>
+                                        <div className="h1 fw-bold mb-0 text-white tracking-widest" style={{ fontSize: "2.5rem" }}>{efficiency}<span className="fs-5 opacity-50">%</span></div>
+                                        <div className="extra-small text-info fw-bold tracking-widest text-uppercase" style={{ fontSize: "0.6rem" }}>Efficiency</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="row g-2 mb-3">
+                            <div className="row g-3 mb-4">
                                 <div className="col-6">
-                                    <div className="bg-white rounded-3 p-2 text-dark text-center shadow-sm">
-                                        <div className="h4 fw-bold mb-0">{doneTasks}</div>
-                                        <div className="extra-small opacity-50 uppercase" style={{ fontSize: "0.5rem" }}>Done</div>
+                                    <div className="bg-white bg-opacity-5 rounded-4 p-3 border border-white border-opacity-5 text-center">
+                                        <div className="h4 fw-bold mb-0 text-success">{doneTasks}</div>
+                                        <div className="extra-small opacity-50 uppercase fw-bold" style={{ fontSize: "0.6rem" }}>RESOLVED</div>
                                     </div>
                                 </div>
                                 <div className="col-6">
-                                    <div className="bg-white rounded-3 p-2 text-dark text-center shadow-sm">
-                                        <div className="h4 fw-bold mb-0">{pendingTasks}</div>
-                                        <div className="extra-small opacity-50 uppercase" style={{ fontSize: "0.5rem" }}>Pending</div>
+                                    <div className="bg-white bg-opacity-5 rounded-4 p-3 border border-white border-opacity-5 text-center">
+                                        <div className="h4 fw-bold mb-0 text-warning">{pendingTasks}</div>
+                                        <div className="extra-small opacity-50 uppercase fw-bold" style={{ fontSize: "0.6rem" }}>IN QUEUE</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-3 d-flex align-items-center gap-3 mt-auto" style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-                                <div className="rounded-circle bg-primary shadow-lg" style={{ width: "30px", height: "30px", boxShadow: "0 0 15px rgba(37, 99, 235, 0.4)" }}></div>
+                            <div className="p-3 bg-primary bg-opacity-10 border border-primary border-opacity-20 rounded-4 d-flex align-items-center gap-3">
+                                <div className="pulse-dot"></div>
                                 <div>
-                                    <div className="fw-bold text-white" style={{ fontSize: "0.85rem" }}>Clean Slate!</div>
-                                    <div className="extra-small text-white-50" style={{ fontSize: "0.65rem" }}>{pendingTasks === 0 ? "All items crushed!" : `${pendingTasks} items remaining.`}</div>
-                                </div>
-                            </div>
-                            
-                            {/* Latest Salary Badge */}
-                            {salaryHistory.length > 0 && (
-                                <div className="p-3 d-flex align-items-center gap-3 mt-3 animate-pulse" style={{ background: "rgba(16, 185, 129, 0.1)", borderRadius: "12px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
-                                    <div className="text-success"><FaWallet /></div>
-                                    <div>
-                                        <div className="extra-small text-success fw-bold uppercase" style={{ fontSize: "0.55rem" }}>Latest Disbursement</div>
-                                        <div className="fw-bold text-white" style={{ fontSize: "0.8rem" }}>{salaryHistory.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate))[0].paymentMonth} Paid</div>
+                                    <div className="fw-bold text-white small">NexGen AI Status Briefing</div>
+                                    <div className="text-white-50 extra-small mt-1">
+                                        {pendingTasks === 0 ? "Strategic objectives met. You are currently the top performer." : `Priority Alert: ${pendingTasks} tactical missions awaiting execution.`}
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* 🎮 Grid Cards Navigation (Minimized) */}
-                    <div className="col-lg-8">
-                        <div className="row g-3 h-100">
-                            <MenuCard to="/employee-profile" icon={<FaUserCircle className="text-purple" />} title="My Profile" desc="View & edit account" />
-                            <MenuCard to="/attendance" icon={<FaHistory className="text-teal" />} title="Attendance" desc="Check monthly records" />
-                            <MenuCard to="/employee-salary" icon={<FaWallet className="text-success" />} title="My Salary" desc="Salary & History" />
-                            <MenuCard to="/leaves" icon={<FaCalendarAlt className="text-warning" />} title="Leaves" desc="Apply & track requests" />
-                            <MenuCard to="/employee-worklogs" icon={<FaClipboardList className="text-info" />} title="Daily Log" desc="Report mission status" />
-                        </div>
-                    </div>
-
-                    {/* 📊 Recent Attendance History */}
-                    <div className="col-12 mt-3">
-                        <div className="card shadow-lg border-0 p-3" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.5)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-                            <div className="d-flex align-items-center mb-3 text-info fw-bold text-uppercase" style={{ fontSize: "0.7rem", letterSpacing: "1.5px" }}>
-                                <FaHistory className="me-2" /> RECENT ATTENDANCE HISTORY
                             </div>
-                            <div className="table-responsive rounded-3">
-                                <table className="table table-borderless align-middle mb-0" style={{ background: "#fff", borderRadius: "12px" }}>
-                                    <thead className="bg-white border-bottom text-dark" style={{ fontSize: "0.75rem", fontWeight: "700" }}>
+                        </div>
+                    </div>
+
+                    {/* 🎮 Strategic Mission Control Grid */}
+                    <div className="col-lg-8">
+                        <div className="row g-4 mb-4">
+                            <MenuCard to="/employee-profile" icon={<FaUserCircle />} title="Profile Interface" color="#a855f7" />
+                            <MenuCard to="/attendance" icon={<FaHistory />} title="Chronos Logs" color="#2dd4bf" />
+                            <MenuCard to="/employee-salary" icon={<FaWallet />} title="Payroll Suite" color="#10b981" />
+                            <MenuCard to="/leaves" icon={<FaCalendarAlt />} title="Leave Protocol" color="#f59e0b" />
+                            <MenuCard to="/employee-worklogs" icon={<FaClipboardList />} title="Mission Reports" color="#0ea5e9" />
+                            <div className="col-md-4">
+                                <div className="elite-glass-card p-4 h-100 d-flex flex-column justify-content-center align-items-center opacity-50 grayscale border-dashed">
+                                    <FaRocket className="fs-2 mb-2" />
+                                    <div className="fw-bold small text-uppercase">Coming Soon</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 📊 Intelligence Log (Recent History) */}
+                        <div className="elite-glass-card p-4">
+                            <div className="d-flex align-items-center justify-content-between mb-4">
+                                <div className="text-info fw-bold text-uppercase d-flex align-items-center" style={{ fontSize: "0.75rem", letterSpacing: "2px" }}>
+                                    <FaHistory className="me-2 text-warning" /> INTELLIGENCE LOG
+                                </div>
+                                <Link to="/attendance" className="btn btn-link btn-sm text-white-50 text-decoration-none hover-white">View Full History</Link>
+                            </div>
+                            <div className="table-responsive">
+                                <table className="table table-borderless align-middle mb-0 text-white">
+                                    <thead className="border-bottom border-white border-opacity-10 opacity-50" style={{ fontSize: "0.75rem" }}>
                                         <tr>
-                                            <th className="py-3 px-4">Date</th>
-                                            <th className="py-3">Check-In</th>
-                                            <th className="py-3">Check-Out</th>
-                                            <th className="py-3 px-4">Status</th>
+                                            <th className="pb-3 text-uppercase fw-bold">Timestamp</th>
+                                            <th className="pb-3 text-uppercase fw-bold">Deployment</th>
+                                            <th className="pb-3 text-uppercase fw-bold">Extraction</th>
+                                            <th className="pb-3 text-uppercase fw-bold text-center">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody style={{ fontSize: "0.85rem" }}>
+                                    <tbody style={{ fontSize: "0.9rem" }}>
                                         {attendance.length > 0 ? attendance.slice(-4).reverse().map((att, i) => (
-                                            <tr key={i} className="bg-white border-bottom border-light">
-                                                <td className="fw-bold px-4 py-4 text-dark">{att.date}</td>
-                                                <td className="fw-bold text-dark">{att.checkIn || '--:--'}</td>
-                                                <td className="fw-bold text-dark">{att.checkOut || '--:--'}</td>
-                                                <td className="px-4">
-                                                    <div style={{ 
-                                                        display: "inline-block",
-                                                        padding: "4px 12px",
-                                                        background: att.status?.toLowerCase() === 'present' ? "#10b981" : "#ef4444", 
-                                                        color: "#fff",
-                                                        borderRadius: "20px",
-                                                        fontSize: "0.65rem",
-                                                        fontWeight: "800",
-                                                        textTransform: "uppercase",
-                                                        letterSpacing: "0.5px",
-                                                        boxShadow: `0 4px 10px ${att.status?.toLowerCase() === 'present' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                                                    }}>
-                                                        {att.status || 'N/A'}
-                                                    </div>
+                                            <tr key={i} className="border-bottom border-white border-opacity-5">
+                                                <td className="py-4 fw-bold">{att.date}</td>
+                                                <td className="py-4 text-primary">{att.checkIn || '--:--'}</td>
+                                                <td className="py-4 text-info">{att.checkOut || '--:--'}</td>
+                                                <td className="py-4 text-center">
+                                                    <span className={`badge rounded-pill px-3 py-2 ${att.status?.toLowerCase() === 'present' ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'}`} style={{ border: "1px solid currentColor", fontSize: "0.65rem", fontWeight: "700" }}>
+                                                        {att.status?.toUpperCase() || 'OFFLINE'}
+                                                    </span>
                                                 </td>
                                             </tr>
-                                        )) : <tr><td colSpan="4" className="text-center py-5 text-muted">No recent work history recorded.</td></tr>}
+                                        )) : (
+                                            <tr><td colSpan="4" className="text-center py-5 text-white-50">No strategic data found. Submit your mission log today.</td></tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -186,35 +190,63 @@ function EmployeeDashboard() {
                 </div>
             </div>
 
-
-
             <style>{`
-                .text-purple { color: #a855f7; }
-                .text-teal { color: #2dd4bf; }
-                .text-warning { color: #f59e0b; }
-                .text-info { color: #0ea5e9; }
-                .card:hover { transform: translateY(-3px); transition: 0.2s ease-in-out; }
-                .extra-small { font-size: 0.65rem; }
-                .uppercase { text-transform: uppercase; }
-                .container { max-width: 1100px !important; }
-                .animate-pulse { animation: pulse-border 2s infinite; }
-                @keyframes pulse-border {
-                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-                    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                .elite-glass-card {
+                  background: rgba(15, 23, 42, 0.7) !important;
+                  backdrop-filter: blur(20px);
+                  border: 1px solid rgba(255, 255, 255, 0.08);
+                  border-radius: 24px;
+                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
+                .elite-glass-card:hover {
+                  border-color: rgba(255, 255, 255, 0.15);
+                  background: rgba(15, 23, 42, 0.8) !important;
+                  transform: translateY(-5px);
+                }
+                .menu-card-elite {
+                  text-decoration: none;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 30px 20px;
+                  height: 100%;
+                }
+                .pulse-ring-container {
+                    position: relative;
+                    padding: 10px;
+                }
+                .pulse-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: #3b82f6;
+                    box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
+                    animation: pulse-dot 2s infinite;
+                }
+                @keyframes pulse-dot {
+                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+                    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+                }
+                .tracking-tighter { letter-spacing: -2px; }
+                .tracking-widest { letter-spacing: 3px; }
+                .extra-small { font-size: 0.65rem; }
+                .z-index-10 { z-index: 10; }
+                .grayscale { filter: grayscale(1); }
+                .border-dashed { border-style: dashed !important; }
             `}</style>
         </div>
     );
 }
 
-function MenuCard({ to, icon, title, desc }) {
+function MenuCard({ to, icon, title, color }) {
     return (
         <div className="col-md-4 col-sm-6">
-            <Link to={to} className="card h-100 shadow-lg border-0 p-3 text-center text-decoration-none" style={{ borderRadius: "20px", background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
-                <div className="fs-2 mb-2">{icon}</div>
-                <div className="fw-bold text-white h6 mb-1">{title}</div>
-                <div className="extra-small text-white-50">{desc}</div>
+            <Link to={to} className="elite-glass-card menu-card-elite">
+                <div className="fs-1 mb-3" style={{ color: color, filter: `drop-shadow(0 0 10px ${color}44)` }}>{icon}</div>
+                <div className="fw-bold text-white small text-uppercase tracking-widest">{title}</div>
             </Link>
         </div>
     );

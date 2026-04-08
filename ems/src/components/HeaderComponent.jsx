@@ -326,4 +326,3 @@ const HeaderComponent = () => {
 }
 
 export default HeaderComponent;
-ent;

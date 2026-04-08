@@ -176,36 +176,55 @@ function AdminDashboard() {
                                     <button 
                                         onClick={() => {
                                             navigator.clipboard.writeText("http://192.168.1.35:5173");
-                                            toast.success("Universal Network Link copied! Send this to any Mobile/PC on your Wi-Fi.");
+                                            toast.success("Universal Network Link copied!");
                                         }}
-                                        className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"
+                                        className="btn btn-link btn-sm text-info p-0 me-2"
                                     >
-                                        Copy Link
+                                        <i className="ri-file-copy-line"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-3 p-4 rounded-4" style={{ background: "rgba(37, 99, 235, 0.05)", border: "1px dashed rgba(37, 99, 235, 0.3)" }}>
+                        </div>
+
+                        {/* 🌐 Global Remote Access Hub */}
+                        <div className="col-12 mt-4">
+                            <div className="elite-glass-card p-4" style={{ 
+                                background: "rgba(37, 99, 235, 0.1)", 
+                                border: "1px solid rgba(37, 99, 235, 0.2)" 
+                            }}>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="text-white small fw-bold text-uppercase ls-1">🚀 Global Dispatch Station</div>
-                                    <span className="badge bg-success bg-opacity-10 text-success extra-small fw-bold border border-success border-opacity-20 px-2 py-1">WORLDWIDE ACCESS</span>
+                                    <h5 className="fw-bold text-white mb-0 d-flex align-items-center">
+                                        <FaBolt className="text-warning me-2" /> Elite Universal Access Hub
+                                    </h5>
+                                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill small">
+                                        <i className="ri-earth-line me-1"></i> Global Broadcast Active
+                                    </span>
                                 </div>
-                                <p className="text-white-50 extra-small mb-3">To create a **"Proper Link"** (e.g., *https://nexgen-portal.loca.lt*) that works on any PC or Mobile **anywhere in the world**, run this command in a new terminal on your computer:</p>
-                                <div className="bg-dark bg-opacity-50 p-3 rounded-3 border border-white border-opacity-10 mb-0 position-relative">
-                                    <code className="text-info extra-small fw-bold">npx localtunnel --port 5173 --subdomain nexgen-portal</code>
-                                    <button 
-                                        onClick={() => {
-                                            navigator.clipboard.writeText("npx localtunnel --port 5173 --subdomain nexgen-portal");
-                                            toast.info("Command copied! Run this in your Terminal to go Global.");
-                                        }}
-                                        className="btn btn-link py-0 px-2 position-absolute end-0 top-50 translate-middle-y text-info"
-                                    >
-                                        <FaPlusCircle className="fs-6" />
-                                    </button>
+                                <p className="text-white-50 small mb-4">Your portal is now live globally. Remote employees can access the system from anywhere using this secure encrypted link.</p>
+                                
+                                <div className="row g-3">
+                                    <div className="col-md-8">
+                                        <div className="bg-dark bg-opacity-50 p-3 rounded-3 border border-white border-opacity-10 d-flex justify-content-between align-items-center">
+                                            <code className="text-info extra-small fw-bold">https://nexgen-elite-portal.loca.lt</code>
+                                            <button className="btn btn-link btn-sm text-white-50 p-0 hover-white" onClick={() => {
+                                                navigator.clipboard.writeText("https://nexgen-elite-portal.loca.lt");
+                                                toast.success("Universal Link Copied!");
+                                            }}>
+                                                <i className="ri-file-copy-line fs-5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <a href={`https://wa.me/?text=Hello! Please access the NexGen Workforce portal using this secure universal link: https://nexgen-elite-portal.loca.lt`} target="_blank" className="btn btn-success w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-lg">
+                                            <i className="ri-whatsapp-line fs-5"></i> Broadcast via WhatsApp
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="mt-3 p-3 rounded-4 border border-white border-opacity-5" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
-                                <div className="text-white small fw-bold mb-1">Dispatch Guide</div>
-                                <p className="text-white-50 extra-small mb-0">1. Link your computer to the **Universal Link** above for office Wi-Fi. 2. Use the **Global Command** for employees working from home. 3. Dispatch the final URL via WhatsApp or Email.</p>
+
+                                <div className="mt-3 p-3 rounded-4 border border-white border-opacity-5" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
+                                    <div className="text-white small fw-bold mb-1">Universal Dispatch Protocol</div>
+                                    <p className="text-white-50 extra-small mb-0">1. Start the tunnel on your terminal using `npm run tunnel`. 2. Copy the **Universal Link** above. 3. Dispatch to all employees via WhatsApp or Email.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

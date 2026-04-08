@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "remote": "vite --host",
+    "tunnel": "npx localtunnel --port 5173 --subdomain nexgen-elite-portal",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
