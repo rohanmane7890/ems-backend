@@ -191,9 +191,10 @@ function EmployeeSalary() {
                                                     </div>
                                                     <div>
                                                         <h6 className="text-white fw-bold mb-0">{record.paymentMonth}</h6>
-                                                        <p className="text-white-50 small mb-0" style={{ fontSize: "0.65rem" }}>
-                                                            On {new Date(record.transactionDate).toLocaleDateString()}
-                                                        </p>
+                                                        <div className="d-flex align-items-center gap-2 text-white-50 mt-1" style={{ fontSize: "0.7rem" }}>
+                                                            <span className="badge bg-info bg-opacity-10 text-info p-1 px-2 border border-info border-opacity-10" style={{ fontSize: "0.55rem", letterSpacing: "1px" }}>PAID ON:</span>
+                                                            <span className="fw-medium">{new Date(record.transactionDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 

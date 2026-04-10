@@ -157,7 +157,7 @@ const EmployeeAttendance = () => {
                                         </tr>
                                     </thead>
                                     <tbody style={{ fontSize: "0.85rem" }}>
-                                        {attendanceRecord.length > 0 ? attendanceRecord.slice().reverse().map((rec, idx) => (
+                                        {attendanceRecord.length > 0 ? attendanceRecord.map((rec, idx) => (
                                             <tr key={idx} className="border-bottom border-light">
                                                 <td className="py-4 px-4 fw-bold text-dark">{rec.date}</td>
                                                 <td className="py-4 text-dark fw-bold">{rec.checkIn || '--:--'}</td>

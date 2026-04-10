@@ -76,29 +76,47 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<AttendanceDTO> getAttendanceHistory(Long employeeId) {
-        List<AttendanceDTO> history = attendanceRepository.findByEmployeeId(employeeId).stream()
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee == null) return java.util.Collections.emptyList();
+
+        List<AttendanceDTO> existingRecords = attendanceRepository.findByEmployeeId(employeeId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
 
-        // Check if today's record exists in the history
-        LocalDate today = LocalDate.now();
-        boolean todayExists = history.stream().anyMatch(a -> a.getDate().equals(today));
+        java.util.Map<LocalDate, AttendanceDTO> recordMap = existingRecords.stream()
+                .collect(Collectors.toMap(AttendanceDTO::getDate, r -> r, (r1, r2) -> r1));
 
-        if (!todayExists) {
-            Employee employee = employeeRepository.findById(employeeId).orElse(null);
-            if (employee != null) {
-                // Return a mock DTO as ABSENT for current date if not set
+        List<AttendanceDTO> fullHistory = new java.util.ArrayList<>();
+        LocalDate today = LocalDate.now();
+        // Limit history to last 30 days or since joining date
+        LocalDate startDate = employee.getJoiningDate();
+        if (startDate == null) startDate = today.minusDays(30);
+        
+        LocalDate thirtyDaysAgo = today.minusDays(30);
+        if (startDate.isBefore(thirtyDaysAgo)) {
+            startDate = thirtyDaysAgo;
+        }
+
+        for (LocalDate date = startDate; !date.isAfter(today); date = date.plusDays(1)) {
+            if (recordMap.containsKey(date)) {
+                fullHistory.add(recordMap.get(date));
+            } else {
+                // Skip future dates (not possible here but good practice)
                 AttendanceDTO absentDto = new AttendanceDTO();
                 absentDto.setEmployeeId(employee.getId());
                 absentDto.setFirstName(employee.getFirstName());
                 absentDto.setLastName(employee.getLastName());
                 absentDto.setDesignation(employee.getDesignation());
-                absentDto.setDate(today);
+                absentDto.setDate(date);
                 absentDto.setStatus("ABSENT");
-                history.add(absentDto);
+                fullHistory.add(absentDto);
             }
         }
-        return history;
+
+        // Return sorted by date descending
+        return fullHistory.stream()
+                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+                .collect(Collectors.toList());
     }
 
     @Override

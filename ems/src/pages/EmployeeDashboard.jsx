@@ -187,7 +187,7 @@ function EmployeeDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody className="small">
-                                        {attendance.length > 0 ? attendance.slice(-4).reverse().map((att, i) => (
+                                        {attendance.length > 0 ? attendance.slice(0, 4).map((att, i) => (
                                             <tr key={i} className="border-top border-white border-opacity-5">
                                                 <td className="py-3">{att.date}</td>
                                                 <td className="py-3">{att.checkIn || '--:--'}</td>

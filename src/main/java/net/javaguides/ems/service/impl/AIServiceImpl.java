@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class AIServiceImpl implements AIService {
 
@@ -76,30 +78,45 @@ public class AIServiceImpl implements AIService {
             )
         );
         
-        try {
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<Map<String, Object>>(body);
-            ResponseEntity<GeminiResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                GeminiResponse.class
-            );
-            
-            GeminiResponse responseBody = response.getBody();
-            if (responseBody != null && responseBody.getCandidates() != null && !responseBody.getCandidates().isEmpty()) {
-                return responseBody.getCandidates().get(0).getContent().getParts().get(0).getText();
+        int maxRetries = 2;
+        int retryDelay = 2000; // 2 seconds
+
+        for (int i = 0; i <= maxRetries; i++) {
+            try {
+                log.info("Contacting NexGen AI (Gemini) for user: {} (Attempt {})", name, (i + 1));
+                HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body);
+                ResponseEntity<GeminiResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    GeminiResponse.class
+                );
+                
+                GeminiResponse responseBody = response.getBody();
+                if (responseBody != null && responseBody.getCandidates() != null && !responseBody.getCandidates().isEmpty()) {
+                    log.info("NexGen AI Link Established. Response received.");
+                    return responseBody.getCandidates().get(0).getContent().getParts().get(0).getText();
+                }
+                log.warn("NexGen AI returned an empty signal.");
+                break; // Don't retry if it's empty
+            } catch (org.springframework.web.client.HttpStatusCodeException e) {
+                if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS && i < maxRetries) {
+                    log.warn("NexGen AI is busy (429). Retrying in {}ms...", retryDelay);
+                    try { Thread.sleep(retryDelay); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    retryDelay *= 2; // Exponential backoff
+                    continue;
+                }
+                log.error("Gemini API Error [{}]: {}", e.getStatusCode(), e.getResponseBodyAsString());
+                return "[Neural Link Offline (Status " + e.getStatusCode().value() + ")] " + 
+                       runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
+            } catch (Exception e) {
+                log.error("Neural Error: {}", e.getMessage());
+                return "[Neural Link Offline] " + 
+                       runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
             }
-            return runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
-        } catch (org.springframework.web.client.HttpStatusCodeException e) {
-            System.err.println("Gemini API Error [" + e.getStatusCode() + "]: " + e.getResponseBodyAsString());
-            // Fallback to local intelligence if cloud fails
-            return "[Neural Link Offline (Status " + e.getStatusCode().value() + ")] " + 
-                   runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
-        } catch (Exception e) {
-            System.err.println("Neural Error: " + e.getMessage());
-            return "[Neural Link Offline] " + 
-                   runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
         }
+        
+        return runPrototypeEngine(userMessage, role, name, totalEmployees, presentToday, pendingLeaves);
     }
 
     // 🧠 Elite DTOs for Precise Neural Mapping
