@@ -89,7 +89,23 @@ function AdminLogin() {
                             <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderRadius: "14px 0 0 14px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
                                 <i className="ri-mail-line"></i>
                             </span>
-                            <input type="email" className="form-control bg-transparent text-white border-start-0 shadow-none py-3" style={{ borderRadius: "0 14px 14px 0", border: "1px solid rgba(255, 255, 255, 0.1)", background: "rgba(255, 255, 255, 0.02)" }} placeholder="admin@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                            <input
+                                type="email"
+                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                style={{ 
+                                    borderRadius: "0 14px 14px 0", 
+                                    border: "1px solid rgba(255, 255, 255, 0.1)", 
+                                    background: "#e8f0fe", // Consistent light background
+                                    fontSize: "1rem"
+                                }}
+                                placeholder=""
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onFocus={(e) => e.target.removeAttribute('readOnly')}
+                                readOnly
+                                required
+                                autoComplete="off"
+                            />
                         </div>
                     </div>
 
@@ -99,7 +115,23 @@ function AdminLogin() {
                             <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderRadius: "14px 0 0 14px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
                                 <i className="ri-lock-2-line"></i>
                             </span>
-                            <input type="password" className="form-control bg-transparent text-white border-start-0 shadow-none py-3" style={{ borderRadius: "0 14px 14px 0", border: "1px solid rgba(255, 255, 255, 0.1)", background: "rgba(255, 255, 255, 0.02)" }} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                            <input
+                                type="password"
+                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                style={{ 
+                                    borderRadius: "0 14px 14px 0", 
+                                    border: "1px solid rgba(255, 255, 255, 0.1)", 
+                                    background: "#e8f0fe",
+                                    fontSize: "1rem"
+                                }}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onFocus={(e) => e.target.removeAttribute('readOnly')}
+                                readOnly
+                                required
+                                autoComplete="new-password"
+                            />
                         </div>
                     </div>
 
@@ -109,7 +141,26 @@ function AdminLogin() {
                             <span className="input-group-text bg-transparent border-end-0 text-info" style={{ borderRadius: "14px 0 0 14px", border: "1px solid rgba(59, 130, 246, 0.3)" }}>
                                 <i className="ri-shield-user-fill"></i>
                             </span>
-                            <input type="password" className="form-control bg-transparent text-white border-start-0 shadow-none py-3" style={{ borderRadius: "0 14px 14px 0", border: "1px solid rgba(59, 130, 246, 0.3)", background: "rgba(59, 130, 246, 0.06)", letterSpacing: "6px", fontWeight: "bold" }} placeholder="••••••" maxLength="6" value={secretPin} onChange={(e) => setSecretPin(e.target.value)} required />
+                            <input
+                                type="password"
+                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                style={{ 
+                                    borderRadius: "0 14px 14px 0", 
+                                    border: "1px solid rgba(59, 130, 246, 0.3)", 
+                                    background: "#e8f0fe",
+                                    letterSpacing: "6px", 
+                                    fontWeight: "bold",
+                                    fontSize: "1rem"
+                                }}
+                                placeholder="••••••"
+                                maxLength="6"
+                                value={secretPin}
+                                onChange={(e) => setSecretPin(e.target.value)}
+                                onFocus={(e) => e.target.removeAttribute('readOnly')}
+                                readOnly
+                                required
+                                autoComplete="off"
+                            />
                         </div>
                     </div>
 
