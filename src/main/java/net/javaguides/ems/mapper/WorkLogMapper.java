@@ -13,6 +13,7 @@ public class WorkLogMapper {
                 workLog.getTasksDescription(),
                 workLog.getHoursWorked(),
                 workLog.getStatus(),
+                workLog.getTaskId(),
                 name,
                 email
         );
@@ -25,6 +26,7 @@ public class WorkLogMapper {
                 dto.getDate(),
                 dto.getTasksDescription(),
                 dto.getHoursWorked(),
+                dto.getTaskId(),
                 dto.getStatus()
         );
     }

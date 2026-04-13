@@ -37,5 +37,7 @@ public class WorkLog {
 
     private Double hoursWorked;
 
+    private Long taskId; // 🛡️ Linked Task ID
+
     private String status; // SUBMITTED, REVIEWED
 }

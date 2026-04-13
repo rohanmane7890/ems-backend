@@ -3,8 +3,8 @@ import EmployeeComponent from './components/EmployeeComponent'
 import FooterComponent from './components/FooterComponent'
 import HeaderComponent from './components/HeaderComponent'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import AdminLogin from './pages/AdminLogin'
 import EmployeeLogin from './pages/EmployeeLogin'
+import AdminLogin from './pages/AdminLogin'
 import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import AddEmployee from './pages/AddEmployee'
@@ -24,6 +24,7 @@ import AdminSalaryManagement from './pages/AdminSalaryManagement'
 import EmployeeWorkLog from './pages/EmployeeWorkLog'
 import AdminWorkLogView from './pages/AdminWorkLogView'
 import AdminAssignTask from './pages/AdminAssignTask'
+
 
 
 function App() {

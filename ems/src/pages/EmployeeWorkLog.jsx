@@ -50,7 +50,8 @@ function EmployeeWorkLog() {
         try {
             const payload = {
                 ...formData,
-                employeeId: parseInt(employeeId)
+                employeeId: parseInt(employeeId),
+                taskId: selectedTaskId // 🛡️ Explicitly link to task
             };
             await submitWorkLog(payload);
             

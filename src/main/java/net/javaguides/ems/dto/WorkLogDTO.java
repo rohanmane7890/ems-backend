@@ -17,6 +17,7 @@ public class WorkLogDTO {
     private String tasksDescription;
     private Double hoursWorked;
     private String status;
+    private Long taskId;
     private String employeeName;
     private String employeeEmail;
 }

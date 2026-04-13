@@ -62,6 +62,13 @@ public class AuthController {
 
         // 🛡️ VIRTUAL ADMIN LOGIN (No Database Record Required)
         if (adminEmail.equalsIgnoreCase(normalizedEmail) && defaultPassword.equals(password)) {
+            // Check for Master PIN verification
+            String secretPinInRequest = user.get("secretPin");
+            if (masterPin == null || !masterPin.equals(secretPinInRequest)) {
+                log.warn("Audit: Virtual Admin login failed: Invalid Master PIN for {}", normalizedEmail);
+                return ResponseEntity.status(401).body(Map.of("message", "Invalid Secondary Master Key (PIN)"));
+            }
+
             log.info("Audit: Virtual Admin logged in successfully: {}", normalizedEmail);
             
             // Create a temporary in-memory employee for token generation

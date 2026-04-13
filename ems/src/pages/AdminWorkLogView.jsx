@@ -52,17 +52,31 @@ function AdminWorkLogView() {
             const logEntries = logsRes.data;
 
             const processedLogs = logEntries.map(log => {
+                // Check for formal Task ID link
+                if (log.taskId) {
+                    const matchingTask = allTasks.find(t => t.id === log.taskId);
+                    if (matchingTask) {
+                        matchingTask.isLinked = true;
+                        return {
+                            ...log,
+                            type: 'MISSION_SYNC',
+                            missionTitle: matchingTask.title,
+                            missionDescription: matchingTask.description,
+                            missionDueDate: matchingTask.dueDate,
+                            employeeResponse: log.tasksDescription.replace(/\[MISSION REPORT\] .*?: /, "").trim()
+                        };
+                    }
+                }
+
+                // Fallback for older string-prefix logs
                 const missionPrefix = "[MISSION REPORT] ";
                 if (log.tasksDescription.startsWith(missionPrefix)) {
-                    // Extract the title. Format is usually "[MISSION REPORT] Title: "
                     const rest = log.tasksDescription.substring(missionPrefix.length);
                     const titlePart = rest.split(":")[0];
-                    
-                    // Find matching task
                     const matchingTask = allTasks.find(t => t.title === titlePart && t.employeeEmail === log.employeeEmail);
                     
                     if (matchingTask) {
-                        matchingTask.isLinked = true; // Mark as linked so we don't show it as a separate standalone task
+                        matchingTask.isLinked = true;
                         return {
                             ...log,
                             type: 'MISSION_SYNC',
