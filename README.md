@@ -77,11 +77,9 @@ If hosting on Render, use the `Java` environment and provide these exact command
 
 - **GitHub Repository:** [rohanmane7890/ems-backend](https://github.com/rohanmane7890/ems-backend)
 - **LinkedIn:** [Rohan Mane](https://www.linkedin.com/in/rohan-mane-455640280/)
-- **Live Demo (Internal):** [NexGen Workforce Portal](https://dull-catfish-78.loca.lt/)
- 
- - **Deployment Link: (Employee and admin-login)**
-   https://ems-backend-5-fw77.onrender.com/
-   https://ems-backend-5-fw77.onrender.com/admin-login
+- **Live Cloud Deployment:** [NexGen Workforce Portal](https://ems-backend-5-fw77.onrender.com/)
+  - **Admin Login:** [https://ems-backend-5-fw77.onrender.com/](https://ems-backend-5-fw77.onrender.com/)
+  - **Employee Login:** [https://ems-backend-5-fw77.onrender.com/employee-login](https://ems-backend-5-fw77.onrender.com/employee-login)
 ---
 
 > [!NOTE]
