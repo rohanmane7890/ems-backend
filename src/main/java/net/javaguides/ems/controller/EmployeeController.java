@@ -17,17 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.javaguides.ems.dto.EmployeeDTO;
 import net.javaguides.ems.service.EmployeeService;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
-	private EmployeeService employeeService;
-	 private final String uploadDir = "C:/ems-uploads/";
+	private final EmployeeService employeeService;
+
+	@org.springframework.beans.factory.annotation.Value("${app.upload.dir}")
+	private String uploadDir;
+
 	@PostMapping
 	public ResponseEntity<EmployeeDTO>createEmployee(@RequestBody EmployeeDTO employeeDTO){
 		EmployeeDTO savedEmployee=employeeService.createEmployee(employeeDTO);

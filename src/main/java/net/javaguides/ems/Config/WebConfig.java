@@ -8,10 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SuppressWarnings("null")
 public class WebConfig implements WebMvcConfigurer {
 
+    @org.springframework.beans.factory.annotation.Value("${app.upload.dir}")
+    private String uploadDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Map /uploads/** URL to file:C:/ems-uploads/
+        String location = uploadDir.startsWith("file:") ? uploadDir : "file:" + uploadDir;
+        if (!location.endsWith("/")) {
+            location += "/";
+        }
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///C:/ems-uploads/");
+                .addResourceLocations(location);
     }
 }
