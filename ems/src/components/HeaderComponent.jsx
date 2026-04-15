@@ -38,8 +38,17 @@ const HeaderComponent = () => {
     try {
       const empId = localStorage.getItem("employeeId") || "-1";
       setEmployeeId(empId);
-      const notifRes = await getNotifications(empId);
-      setNotifications(notifRes.data);
+      
+      const [personalRes, systemRes] = await Promise.all([
+          getNotifications(empId).catch(() => ({ data: [] })),
+          empId !== "-1" ? getNotifications("-1").catch(() => ({ data: [] })) : { data: [] }
+      ]);
+      
+      const merged = [...personalRes.data, ...systemRes.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Remove duplicates just in case
+      const unique = Array.from(new Map(merged.map(item => [item.id, item])).values());
+      
+      setNotifications(unique);
     } catch (error) {
       console.error("Error fetching admin notifications", error);
     }
@@ -58,7 +67,9 @@ const HeaderComponent = () => {
   };
 
   const fetchNotifsOnly = async () => {
-      if (employeeId) {
+      if (role === "ADMIN") {
+          fetchAdminNotifications();
+      } else if (employeeId) {
           try {
               const res = await getNotifications(employeeId);
               setNotifications(res.data);
@@ -81,13 +92,18 @@ const HeaderComponent = () => {
   };
 
   const handleMarkAllRead = async () => {
-      if (employeeId) {
-          try {
+      try {
+          if (role === "ADMIN") {
+              await markAllNotificationsAsRead("-1");
+              if (employeeId && employeeId !== "-1") {
+                  await markAllNotificationsAsRead(employeeId);
+              }
+          } else if (employeeId) {
               await markAllNotificationsAsRead(employeeId);
-              setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-          } catch (error) {
-              console.error("Error marking all as read", error);
           }
+          setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      } catch (error) {
+          console.error("Error marking all as read", error);
       }
   };
 
