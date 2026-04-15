@@ -110,6 +110,37 @@ function AdminWorkLogView() {
         }
     };
 
+    const exportToCSV = () => {
+        if (!filteredLogs || filteredLogs.length === 0) {
+            toast.warning("No data to export!");
+            return;
+        }
+
+        const headers = ["Employee Name", "Employee Email", "Date", "Verification Status", "Task/Mission", "Employee Response"];
+        const csvRows = [headers.join(",")];
+
+        filteredLogs.forEach(log => {
+            const name = `"${log.employeeName || ''}"`;
+            const email = `"${log.employeeEmail || ''}"`;
+            const date = `"${log.date || ''}"`;
+            const status = `"${log.type === 'MISSION_SYNC' ? 'VERIFIED MISSION' : 'MANUAL TASK'}"`;
+            const task = `"${(log.missionTitle || 'MANUAL LOG').replace(/"/g, '""')}"`;
+            const response = `"${(log.employeeResponse || log.tasksDescription || '').replace(/"/g, '""')}"`;
+
+            csvRows.push([name, email, date, status, task, response].join(","));
+        });
+
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Work_Reports_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)", minHeight: "100vh", padding: "40px 0" }}>
             <div className="container">
@@ -120,7 +151,10 @@ function AdminWorkLogView() {
                         </button>
                         <h2 className="fw-bold text-white mb-0" style={{ letterSpacing: "-1px" }}>Employee Work Reports</h2>
                     </div>
-                    <button className="btn btn-outline-info rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center">
+                    <button 
+                        className="btn btn-outline-info rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center"
+                        onClick={exportToCSV}
+                    >
                         <FaFileExport className="me-2" /> Export to CSV
                     </button>
                 </div>
