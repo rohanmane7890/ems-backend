@@ -40,9 +40,8 @@ function App() {
         <Route path='/employees' element={<ListEmployeeComponent/>}></Route>
         <Route path='/add-employee' element={<EmployeeComponent/>}></Route>
         <Route path='/edit-employee/:id'element={<EmployeeComponent/>}></Route> */}
-          <Route path='/' element={<EmployeeLogin />} />
+          <Route path='/' element={<AdminLogin />} />
           <Route path="/login" element={<EmployeeLogin />} />
-          <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/employee-login" element={<EmployeeLogin />} />
           <Route path="/register" element={<Register />} />
 
