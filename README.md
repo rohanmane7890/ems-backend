@@ -55,6 +55,9 @@ Run the React frontend and Spring Boot backend separately for active development
 
 ### Option 2: Production Deployment (Unified Cloud Server)
 The application is pre-configured to bundle the React frontend *inside* the Spring Boot backend, resulting in a single deployment file. The app is set up to automatically deploy on platforms like **Render.com** and **Aiven MySQL**.
+ - **Admin Login:** [https://ems-backend-5-fw77.onrender.com/admin-login](https://ems-backend-5-fw77.onrender.com/admin-login)
+  - **Employee Login:** [https://ems-backend-5-fw77.onrender.com](https://ems-backend-5-fw77.onrender.com)
+
 
 **Required Cloud Environment Variables:**
 | Key | Example Value | Description |
@@ -78,8 +81,7 @@ If hosting on Render, use the `Java` environment and provide these exact command
 - **GitHub Repository:** [rohanmane7890/ems-backend](https://github.com/rohanmane7890/ems-backend)
 - **LinkedIn:** [Rohan Mane](https://www.linkedin.com/in/rohan-mane-455640280/)
 - **Live Cloud Deployment:** [NexGen Workforce Portal](https://ems-backend-5-fw77.onrender.com/)
-  - **Admin Login:** [https://ems-backend-5-fw77.onrender.com/admin-login](https://ems-backend-5-fw77.onrender.com/admin-login)
-  - **Employee Login:** [https://ems-backend-5-fw77.onrender.com](https://ems-backend-5-fw77.onrender.com)
+ 
 ---
 
 > [!NOTE]
