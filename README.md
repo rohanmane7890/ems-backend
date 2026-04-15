@@ -39,27 +39,37 @@
 
 ## 🚀 Deployment Guide
 
-### Backend (Spring Boot)
-1. **Database Setup:**
-   - Create a MySQL database named `ems`.
-   - Update `src/main/resources/application.properties` with your credentials.
-3. **Launch Mission:**
+### Option 1: Local Development (Separate Servers)
+Run the React frontend and Spring Boot backend separately for active development:
+1. **Database Setup:** Create a MySQL database and update `src/main/resources/application.properties` with local credentials.
+2. **Launch Backend:**
    ```bash
    mvn spring-boot:run
    ```
-
-### Frontend (React)
-1. **Initialize Commands:**
+3. **Launch Frontend:**
    ```bash
    cd ems
    npm install
-   ```
-2. **Sync Link:**
-   - Ensure the `app.frontend.url` in the backend properties matches your local environment.
-3. **Engage UI:**
-   ```bash
    npm run dev
    ```
+
+### Option 2: Production Deployment (Unified Cloud Server)
+The application is pre-configured to bundle the React frontend *inside* the Spring Boot backend, resulting in a single deployment file. The app is set up to automatically deploy on platforms like **Render.com** and **Aiven MySQL**.
+
+**Required Cloud Environment Variables:**
+| Key | Example Value | Description |
+| :--- | :--- | :--- |
+| `DB_URL` | `jdbc:mysql://[aiven-host]:[port]/[db]?useSSL=true` | JDBC Connection String |
+| `DB_USERNAME` | `avnadmin` | MySQL Username |
+| `DB_PASSWORD` | `[SUPER_SECRET]` | MySQL Password |
+| `UPLOAD_DIR` | `./uploads/` | App-level folder to securely save uploaded images on Linux |
+
+**Cloud Build & Run Commands:**
+If hosting on Render, use the `Java` environment and provide these exact commands:
+* **Build Command:** `./mvnw clean package -DskipTests`
+* **Start Command:** `java -jar target/ems-backend-0.0.1-SNAPSHOT.jar`
+
+*(Once the build executes, the server automatically serves the embedded React UI and your JSON APIs simultaneously on Render's dynamic `$PORT` environment variable!)*
 
 ---
 
