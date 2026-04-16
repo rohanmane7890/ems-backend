@@ -10,7 +10,7 @@ function Logout() {
 
         AuthService.logout();
 
-        navigate("/");
+        navigate("/", { replace: true });
 
     }, [navigate]);
 
