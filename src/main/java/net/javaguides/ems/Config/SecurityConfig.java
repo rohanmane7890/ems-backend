@@ -59,11 +59,13 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // 🌐 Allow Cloudflare URL, Localhost, and Local Network IP
         configuration.setAllowedOrigins(Arrays.asList(
-            "https://dull-catfish-78.loca.lt",
-            "https://dull-catfish-78.loca.lt/",
-            "http://192.168.1.35:5173",
+            "https://ems-backend-5-fw77.onrender.com",
+            "https://ems-backend-5-fw77.onrender.com/",
             "http://localhost:5173",
-            "http://127.0.0.1:5173"
+            "http://127.0.0.1:5173",
+            "http://192.168.1.35:5173",
+            "https://dull-catfish-78.loca.lt",
+            "https://dull-catfish-78.loca.lt/"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));

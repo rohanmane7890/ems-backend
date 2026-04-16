@@ -140,11 +140,11 @@ function EmployeeLogin() {
                             </span>
                             <input
                                 type="email"
-                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                className="form-control text-white border-start-0 shadow-none py-3"
                                 style={{
                                     borderRadius: "0 14px 14px 0",
                                     border: "1px solid rgba(255, 255, 255, 0.12)",
-                                    background: "#e8f0fe",
+                                    background: "rgba(255, 255, 255, 0.05)",
                                     fontSize: "1rem"
                                 }}
                                 placeholder="name@company.com"
@@ -166,11 +166,11 @@ function EmployeeLogin() {
                             </span>
                             <input
                                 type="password"
-                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                className="form-control text-white border-start-0 shadow-none py-3"
                                 style={{
                                     borderRadius: "0 14px 14px 0",
                                     border: "1px solid rgba(255, 255, 255, 0.12)",
-                                    background: "#e8f0fe",
+                                    background: "rgba(255, 255, 255, 0.05)",
                                     fontSize: "1rem"
                                 }}
                                 placeholder="••••••••"

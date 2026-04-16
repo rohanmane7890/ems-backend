@@ -91,11 +91,11 @@ function AdminLogin() {
                             </span>
                             <input
                                 type="email"
-                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                className="form-control text-white border-start-0 shadow-none py-3"
                                 style={{ 
                                     borderRadius: "0 14px 14px 0", 
                                     border: "1px solid rgba(255, 255, 255, 0.1)", 
-                                    background: "#e8f0fe", // Consistent light background
+                                    background: "rgba(255, 255, 255, 0.05)", 
                                     fontSize: "1rem"
                                 }}
                                 placeholder=""
@@ -117,11 +117,11 @@ function AdminLogin() {
                             </span>
                             <input
                                 type="password"
-                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                className="form-control text-white border-start-0 shadow-none py-3"
                                 style={{ 
                                     borderRadius: "0 14px 14px 0", 
                                     border: "1px solid rgba(255, 255, 255, 0.1)", 
-                                    background: "#e8f0fe",
+                                    background: "rgba(255, 255, 255, 0.05)",
                                     fontSize: "1rem"
                                 }}
                                 placeholder="••••••••"
@@ -143,11 +143,11 @@ function AdminLogin() {
                             </span>
                             <input
                                 type="password"
-                                className="form-control text-dark border-start-0 shadow-none py-3"
+                                className="form-control text-white border-start-0 shadow-none py-3"
                                 style={{ 
                                     borderRadius: "0 14px 14px 0", 
                                     border: "1px solid rgba(59, 130, 246, 0.3)", 
-                                    background: "#e8f0fe",
+                                    background: "rgba(255, 255, 255, 0.05)",
                                     letterSpacing: "6px", 
                                     fontWeight: "bold",
                                     fontSize: "1rem"
