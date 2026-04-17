@@ -1,5 +1,6 @@
 package net.javaguides.ems.Config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.javaguides.ems.Security.JwtAuthenticationFilter;
 import net.javaguides.ems.service.CustomOAuth2UserService;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,11 +21,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,15 +62,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 🌐 Allow Cloudflare URL, Localhost, and Local Network IP
+        // 🌐 Allow dynamic frontend URL and common development origins
         configuration.setAllowedOrigins(Arrays.asList(
-            "https://ems-backend-5-fw77.onrender.com",
-            "https://ems-backend-5-fw77.onrender.com/",
+            frontendUrl,
             "http://localhost:5173",
             "http://127.0.0.1:5173",
-            "http://192.168.1.35:5173",
-            "https://dull-catfish-78.loca.lt",
-            "https://dull-catfish-78.loca.lt/"
+            "http://192.168.1.35:5173"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const REST_API_BASE_URL = "/api/employees";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const REST_API_BASE_URL = `${BASE_URL}/api/employees`;
 
 const authHeader = () => {
     return {
@@ -60,46 +61,46 @@ export const getEmployeeByEmail = (email) =>
 
 // 🔹 Dashboard Analytics
 export const getDashboardAnalytics = () =>
-    axios.get("/api/analytics/dashboard", authHeader());
+    axios.get(`${BASE_URL}/api/analytics/dashboard`, authHeader());
 
 // 🔹 Attendance APIs
 export const checkIn = (employeeId) =>
-    axios.post(`/api/attendance/check-in/${employeeId}`, {}, authHeader());
+    axios.post(`${BASE_URL}/api/attendance/check-in/${employeeId}`, {}, authHeader());
 
 export const checkOut = (employeeId) =>
-    axios.post(`/api/attendance/check-out/${employeeId}`, {}, authHeader());
+    axios.post(`${BASE_URL}/api/attendance/check-out/${employeeId}`, {}, authHeader());
 
 export const getAttendanceHistory = (employeeId) =>
-    axios.get(`/api/attendance/employee/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/attendance/employee/${employeeId}`, authHeader());
 
 export const getAttendanceByDate = (date) =>
-    axios.get(`/api/attendance/date?date=${date}`, authHeader());
+    axios.get(`${BASE_URL}/api/attendance/date?date=${date}`, authHeader());
 
 // 🔹 Leave Management APIs
 export const applyLeave = (leaveRequest) =>
-    axios.post("/api/leaves", leaveRequest, authHeader());
+    axios.post(`${BASE_URL}/api/leaves`, leaveRequest, authHeader());
 
 export const getEmployeeLeaves = (employeeId) =>
-    axios.get(`/api/leaves/employee/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/leaves/employee/${employeeId}`, authHeader());
 
 export const getPendingLeaves = () =>
-    axios.get("/api/leaves/pending", authHeader());
+    axios.get(`${BASE_URL}/api/leaves/pending`, authHeader());
 
 export const updateLeaveStatus = (leaveId, status) =>
-    axios.put(`/api/leaves/${leaveId}/status?status=${status}`, {}, authHeader());
+    axios.put(`${BASE_URL}/api/leaves/${leaveId}/status?status=${status}`, {}, authHeader());
 
 // 🔹 Notification APIs
 export const getNotifications = (employeeId) =>
-    axios.get(`/api/notifications/employee/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/notifications/employee/${employeeId}`, authHeader());
 
 export const markNotificationAsRead = (id) =>
-    axios.put(`/api/notifications/${id}/read`, {}, authHeader());
+    axios.put(`${BASE_URL}/api/notifications/${id}/read`, {}, authHeader());
 
 export const markAllNotificationsAsRead = (employeeId) =>
-    axios.put(`/api/notifications/employee/${employeeId}/read-all`, {}, authHeader());
+    axios.put(`${BASE_URL}/api/notifications/employee/${employeeId}/read-all`, {}, authHeader());
 
 export const createNotification = (notificationData) =>
-    axios.post("/api/notifications", notificationData, authHeader());
+    axios.post(`${BASE_URL}/api/notifications`, notificationData, authHeader());
 
 // 🔹 Profile & Password Management
 export const updateProfile = (employeeId, employee) =>
@@ -110,36 +111,36 @@ export const changePassword = (employeeId, newPassword) =>
 
 // 🔹 Work Log APIs
 export const submitWorkLog = (workLog) =>
-    axios.post("/api/work-logs", workLog, authHeader());
+    axios.post(`${BASE_URL}/api/work-logs`, workLog, authHeader());
 
 export const getEmployeeWorkLogs = (employeeId) =>
-    axios.get(`/api/work-logs/employee/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/work-logs/employee/${employeeId}`, authHeader());
 
 export const getAllWorkLogs = () =>
-    axios.get("/api/work-logs/all", authHeader());
+    axios.get(`${BASE_URL}/api/work-logs/all`, authHeader());
 
 // 🔹 Task Assignment APIs
 export const assignTask = (task) =>
-    axios.post("/api/tasks", task, authHeader());
+    axios.post(`${BASE_URL}/api/tasks`, task, authHeader());
 
 export const getEmployeeTasks = (employeeId) =>
-    axios.get(`/api/tasks/employee/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/tasks/employee/${employeeId}`, authHeader());
 
 export const getAllTasks = () =>
-    axios.get("/api/tasks/all", authHeader());
+    axios.get(`${BASE_URL}/api/tasks/all`, authHeader());
 
 export const updateTaskStatus = (taskId, status) =>
-    axios.put(`/api/tasks/${taskId}/status?status=${status}`, {}, authHeader());
+    axios.put(`${BASE_URL}/api/tasks/${taskId}/status?status=${status}`, {}, authHeader());
 
 export const assignTaskToDepartment = (dept, task) =>
-    axios.post(`/api/tasks/department?dept=${dept}`, task, authHeader());
+    axios.post(`${BASE_URL}/api/tasks/department?dept=${dept}`, task, authHeader());
 
 export const assignTaskByDesignation = (designation, task) =>
-    axios.post(`/api/tasks/designation?designation=${designation}`, task, authHeader());
+    axios.post(`${BASE_URL}/api/tasks/designation?designation=${designation}`, task, authHeader());
 
 // 🔹 Salary Transaction APIs
 export const getSalaryHistory = (employeeId) =>
-    axios.get(`/api/salaries/history/${employeeId}`, authHeader());
+    axios.get(`${BASE_URL}/api/salaries/history/${employeeId}`, authHeader());
 
 export const paySalary = (paymentData) =>
     axios.post("/api/salaries/pay", paymentData, authHeader());

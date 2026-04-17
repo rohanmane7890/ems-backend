@@ -1,43 +1,44 @@
 import axios from "axios";
 
-const BASE_URL = "/api/auth";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const AUTH_API_URL = `${BASE_URL}/api/auth`;
 
 class AuthService {
     // Updated login with proper headers for CORS
     login(email, password, secretPin = null) {
-        return axios.post(`${BASE_URL}/login`, { email, password, secretPin });
+        return axios.post(`${AUTH_API_URL}/login`, { email, password, secretPin });
     }
 
     verifyOtp(email, otp) {
-        return axios.post(`${BASE_URL}/verify-otp`, { email, otp });
+        return axios.post(`${AUTH_API_URL}/verify-otp`, { email, otp });
     }
 
     register(userData) {
-        return axios.post(`${BASE_URL}/register`, userData);
+        return axios.post(`${AUTH_API_URL}/register`, userData);
     }
 
     verifyRegistration(email, otp) {
-        return axios.post(`${BASE_URL}/verify-registration`, { email, otp });
+        return axios.post(`${AUTH_API_URL}/verify-registration`, { email, otp });
     }
 
     rollbackRegistration(email) {
-        return axios.post(`${BASE_URL}/rollback-registration`, { email });
+        return axios.post(`${AUTH_API_URL}/rollback-registration`, { email });
     }
 
     verifyMasterPin(pin) {
-        return axios.post(`${BASE_URL}/verify-master-pin`, { pin });
+        return axios.post(`${AUTH_API_URL}/verify-master-pin`, { pin });
     }
 
     forgotPassword(email) {
-        return axios.post(`${BASE_URL}/forgot-password`, { email });
+        return axios.post(`${AUTH_API_URL}/forgot-password`, { email });
     }
 
     verifyResetOtp(email, otp) {
-        return axios.post(`${BASE_URL}/verify-reset-otp`, { email, otp });
+        return axios.post(`${AUTH_API_URL}/verify-reset-otp`, { email, otp });
     }
 
     resetPassword(email, otp, newPassword) {
-        return axios.post(`${BASE_URL}/reset-password`, { email, otp, newPassword });
+        return axios.post(`${AUTH_API_URL}/reset-password`, { email, otp, newPassword });
     }
 
     saveUser(token, role) {
