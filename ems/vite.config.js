@@ -12,12 +12,12 @@ export default defineConfig({
     hmr: true, // Auto-detect HMR settings for local/remote use
     proxy: {
       '/api': {
-        target: 'http://localhost:8082',
+        target: 'http://localhost:8081',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://127.0.0.1:8082',
+        target: 'http://127.0.0.1:8081',
         changeOrigin: true,
         secure: false,
       }
