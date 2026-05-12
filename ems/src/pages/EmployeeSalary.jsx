@@ -120,7 +120,7 @@ function EmployeeSalary() {
                                             <div className="d-flex justify-content-between align-items-center position-relative z-1">
                                                 <div>
                                                     <h6 className="text-primary fw-bold text-uppercase mb-1" style={{ letterSpacing: "1.5px", fontSize: "0.6rem" }}>NET PAYOUT</h6>
-                                                    <h2 className="mb-0 fw-bold text-white" style={{ fontSize: "1.25rem" }}>Monthly Take-Home</h2>
+                                                    <h2 className="mb-0 fw-bold text-white" style={{ fontSize: "1.25rem" }}>Monthly Take-Hand</h2>
                                                 </div>
                                                 <div className="text-end">
                                                     <div className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-2 py-0.5 rounded-pill mb-1 small fw-bold" style={{ fontSize: "0.55rem" }}>ACTIVE</div>
