@@ -12,6 +12,7 @@ public class AppProperties {
     private Admin admin = new Admin();
     private Ai ai = new Ai();
     private Frontend frontend = new Frontend();
+    private Upload upload = new Upload();
 
     @lombok.Data
     public static class Jwt {
@@ -33,5 +34,10 @@ public class AppProperties {
     @lombok.Data
     public static class Frontend {
         private String url;
+    }
+
+    @lombok.Data
+    public static class Upload {
+        private String dir;
     }
 }
