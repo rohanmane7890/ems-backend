@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import './App.css'
 import EmployeeComponent from './components/EmployeeComponent'
 import FooterComponent from './components/FooterComponent'
@@ -28,6 +29,15 @@ import AdminAssignTask from './pages/AdminAssignTask'
 
 
 function App() {
+  // 🔒 Global Back Button Lockdown: Prevent browser navigation
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    const handleBackButton = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener("popstate", handleBackButton);
+    return () => window.removeEventListener("popstate", handleBackButton);
+  }, []);
 
   return (
     <div className='app-container'>
