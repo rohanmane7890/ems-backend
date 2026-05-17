@@ -220,9 +220,9 @@ function EmployeeSalary() {
                                     </div>
                                 ) : (
                                     <div className="text-center py-5">
-                                        <div className="mb-3 text-white-25"><FaHistory size={48} /></div>
-                                        <h6 className="text-white-50">No payout records found.</h6>
-                                        <p className="text-white-25 small">Salary disbursements will appear here once processed by HR.</p>
+                                        <div className="mb-3 text-white"><FaHistory size={48} /></div>
+                                        <h6 className="text-white">No payout records found.</h6>
+                                        <p className="text-white small">Salary disbursements will appear here once processed by HR.</p>
                                     </div>
                                 )}
                             </div>
