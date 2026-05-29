@@ -196,7 +196,7 @@ function EmployeeLogin() {
 
                 <div className="text-center mt-3">
                     <p style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "0.95rem" }}>
-                        New employee? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: "#14b8a6" }}>Register here</Link>
+                        Not a employee yet? <Link to="/register" className="text-decoration-none fw-bold" style={{ color: "#14b8a6" }}>Register here</Link>
                     </p>
                 </div>
             </motion.div>
