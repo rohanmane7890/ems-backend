@@ -42,16 +42,11 @@
 ### Option 1: Local Development (Separate Servers)
 Run the React frontend and Spring Boot backend separately for active development:
 1. **Database Setup:** Create a MySQL database and update `src/main/resources/application.properties` with local credentials.
-2. **Launch Backend:**
-   ```bash
-   mvn spring-boot:run
-   ```
-3. **Launch Frontend:**
-   ```bash
-   cd ems
-   npm install
-   npm run dev
-   ```
+
+2. **Deployment project link**
+
+- **Live Demo:** [Employee Management System](https://ems-backend-8.onrender.com)
+
 
 **Cloud Build & Run Commands:**
 If hosting on Render, use the `Java` environment and provide these exact commands:
@@ -65,9 +60,7 @@ If hosting on Render, use the `Java` environment and provide these exact command
 ## 🔗 Project Connections
 
 - **GitHub Repository:** [rohanmane7890/ems-backend](https://github.com/rohanmane7890/ems-backend)
-- **LinkedIn:** [Rohan Mane](https://www.linkedin.com/in/rohan-mane-455640280/)
-
-- **Live Demo:** [Employee Management System](https://ems-backend-8.onrender.com)
+- **LinkedIn:** [Rohan Mane](www.linkedin.com/in/rohanmane90)
 ---
 
 > [!NOTE]
