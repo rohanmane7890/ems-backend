@@ -93,7 +93,10 @@ public class AuthController {
         Employee employee = repository.findByEmail(normalizedEmail).orElse(null);
 
         if (employee != null) {
-            if (employee.getStatus() != null && !employee.getStatus().equalsIgnoreCase("Active")) {
+            String status = employee.getStatus();
+            boolean isBlocked = status != null &&
+                    (status.equalsIgnoreCase("Inactive") || status.equalsIgnoreCase("Suspended"));
+            if (isBlocked) {
                 log.warn("Audit: Failed login attempt for inactive account: {}", normalizedEmail);
                 return ResponseEntity.status(401).body(Map.of("message", "Account is inactive! Please verify your email via OTP."));
             }
