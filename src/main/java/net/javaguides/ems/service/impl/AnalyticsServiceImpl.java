@@ -45,8 +45,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting())) : new java.util.HashMap<>();
 
         double totalMonthlyPayroll = (allEmployees != null) ? allEmployees.stream()
-                .filter(e -> e.getSalary() != null)
-                .mapToDouble(Employee::getSalary)
+                .filter(e -> e != null && e.getSalary() != null)
+                .mapToDouble(e -> e.getSalary())
                 .sum() : 0.0;
 
         analytics.setTotalEmployees(totalEmployees);
