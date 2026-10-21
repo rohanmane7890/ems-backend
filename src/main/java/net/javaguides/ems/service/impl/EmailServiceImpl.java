@@ -1,6 +1,6 @@
 package net.javaguides.ems.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -14,11 +14,14 @@ import net.javaguides.ems.service.EmailService;
 @SuppressWarnings("null")
 public class EmailServiceImpl implements EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    @Value("${spring.mail.username}")
     private String fromEmail;
+
+    public EmailServiceImpl(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Async
     @Override

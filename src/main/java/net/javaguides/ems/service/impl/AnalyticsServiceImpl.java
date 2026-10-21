@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 import net.javaguides.ems.dto.AnalyticsDTO;
+import net.javaguides.ems.entity.Attendance;
 import net.javaguides.ems.entity.Employee;
 import net.javaguides.ems.entity.Role;
 import net.javaguides.ems.repository.AttendanceRepository;
@@ -18,44 +19,46 @@ import net.javaguides.ems.service.AnalyticsService;
 @AllArgsConstructor
 public class AnalyticsServiceImpl implements AnalyticsService {
 
-    private EmployeeRepository employeeRepository;
-    private AttendanceRepository attendanceRepository;
+        private EmployeeRepository employeeRepository;
+        private AttendanceRepository attendanceRepository;
 
-    @Override
-    public AnalyticsDTO getDashboardAnalytics() {
-        AnalyticsDTO analytics = new AnalyticsDTO();
-        LocalDate today = LocalDate.now();
+        @Override
+        public AnalyticsDTO getDashboardAnalytics() {
+                AnalyticsDTO analytics = new AnalyticsDTO();
+                LocalDate today = LocalDate.now();
 
-        // 🔹 Filter out Admins to only count Employees
-        List<net.javaguides.ems.entity.Employee> allEmployees = employeeRepository.findByRoleNot(Role.ADMIN);
-        
-        long totalEmployees = (allEmployees != null) ? allEmployees.size() : 0;
-        List<net.javaguides.ems.entity.Attendance> attendances = attendanceRepository.findByDate(today);
-        long presentToday = (attendances != null) ? attendances.stream()
-                .filter(a -> "PRESENT".equalsIgnoreCase(a.getStatus())).count() : 0;
-        long absentToday = totalEmployees - presentToday;
+                // 🔹 Filter out Admins to only count Employees
+                List<Employee> allEmployees = employeeRepository.findByRoleNot(Role.ADMIN);
 
-        long newJoiners = (allEmployees != null) ? allEmployees.stream()
-                .filter(e -> e.getJoiningDate() != null && e.getJoiningDate().getMonthValue() == today.getMonthValue() 
-                             && e.getJoiningDate().getYear() == today.getYear())
-                .count() : 0;
+                long totalEmployees = (allEmployees != null) ? allEmployees.size() : 0;
+                List<Attendance> attendances = attendanceRepository.findByDate(today);
+                long presentToday = (attendances != null) ? attendances.stream()
+                                .filter(a -> "PRESENT".equalsIgnoreCase(a.getStatus())).count() : 0;
+                long absentToday = totalEmployees - presentToday;
 
-        Map<String, Long> employeesByDept = (allEmployees != null) ? allEmployees.stream()
-                .filter(e -> e.getDepartment() != null)
-                .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting())) : new java.util.HashMap<>();
+                long newJoiners = (allEmployees != null) ? allEmployees.stream()
+                                .filter(e -> e.getJoiningDate() != null
+                                                && e.getJoiningDate().getMonthValue() == today.getMonthValue()
+                                                && e.getJoiningDate().getYear() == today.getYear())
+                                .count() : 0;
 
-        double totalMonthlyPayroll = (allEmployees != null) ? allEmployees.stream()
-                .filter(e -> e != null && e.getSalary() != null)
-                .mapToDouble(e -> e.getSalary())
-                .sum() : 0.0;
+                Map<String, Long> employeesByDept = (allEmployees != null) ? allEmployees.stream()
+                                .filter(e -> e.getDepartment() != null)
+                                .collect(Collectors.groupingBy(e -> e.getDepartment(), Collectors.counting()))
+                                : new java.util.HashMap<>();
 
-        analytics.setTotalEmployees(totalEmployees);
-        analytics.setPresentToday(presentToday);
-        analytics.setAbsentToday(absentToday);
-        analytics.setNewJoinersThisMonth(newJoiners);
-        analytics.setEmployeesByDepartment(employeesByDept);
-        analytics.setTotalMonthlyPayroll(totalMonthlyPayroll);
+                double totalMonthlyPayroll = (allEmployees != null) ? allEmployees.stream()
+                                .filter(e -> e != null && e.getSalary() != null)
+                                .mapToDouble(e -> e.getSalary())
+                                .sum() : 0.0;
 
-        return analytics;
-    }
+                analytics.setTotalEmployees(totalEmployees);
+                analytics.setPresentToday(presentToday);
+                analytics.setAbsentToday(absentToday);
+                analytics.setNewJoinersThisMonth(newJoiners);
+                analytics.setEmployeesByDepartment(employeesByDept);
+                analytics.setTotalMonthlyPayroll(totalMonthlyPayroll);
+
+                return analytics;
+        }
 }
